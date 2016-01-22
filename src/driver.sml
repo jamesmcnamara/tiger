@@ -14,6 +14,10 @@ struct
         in run lexer
         end
 
-    (* TODO: parse_string *)
+    fun parse_string string =
+        (* TODO: This is not correct at all. *)
+        let val lexer = Mlex.makeLexer (fn n => string)
+        in run lexer
+        end
 
 end

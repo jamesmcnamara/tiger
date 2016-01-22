@@ -1,1 +1,3 @@
-Test.test fn () => Parse.parse_string("\"hello world\"");
+Test.test (fn () =>
+    Parse.parse_string "\"hello world\"" = ()
+);
