@@ -2,5 +2,5 @@ signature TEST =
 sig
   exception Error
 
-  val test : string -> bool
+  val test : (unit -> bool) -> bool
 end
