@@ -7,6 +7,7 @@ val commentDepth = ref 0;
 fun err(p1,p2) = ErrorMsg.error p1
 
 fun eof() = let val pos = hd(!linePos) in Tokens.EOF(pos,pos) end
+
 fun atoi(a) =
     valOf (Int.fromString a)
 
@@ -24,11 +25,50 @@ fun incComment() =
 fun decComment() =
     updateDepth ~1
 
-%% 
-%s IGNORE COMMENT STRING;
+structure SrcString = struct
+    val inner = ref ""
+    val start = ref 0
 
-digit = [0-9]+;
+    fun new start_pos =
+        (inner := "";
+        start := start_pos)
+
+    fun push (str, yypos) = 
+        (inner := !inner ^ str)
+
+    fun pushAscii (text, yypos)  = 
+        let 
+            val num = atoi text
+        in
+            if num > 255 then
+                ErrorMsg.error yypos ("illegal escape sequence" ^ text)
+            else
+                push (Char.toString (chr num), yypos)
+        end
+
+    fun pushControl (text, yypos) = 
+        case explode text of 
+            [#"^", c] => 
+                let val ascii = (ord c) - 64 in
+                if ascii < 0 orelse ascii > 31 then
+                    ErrorMsg.error yypos ("illegal control sequence" ^ Int.toString ascii)
+                else 
+                    push (Char.toString (chr ascii), yypos)
+                end
+            | err => 
+                ErrorMsg.error yypos ("unrecognized control sequence" ^ text)
+
+    fun emit () =
+        Tokens.STRING(!inner, !start, !start + size (!inner))
+end
+
+%% 
+%s ESCAPE COMMENT STRING;
+
+digit = [0-9];
 id = [a-zA-Z][a-zA-Z0-9_]*;
+alpha = [a-zA-Z];
+whitespace = [\n\t\r ];
 
 %%
 <INITIAL>type     => (Tokens.TYPE(yypos, size yytext));
@@ -73,19 +113,26 @@ id = [a-zA-Z][a-zA-Z0-9_]*;
 <INITIAL>:    => (Tokens.COLON(yypos, size yytext));
 <INITIAL>,    => (Tokens.COMMA(yypos, size yytext));
 
-<INITIAL>{digit}  => (Tokens.INT(atoi yytext, yypos, yypos + size yytext));
+<INITIAL>{digit}+  => (Tokens.INT(atoi yytext, yypos, yypos + size yytext));
 <INITIAL>{id}     => (Tokens.ID(yytext, yypos, size yytext));
 <INITIAL>[ \t]*   => (continue());
 
-<INITIAL>\"  => (YYBEGIN STRING; continue());
-<STRING>\"  => (YYBEGIN INITIAL; continue());
-<STRING>\\\" => (continue());
-<STRING>\\   => (YYBEGIN IGNORE; continue());
-<IGNORE>\\   => (YYBEGIN STRING; continue());
+<INITIAL>\"   => (YYBEGIN STRING; SrcString.new yypos; continue());
+<STRING>\"    => (YYBEGIN INITIAL; SrcString.emit());
+<STRING>\\  => (YYBEGIN ESCAPE; continue());
+<ESCAPE>n => (SrcString.push("\n", yypos); YYBEGIN STRING; continue());
+<ESCAPE>t => (SrcString.push("\t", yypos); YYBEGIN STRING; continue());
+<ESCAPE>\\ => (SrcString.push("\\", yypos); YYBEGIN STRING; continue());
+<ESCAPE>{digit}{3}  => (SrcString.pushAscii(yytext, yypos); 
+                            YYBEGIN STRING;  continue());
+<ESCAPE>\^.  => (SrcString.pushControl(yytext, yypos); 
+                    YYBEGIN STRING; continue());
+<ESCAPE>{whitespace}*\\  => (YYBEGIN STRING; continue());
+<STRING>.     => (SrcString.push(yytext, yypos); continue());
 
 
 <INITIAL,COMMENT>"/*" => (YYBEGIN COMMENT; incComment(); continue());
-<COMMENT>"*/"         => (YYBEGIN INITIAL; decComment(); continue());
+<COMMENT>"*/"         => (decComment(); if !commentDepth=0 then YYBEGIN INITIAL else (); continue());
 <COMMENT>.            => (continue());
 
 "\n" => (handle_newline(continue, yypos, yytext));
