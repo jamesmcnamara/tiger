@@ -1,4 +1,4 @@
-structure Tester : TESTER =
+structure Test : TEST =
 struct
   exception Error
 

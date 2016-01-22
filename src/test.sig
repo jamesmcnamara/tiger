@@ -1,4 +1,4 @@
-signature TESTER =
+signature TEST =
 sig
   exception Error
 
