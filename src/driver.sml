@@ -7,14 +7,14 @@ struct
            if substring (t, 0, 3) = "EOF" then () else (run lexer)
         end
 
-    fun parse_file filename =
+    fun parseFile filename =
         let val file = TextIO.openIn filename
             fun get _ = TextIO.input file
             val lexer = Mlex.makeLexer get
         in run lexer
         end
 
-    fun parse_string string =
+    fun parseString string =
         (* TODO: This is not correct at all. *)
         let val lexer = Mlex.makeLexer (fn n => string)
         in run lexer
