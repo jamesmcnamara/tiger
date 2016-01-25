@@ -1,49 +1,51 @@
+(* TODO: Use signatures? *)
 signature Tiger_TOKENS =
 sig
-type linenum (* = int *)
-type token
-val TYPE:  linenum * linenum -> token
-val VAR:  linenum * linenum -> token
-val FUNCTION:  linenum * linenum -> token
-val BREAK:  linenum * linenum -> token
-val OF:  linenum * linenum -> token
-val END:  linenum * linenum -> token
-val IN:  linenum * linenum -> token
-val NIL:  linenum * linenum -> token
-val LET:  linenum * linenum -> token
-val DO:  linenum * linenum -> token
-val TO:  linenum * linenum -> token
-val FOR:  linenum * linenum -> token
-val WHILE:  linenum * linenum -> token
-val ELSE:  linenum * linenum -> token
-val THEN:  linenum * linenum -> token
-val IF:  linenum * linenum -> token
-val ARRAY:  linenum * linenum -> token
-val ASSIGN:  linenum * linenum -> token
-val OR:  linenum * linenum -> token
-val AND:  linenum * linenum -> token
-val GE:  linenum * linenum -> token
-val GT:  linenum * linenum -> token
-val LE:  linenum * linenum -> token
-val LT:  linenum * linenum -> token
-val NEQ:  linenum * linenum -> token
-val EQ:  linenum * linenum -> token
-val DIVIDE:  linenum * linenum -> token
-val TIMES:  linenum * linenum -> token
-val MINUS:  linenum * linenum -> token
-val PLUS:  linenum * linenum -> token
-val DOT:  linenum * linenum -> token
-val RBRACE:  linenum * linenum -> token
-val LBRACE:  linenum * linenum -> token
-val RBRACK:  linenum * linenum -> token
-val LBRACK:  linenum * linenum -> token
-val RPAREN:  linenum * linenum -> token
-val LPAREN:  linenum * linenum -> token
-val SEMICOLON:  linenum * linenum -> token
-val COLON:  linenum * linenum -> token
-val COMMA:  linenum * linenum -> token
-val STRING: (string) *  linenum * linenum -> token
-val INT: (int) *  linenum * linenum -> token
-val ID: (string) *  linenum * linenum -> token
-val EOF:  linenum * linenum -> token
+    type linenum
+    type token
+
+    val TYPE: int * int -> token
+    val VAR: int * int -> token
+    val FUNCTION: int * int -> token
+    val BREAK: int * int -> token
+    val OF: int * int -> token
+    val END: int * int -> token
+    val IN: int * int -> token
+    val NIL: int * int -> token
+    val LET: int * int -> token
+    val DO: int * int -> token
+    val TO: int * int -> token
+    val FOR: int * int -> token
+    val WHILE: int * int -> token
+    val ELSE: int * int -> token
+    val THEN: int * int -> token
+    val IF: int * int -> token
+    val ARRAY: int * int -> token
+    val ASSIGN: int * int -> token
+    val OR: int * int -> token
+    val AND: int * int -> token
+    val GE: int * int -> token
+    val GT: int * int -> token
+    val LE: int * int -> token
+    val LT: int * int -> token
+    val NEQ: int * int -> token
+    val EQ: int * int -> token
+    val DIVIDE: int * int -> token
+    val TIMES: int * int -> token
+    val MINUS: int * int -> token
+    val PLUS: int * int -> token
+    val DOT: int * int -> token
+    val RBRACE: int * int -> token
+    val LBRACE: int * int -> token
+    val RBRACK: int * int -> token
+    val LBRACK: int * int -> token
+    val RPAREN: int * int -> token
+    val LPAREN: int * int -> token
+    val SEMICOLON: int * int -> token
+    val COLON: int * int -> token
+    val COMMA: int * int -> token
+    val STRING: string * int * int -> token
+    val INT: int * int * int -> token
+    val ID: string * int * int -> token
+    val EOF: int * int -> token
 end

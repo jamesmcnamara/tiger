@@ -4,10 +4,9 @@ struct
     fun run lexer =
         let val t = lexer ()
         in
-            if substring (t, 0, 3) = "EOF" then
-                [t]
-            else
-                t :: (run lexer)
+            case lexer () of
+                Tokens.EOF(i,j) => [Tokens.EOF(i,j)]
+              | t => t::(run lexer)
         end
 
     fun parseFile filename =
