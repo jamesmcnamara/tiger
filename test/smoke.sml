@@ -1,5 +1,4 @@
 Test.test (fn () =>
-    (*Parse.parse_file "fixtures/test1.tig" = ()*)
     let val dir = OS.FileSys.openDir("fixtures")
         val file = ref (OS.FileSys.readDir dir)
     in
@@ -10,10 +9,10 @@ Test.test (fn () =>
                     ()
                 else
                     (print ("-> " ^ filename ^ "\n");
-                     Parse.parseFile(filename))
+                     Test.assert(Parse.parseFile(filename) = []);
+                     ())
             end;
             file := OS.FileSys.readDir(dir));
-
-        false
+        true
     end
 );

@@ -3,8 +3,11 @@ struct
 
     fun run lexer =
         let val t = lexer ()
-        in print t; print "\n";
-           if substring (t, 0, 3) = "EOF" then () else (run lexer)
+        in
+            if substring (t, 0, 3) = "EOF" then
+                [t]
+            else
+                t :: (run lexer)
         end
 
     fun parseFile filename =

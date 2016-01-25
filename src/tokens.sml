@@ -1,6 +1,5 @@
 structure Tokens : Tiger_TOKENS =
 struct
-  (* A "scaffold" structure for debugging lexers. *)
 
 type linenum = int
 type token = string

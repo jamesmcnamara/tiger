@@ -1,6 +1,7 @@
 signature TEST =
 sig
-  exception Error
+  exception Failed
 
   val test : (unit -> bool) -> bool
+  val assert : bool -> bool
 end
