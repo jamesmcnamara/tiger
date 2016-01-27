@@ -9,6 +9,7 @@ sig
     exception Error
     val impossible : string -> 'a   (* raises Error *)
     val reset : unit -> unit
+    val incrementLine : unit -> unit
 end
 
 structure ErrorMsg : ERRORMSG =
@@ -27,6 +28,9 @@ struct
 		 sourceStream:=TextIO.stdIn)
 
   exception Error
+
+  fun incrementLine () =
+      lineNum := !lineNum + 1
 
   fun error pos (msg:string) =
       let fun look(a::rest,n) =
@@ -50,4 +54,3 @@ struct
        raise Error)
 
 end  (* structure ErrorMsg *)
-  
