@@ -2,13 +2,13 @@ Group is
 
 src/tiger.lex
 
-src/tester.sig
+src/test.sig
 src/tokens.sig
 
 src/tokens.sml
 src/driver.sml
 src/errormsg.sml
-src/tester.sml
+src/test.sml
 
 $/basis.cm
 $/smlnj-lib.cm
