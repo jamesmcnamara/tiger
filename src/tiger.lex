@@ -125,7 +125,7 @@ whitespace = [\n\t\r ];
 <INITIAL>:    => (Tokens.COLON(getLinePos(yypos), size yytext, !lineNum));
 <INITIAL>,    => (Tokens.COMMA(getLinePos(yypos), size yytext, !lineNum));
 
-<INITIAL>{digit}+  => (Tokens.INT(atoi yytext, getLinePos(yypos), getLinePos(yypos) + size yytext, !lineNum));
+<INITIAL>{digit}+  => (Tokens.INT(atoi yytext, getLinePos(yypos), size yytext, !lineNum));
 <INITIAL>{id}     => (Tokens.ID(yytext, getLinePos(yypos), size yytext, !lineNum));
 <INITIAL>[ \t]*   => (continue());
 
