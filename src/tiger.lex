@@ -8,12 +8,11 @@ val commentDepth = ref 0;
 fun err(p1,p2) = ErrorMsg.error p1
 
 fun eof() =
-    let val pos = Tracking.getLinePos(hd(!linePos)) in
-        let val eofToken = Tokens.EOF(pos,pos,!lineNum) in
+    let val pos = Tracking.getLinePos(hd(!linePos))
+        val eofToken = Tokens.EOF(pos,pos,!lineNum) in
             (ErrorMsg.reset();
              Tracking.reset();
              eofToken)
-        end
     end
 
 fun atoi(a) =
