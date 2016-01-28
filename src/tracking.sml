@@ -1,31 +1,28 @@
 signature TRACKING =
 sig
+    (* Resets the internal state for this structure. *)
     val reset : unit -> unit
-    val shift : int -> unit
-    val newline : unit -> unit
-    val getPosition : unit -> int
-    val getLine : unit -> int
+    (* Adds a newline at the given yypos. *)
+    val newline : int -> unit
+    (* Returns the line number which the given yypos is in. *)
+    val getLine : int -> int
+    (* Returns the character position relative to the given yypos's line. *)
+    val getPosInLine : int -> int
 end
 
 structure Tracking :> TRACKING =
 struct
-    val linePos = ref 1
-    val lineNum = ref 1
+    val lines = ref [1]
 
     fun reset () =
-        (linePos := 1;
-         lineNum := 1)
+        lines := [1]
 
-    fun shift (amt) =
-        linePos := !linePos + amt
+    fun newline yypos =
+        lines := yypos :: !lines
 
-    fun newline () =
-        (linePos := 1;
-         lineNum := !lineNum + 1)
+    fun getLine yypos =
+        1
 
-    fun getPosition () =
-        !linePos
-
-    fun getLine () =
-        !lineNum
+    fun getPosInLine yypos =
+        1
 end
