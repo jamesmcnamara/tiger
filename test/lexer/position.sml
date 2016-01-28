@@ -25,7 +25,7 @@ Test.test (fn () =>
             Tokens.EOF(0,0,8)
         ]
     in
-        Test.assert(expected,tokens)
+        Test.assertEq(expected,tokens)
     end
 );
 
@@ -36,6 +36,6 @@ Test.test (fn () =>
             Tokens.EOF(0,0,5)
         ]
     in
-        Test.assert(expected,tokens)
+        Test.assertEq(expected,tokens)
     end
 );

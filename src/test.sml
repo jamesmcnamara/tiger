@@ -8,11 +8,13 @@ struct
 
   fun test f = f () handle Failed => false
 
-  fun assert(expected,actual) =
+  fun assertEq(expected,actual) =
     (testsRan := !testsRan + 1;
      if expected = actual
      then (testsPassed := !testsPassed + 1; true)
      else raise Failed)
+
+  fun assert b = if b then true else raise Failed
 
   fun reset () =
     (testsRan := 0;
