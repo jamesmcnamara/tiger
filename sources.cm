@@ -5,6 +5,7 @@ src/tiger.lex
 src/test.sig
 src/tokens.sig
 
+src/tracking.sml
 src/tokens.sml
 src/driver.sml
 src/errormsg.sml
