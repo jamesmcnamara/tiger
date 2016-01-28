@@ -62,7 +62,7 @@ structure SrcString = struct
                 ErrorMsg.error yypos ("unrecognized control sequence" ^ text)
 
     fun emit () =
-        Tokens.STRING(!inner, !start, !start + size (!inner), !lineNum)
+        Tokens.STRING(!inner, !start, size (!inner), !lineNum)
 
 end
 

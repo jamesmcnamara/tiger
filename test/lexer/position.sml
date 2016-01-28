@@ -28,3 +28,14 @@ Test.test (fn () =>
         Test.assert(tokens = expected)
     end
 );
+
+Test.test (fn () =>
+    let val tokens = Parse.parseFile "fixtures/lexer/comments/three.tig"
+        val expected = [
+            Tokens.STRING("derp",1,4,4),
+            Tokens.EOF(0,0,5)
+        ]
+    in
+        Test.assert(tokens = expected)
+    end
+);
