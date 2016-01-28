@@ -8,11 +8,17 @@ struct
 
   fun test f = f () handle Failed => false
 
-  fun assertEq(expected,actual) =
+  fun assertEq(expected,actual,toString) =
     (testsRan := !testsRan + 1;
      if expected = actual
      then (testsPassed := !testsPassed + 1; true)
-     else raise Failed)
+     else
+       let val msg = "Expected: " ^ (toString expected) ^
+                     " but got: " ^ (toString actual) ^ ".\n"
+       in
+         print(msg);
+         raise Failed
+       end)
 
   fun assert b = if b then true else raise Failed
 
