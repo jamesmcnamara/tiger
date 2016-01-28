@@ -1,44 +1,64 @@
-structure SrcString = struct
-    val inner = ref ""
-    val start = ref 0
-    val endPos = ref 0
+signature SRC_STRING =
+sig
+    val new : int -> unit
+    val push : string * int -> unit
+    val pushString : string -> unit
+    val pushAscii : string -> unit
+    val pushControl : string -> unit
+    val emit : unit -> Tokens.token
+end
 
-    fun new start_pos =
-        (inner := "";
-        start := start_pos;
-        endPos := start_pos)
+structure SrcString :> SRC_STRING = struct
+    val startPos = ref 0
+    val innerString = ref ""
+    val innerLength = ref 0
+
+    fun new start =
+        (startPos := start;
+         innerString := "";
+         innerLength := 0)
+
+    (*fun pushChar (char, len) =*)
 
     fun push (str, len) =
-        (inner := !inner ^ str;
-         endPos := !endPos + len)
+        (innerString := !innerString ^ str;
+         innerLength := !innerLength + len)
 
     fun pushString (str) =
-        (inner := !inner ^ str;
-         endPos := !endPos + size(str))
+        push(str, size(str))
 
-    fun pushAscii (text, yypos)  =
-        let
-            val num = valOf (Int.fromString text)
+    fun pushAscii (numStr) =
+        let val num = valOf (Int.fromString numStr)
+            val str = Char.toString(chr num)
         in
             if num > 255 then
-                ErrorMsg.error yypos ("illegal escape sequence" ^ text)
+                ErrorMsg.error("illegal ascii value: " ^ numStr)
             else
-                push (Char.toString (chr num), yypos)
+                push(str, 4)
         end
 
-    fun pushControl (text, yypos) =
+    fun pushControl (text) =
         case explode text of
             [#"^", c] =>
                 let val ascii = (ord c) - 64 in
                 if ascii < 0 orelse ascii > 31 then
-                    ErrorMsg.error yypos ("illegal control sequence" ^ Int.toString ascii)
+                    ErrorMsg.error("illegal control sequence: " ^ Int.toString ascii)
                 else
-                    pushString (Char.toString (chr ascii))
+                    (print(Int.toString ascii);
+                    push(Char.toString (chr ascii), 3))
                 end
             | err =>
-                ErrorMsg.error yypos ("unrecognized control sequence" ^ text)
+                ErrorMsg.error("unrecognized control sequence: " ^ text)
 
+    (*
+    "hello"
+    1234567
+    startPos = 1
+    innerString = hello
+    innerLength = 5
+    => Tokens.STRING("hello", 1, 7, n)
+    *)
     fun emit () =
-        Tokens.STRING(!inner, !start, !endPos + 2, !Tracking.lineNum)
+        Tokens.STRING(!innerString, !startPos, !startPos + !innerLength + 1, Tracking.getLine())
 
 end
