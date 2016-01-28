@@ -1,7 +1,7 @@
 Test.reset();
 
 use "test/newline.sml";
-(*use "test/src_string.sml";*)
+use "test/src_string.sml";
 (*use "test/smoke.sml";
 use "test/lexer/comments.sml";
 use "test/lexer/strings.sml";*)

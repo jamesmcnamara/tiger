@@ -5,7 +5,7 @@ sig
     val pushString : string -> unit
     val pushAscii : string -> unit
     val pushControl : string -> unit
-    val emit : unit -> Tokens.token
+    val emit : int -> Tokens.token
 end
 
 structure SrcString :> SRC_STRING = struct
@@ -50,15 +50,7 @@ structure SrcString :> SRC_STRING = struct
             | err =>
                 ErrorMsg.error("unrecognized control sequence: " ^ text)
 
-    (*
-    "hello"
-    1234567
-    startPos = 1
-    innerString = hello
-    innerLength = 5
-    => Tokens.STRING("hello", 1, 7, n)
-    *)
-    fun emit () =
-        Tokens.STRING(!innerString, !startPos, !startPos + !innerLength + 1, Tracking.getLine())
+    fun emit (yypos) =
+        Tokens.STRING(!innerString, !startPos, yypos, 1)
 
 end
