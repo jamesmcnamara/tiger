@@ -2,7 +2,7 @@ Test.test(fn () =>
     let val tokens = Parse.parseFile "fixtures/lexer/strings/one.tig"
         val string = "hello world"
     in
-        Test.assertEq(List.hd(tokens), Tokens.STRING(string,1,11,1), Tokens.toString)
+        Test.assertEq(Tokens.STRING(string,1,11,1), List.hd(tokens), Tokens.toString)
     end
 );
 
