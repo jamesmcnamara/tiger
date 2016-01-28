@@ -89,7 +89,7 @@ struct
             SEMICOLON(i,j,l) => "SEMICOLON(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
             COLON(i,j,l) => "COLON(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
             COMMA(i,j,l) => "COMMA(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            STRING(s,i,j,l) => "STRING(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
+            STRING(s,i,j,l) => "STRING(" ^ s ^ "," ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
             INT(n,i,j,l) => "INT(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
             ID(s,i,j,l) => "ID(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
             EOF(i,j,l) => "EOF(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")";
