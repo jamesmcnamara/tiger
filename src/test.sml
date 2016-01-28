@@ -20,7 +20,11 @@ struct
          raise Failed
        end)
 
-  fun assert b = if b then true else raise Failed
+  fun assert test =
+    (testsRan := !testsRan + 1;
+     if test
+     then (testsPassed := !testsPassed + 1; true)
+     else raise Failed)
 
   fun reset () =
     (testsRan := 0;

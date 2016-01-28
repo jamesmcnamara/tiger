@@ -27,44 +27,6 @@ fun incComment() =
 fun decComment() =
     updateDepth ~1
 
-structure SrcString = struct
-    val inner = ref ""
-    val start = ref 0
-
-    fun new start_pos =
-        (inner := "";
-        start := start_pos)
-
-    fun push (str, yypos) =
-        (inner := !inner ^ str)
-
-    fun pushAscii (text, yypos)  =
-        let
-            val num = atoi text
-        in
-            if num > 255 then
-                ErrorMsg.error yypos ("illegal escape sequence" ^ text)
-            else
-                push (Char.toString (chr num), yypos)
-        end
-
-    fun pushControl (text, yypos) =
-        case explode text of
-            [#"^", c] =>
-                let val ascii = (ord c) - 64 in
-                if ascii < 0 orelse ascii > 31 then
-                    ErrorMsg.error yypos ("illegal control sequence" ^ Int.toString ascii)
-                else
-                    push (Char.toString (chr ascii), yypos)
-                end
-            | err =>
-                ErrorMsg.error yypos ("unrecognized control sequence" ^ text)
-
-    fun emit () =
-        Tokens.STRING(!inner, !start, size (!inner), !lineNum)
-
-end
-
 %%
 %s ESCAPE COMMENT STRING;
 
@@ -123,15 +85,15 @@ whitespace = [\n\t\r ];
 <INITIAL>\"   => (YYBEGIN STRING; SrcString.new(Tracking.getLinePos(yypos)); continue());
 <STRING>\"    => (YYBEGIN INITIAL; SrcString.emit());
 <STRING>\\  => (YYBEGIN ESCAPE; continue());
-<ESCAPE>n => (SrcString.push("\n", Tracking.getLinePos(yypos)); YYBEGIN STRING; continue());
-<ESCAPE>t => (SrcString.push("\t", Tracking.getLinePos(yypos)); YYBEGIN STRING; continue());
-<ESCAPE>\\ => (SrcString.push("\\", Tracking.getLinePos(yypos)); YYBEGIN STRING; continue());
+<ESCAPE>n => (SrcString.pushString("\n"); YYBEGIN STRING; continue());
+<ESCAPE>t => (SrcString.pushString("\t"); YYBEGIN STRING; continue());
+<ESCAPE>\\ => (SrcString.pushString("\\"); YYBEGIN STRING; continue());
 <ESCAPE>{digit}{3}  => (SrcString.pushAscii(yytext, Tracking.getLinePos(yypos));
                             YYBEGIN STRING;  continue());
 <ESCAPE>\^.  => (SrcString.pushControl(yytext, Tracking.getLinePos(yypos));
                     YYBEGIN STRING; continue());
 <ESCAPE>{whitespace}*\\  => (YYBEGIN STRING; continue());
-<STRING>.     => (SrcString.push(yytext, Tracking.getLinePos(yypos)); continue());
+<STRING>.     => (SrcString.pushString(yytext); continue());
 
 
 <INITIAL,COMMENT>"/*" => (YYBEGIN COMMENT; incComment(); continue());
