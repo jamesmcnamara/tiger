@@ -18,8 +18,6 @@ structure SrcString :> SRC_STRING = struct
          innerString := "";
          innerLength := 0)
 
-    (*fun pushChar (char, len) =*)
-
     fun push (str, len) =
         (innerString := !innerString ^ str;
          innerLength := !innerLength + len)
@@ -29,7 +27,7 @@ structure SrcString :> SRC_STRING = struct
 
     fun pushAscii (numStr) =
         let val num = valOf (Int.fromString numStr)
-            val str = Char.toString(chr num)
+            val str = String.str(chr num)
         in
             if num > 255 then
                 ErrorMsg.error("illegal ascii value: " ^ numStr)
@@ -44,8 +42,7 @@ structure SrcString :> SRC_STRING = struct
                 if ascii < 0 orelse ascii > 31 then
                     ErrorMsg.error("illegal control sequence: " ^ Int.toString ascii)
                 else
-                    (print(Int.toString ascii);
-                    push(Char.toString (chr ascii), 3))
+                    push(String.str(chr ascii), 3)
                 end
             | err =>
                 ErrorMsg.error("unrecognized control sequence: " ^ text)
