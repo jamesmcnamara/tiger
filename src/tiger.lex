@@ -4,10 +4,7 @@ type lexresult = Tokens.token
 val commentDepth = ref 0;
 fun err(p1,p2) = ErrorMsg.error p1
 
-fun eof() =
-    (Newline.reset();
-     ErrorMsg.reset();
-     Tokens.EOF)
+fun eof() = Tokens.EOF
 
 fun atoi(a) =
     valOf (Int.fromString a)
@@ -91,8 +88,9 @@ whitespace = [\n\t\r ];
 
 
 <INITIAL,COMMENT>"/*" => (YYBEGIN COMMENT; incComment(); continue());
-<COMMENT>"*/"         => (decComment(); if !commentDepth=0 then YYBEGIN INITIAL else (); continue());
-<COMMENT>.            => (continue());
+<COMMENT>"*/" => (decComment(); if !commentDepth=0 then YYBEGIN INITIAL else (); continue());
+<COMMENT>"\n" => (Newline.add(yypos); continue());
+<COMMENT>. => (continue());
 
 "\n" => (Newline.add(yypos); continue());
 

@@ -13,13 +13,19 @@ struct
         let val file = TextIO.openIn filename
             fun get _ = TextIO.input file
             val lexer = Mlex.makeLexer get
-        in run lexer
+        in
+            ErrorMsg.reset();
+            Newline.reset();
+            run lexer
         end
 
     fun parseString string =
         (* TODO: This is not correct at all. *)
         let val lexer = Mlex.makeLexer (fn n => string)
-        in run lexer
+        in
+            ErrorMsg.reset();
+            Newline.reset();
+            run lexer
         end
 
 end

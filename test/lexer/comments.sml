@@ -2,7 +2,7 @@ Test.test(fn () =>
     let val tokens = Parse.parseFile "fixtures/lexer/comments/one.tig"
         val s = "hello world"
     in
-        Test.assertEq(Tokens.STRING(s,1,8), List.hd(tokens), Tokens.toString)
+        Test.assertEq(Tokens.STRING(s, 25, 37), List.hd(tokens), Tokens.toString)
     end
 );
 
@@ -10,7 +10,7 @@ Test.test(fn () =>
     let val tokens = Parse.parseFile "fixtures/lexer/comments/two.tig"
         val s = "hello world"
     in
-        Test.assertEq(Tokens.STRING(s,1,8), List.hd(tokens), Tokens.toString)
+        Test.assertEq(Tokens.STRING(s, 43, 55), List.hd(tokens), Tokens.toString)
     end
 );
 
@@ -18,6 +18,7 @@ Test.test(fn () =>
     let val tokens = Parse.parseFile "fixtures/lexer/comments/three.tig"
         val s = "hello world"
     in
-        Test.assertEq(Tokens.STRING(s,1,8), List.hd(tokens), Tokens.toString)
+        Test.assertEq(Tokens.STRING(s, 36, 48), List.hd(tokens), Tokens.toString);
+        Test.assertEq(4, Newline.getLine(36), Int.toString)
     end
 );
