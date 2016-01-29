@@ -74,25 +74,22 @@ whitespace = [\n\t\r ];
 <INITIAL>{id}     => (Tokens.ID(yytext, yypos, yypos + size yytext));
 <INITIAL>[ \t]*   => (continue());
 
-<INITIAL>\"   => (YYBEGIN STRING; SrcString.new(yypos); continue());
-<STRING>\"    => (YYBEGIN INITIAL; SrcString.emit(yypos));
-<STRING>\\  => (YYBEGIN ESCAPE; continue());
-<ESCAPE>n => (SrcString.pushString("\n", yypos); YYBEGIN STRING; continue());
-<ESCAPE>t => (SrcString.pushString("\t", yypos); YYBEGIN STRING; continue());
-<ESCAPE>\\ => (SrcString.pushString("\\", yypos); YYBEGIN STRING; continue());
-<ESCAPE>{digit}{3}  => (SrcString.pushAscii(yytext, yypos);
-                            YYBEGIN STRING;  continue());
-<ESCAPE>\^.  => (SrcString.pushControl(yytext, yypos);
-                    YYBEGIN STRING; continue());
+<INITIAL>\"              => (YYBEGIN STRING; SrcString.new(yypos); continue());
+<STRING>\"               => (YYBEGIN INITIAL; SrcString.emit(yypos));
+<STRING>\\               => (YYBEGIN ESCAPE; continue());
+<ESCAPE>n                => (SrcString.pushString("\n", yypos); YYBEGIN STRING; continue());
+<ESCAPE>t                => (SrcString.pushString("\t", yypos); YYBEGIN STRING; continue());
+<ESCAPE>\\               => (SrcString.pushString("\\", yypos); YYBEGIN STRING; continue());
+<ESCAPE>{digit}{3}       => (SrcString.pushAscii(yytext, yypos); YYBEGIN STRING;  continue());
+<ESCAPE>\^.              => (SrcString.pushControl(yytext, yypos); YYBEGIN STRING; continue());
 <ESCAPE>{whitespace}*\\  => (YYBEGIN STRING; continue());
-<STRING>.     => (SrcString.pushString(yytext, yypos); continue());
+<STRING>.                => (SrcString.pushString(yytext, yypos); continue());
 
 
 <INITIAL,COMMENT>"/*" => (YYBEGIN COMMENT; incComment(); continue());
-<COMMENT>"*/" => (decComment(); if !commentDepth=0 then YYBEGIN INITIAL else (); continue());
-<COMMENT>"\n" => (Newline.add(yypos); continue());
-<COMMENT>. => (continue());
+<COMMENT>"*/"         => (decComment(); if !commentDepth=0 then YYBEGIN INITIAL else (); continue());
+<COMMENT>"\n"         => (Newline.add(yypos); continue());
+<COMMENT>.            => (continue());
 
 "\n" => (Newline.add(yypos); continue());
-
-.       => (ErrorMsg.error yypos ("illegal character " ^ yytext); continue());
+.    => (ErrorMsg.error yypos ("illegal character " ^ yytext); continue());
