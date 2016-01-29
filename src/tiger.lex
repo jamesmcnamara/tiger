@@ -88,7 +88,6 @@ whitespace = [\n\t\r ];
 
 <INITIAL,COMMENT>"/*" => (YYBEGIN COMMENT; incComment(); continue());
 <COMMENT>"*/"         => (decComment(); if !commentDepth=0 then YYBEGIN INITIAL else (); continue());
-<COMMENT>"\n"         => (Newline.add(yypos); continue());
 <COMMENT>.            => (continue());
 
 "\n" => (Newline.add(yypos); continue());
