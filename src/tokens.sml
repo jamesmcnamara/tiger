@@ -2,95 +2,95 @@ structure Tokens =
 struct
     type linenum = int
     datatype token =
-        TYPE of int * int * int |
-        VAR of int * int * int |
-        FUNCTION of int * int * int |
-        BREAK of int * int * int |
-        OF of int * int * int |
-        END of int * int * int |
-        IN of int * int * int |
-        NIL of int * int * int |
-        LET of int * int * int |
-        DO of int * int * int |
-        TO of int * int * int |
-        FOR of int * int * int |
-        WHILE of int * int * int |
-        ELSE of int * int * int |
-        THEN of int * int * int |
-        IF of int * int * int |
-        ARRAY of int * int * int |
-        ASSIGN of int * int * int |
-        OR of int * int * int |
-        AND of int * int * int |
-        GE of int * int * int |
-        GT of int * int * int |
-        LE of int * int * int |
-        LT of int * int * int |
-        NEQ of int * int * int |
-        EQ of int * int * int |
-        DIVIDE of int * int * int |
-        TIMES of int * int * int |
-        MINUS of int * int * int |
-        PLUS of int * int * int |
-        DOT of int * int * int |
-        RBRACE of int * int * int |
-        LBRACE of int * int * int |
-        RBRACK of int * int * int |
-        LBRACK of int * int * int |
-        RPAREN of int * int * int |
-        LPAREN of int * int * int |
-        SEMICOLON of int * int * int |
-        COLON of int * int * int |
-        COMMA of int * int * int |
-        STRING of string * int * int * int |
-        INT of int * int * int * int |
-        ID of string * int * int * int |
-        EOF of int * int * int;
+        TYPE of int * int |
+        VAR of int * int |
+        FUNCTION of int * int |
+        BREAK of int * int |
+        OF of int * int |
+        END of int * int |
+        IN of int * int |
+        NIL of int * int |
+        LET of int * int |
+        DO of int * int |
+        TO of int * int |
+        FOR of int * int |
+        WHILE of int * int |
+        ELSE of int * int |
+        THEN of int * int |
+        IF of int * int |
+        ARRAY of int * int |
+        ASSIGN of int * int |
+        OR of int * int |
+        AND of int * int |
+        GE of int * int |
+        GT of int * int |
+        LE of int * int |
+        LT of int * int |
+        NEQ of int * int |
+        EQ of int * int |
+        DIVIDE of int * int |
+        TIMES of int * int |
+        MINUS of int * int |
+        PLUS of int * int |
+        DOT of int * int |
+        RBRACE of int * int |
+        LBRACE of int * int |
+        RBRACK of int * int |
+        LBRACK of int * int |
+        RPAREN of int * int |
+        LPAREN of int * int |
+        SEMICOLON of int * int |
+        COLON of int * int |
+        COMMA of int * int |
+        STRING of string * int * int |
+        INT of int * int * int |
+        ID of string * int * int |
+        EOF;
 
     fun toString token =
         case token of
-            TYPE(i,j,l) => "TYPE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            VAR(i,j,l) => "VAR(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            FUNCTION(i,j,l) => "FUNCTION(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            BREAK(i,j,l) => "BREAK(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            OF(i,j,l) => "OF(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            END(i,j,l) => "END(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            IN(i,j,l) => "IN(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            NIL(i,j,l) => "NIL(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            LET(i,j,l) => "LET(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            DO(i,j,l) => "DO(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            TO(i,j,l) => "TO(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            FOR(i,j,l) => "FOR(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            WHILE(i,j,l) => "WHILE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            ELSE(i,j,l) => "ELSE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            THEN(i,j,l) => "THEN(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            IF(i,j,l) => "IF(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            ARRAY(i,j,l) => "ARRAY(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            ASSIGN(i,j,l) => "ASSIGN(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            OR(i,j,l) => "OR(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            AND(i,j,l) => "AND(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            GE(i,j,l) => "GE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            GT(i,j,l) => "GT(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            LE(i,j,l) => "LE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            LT(i,j,l) => "LT(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            NEQ(i,j,l) => "NEQ(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            EQ(i,j,l) => "EQ(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            DIVIDE(i,j,l) => "DIVIDE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            TIMES(i,j,l) => "TIMES(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            MINUS(i,j,l) => "MINUS(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            PLUS(i,j,l) => "PLUS(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            DOT(i,j,l) => "DOT(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            RBRACE(i,j,l) => "RBRACE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            LBRACE(i,j,l) => "LBRACE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            RBRACK(i,j,l) => "RBRACK(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            LBRACK(i,j,l) => "LBRACK(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            RPAREN(i,j,l) => "RPAREN(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            LPAREN(i,j,l) => "LPAREN(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            SEMICOLON(i,j,l) => "SEMICOLON(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            COLON(i,j,l) => "COLON(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            COMMA(i,j,l) => "COMMA(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            STRING(s,i,j,l) => "STRING(" ^ s ^ "," ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            INT(n,i,j,l) => "INT(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            ID(s,i,j,l) => "ID(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")" |
-            EOF(i,j,l) => "EOF(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ "," ^ Int.toString(l) ^ ")";
+            TYPE(i,j) => "TYPE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | VAR(i,j) => "VAR(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | FUNCTION(i,j) => "FUNCTION(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | BREAK(i,j) => "BREAK(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | OF(i,j) => "OF(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | END(i,j) => "END(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | IN(i,j) => "IN(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | NIL(i,j) => "NIL(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | LET(i,j) => "LET(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | DO(i,j) => "DO(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | TO(i,j) => "TO(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | FOR(i,j) => "FOR(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | WHILE(i,j) => "WHILE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | ELSE(i,j) => "ELSE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | THEN(i,j) => "THEN(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | IF(i,j) => "IF(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | ARRAY(i,j) => "ARRAY(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | ASSIGN(i,j) => "ASSIGN(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | OR(i,j) => "OR(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | AND(i,j) => "AND(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | GE(i,j) => "GE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | GT(i,j) => "GT(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | LE(i,j) => "LE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | LT(i,j) => "LT(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | NEQ(i,j) => "NEQ(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | EQ(i,j) => "EQ(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | DIVIDE(i,j) => "DIVIDE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | TIMES(i,j) => "TIMES(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | MINUS(i,j) => "MINUS(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | PLUS(i,j) => "PLUS(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | DOT(i,j) => "DOT(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | RBRACE(i,j) => "RBRACE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | LBRACE(i,j) => "LBRACE(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | RBRACK(i,j) => "RBRACK(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | LBRACK(i,j) => "LBRACK(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | RPAREN(i,j) => "RPAREN(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | LPAREN(i,j) => "LPAREN(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | SEMICOLON(i,j) => "SEMICOLON(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | COLON(i,j) => "COLON(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | COMMA(i,j) => "COMMA(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | STRING(s,i,j) => "STRING(" ^ s ^ "," ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | INT(n,i,j) => "INT(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | ID(s,i,j) => "ID(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
+          | EOF => "EOF";
 end

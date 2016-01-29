@@ -1,28 +1,31 @@
 signature ERRORMSG =
 sig
+    exception Error
     val anyErrors : bool ref
     val fileName : string ref
     val sourceStream : TextIO.instream ref
     val error : int -> string -> unit
-    exception Error
     val impossible : string -> 'a   (* raises Error *)
     val reset : unit -> unit
 end
 
-structure ErrorMsg : ERRORMSG =
+structure ErrorMsg :> ERRORMSG =
 struct
+  exception Error
 
   val anyErrors = ref false
   val fileName = ref ""
   val sourceStream = ref TextIO.stdIn
 
-  fun reset() = (anyErrors:=false;
-		 fileName:="";
-		 sourceStream:=TextIO.stdIn)
+  fun reset () =
+    (anyErrors := false;
+		 fileName := "";
+		 sourceStream := TextIO.stdIn)
 
-  exception Error
+  fun error pos msg =
+    print msg
 
-  fun error pos (msg:string) =
+  (*fun error msg =
       let fun look(a::rest,n) =
 		if a<pos then app print [":",
 				       Int.toString n,
@@ -36,11 +39,11 @@ struct
 	  print ":";
 	  print msg;
 	  print "\n"
-      end
+      end*)
 
   fun impossible msg =
-      (app print ["Error: Compiler bug: ",msg,"\n"];
-       TextIO.flushOut TextIO.stdOut;
-       raise Error)
+    (app print ["Error: Compiler bug: ", msg, "\n"];
+     TextIO.flushOut TextIO.stdOut;
+     raise Error)
 
-end  (* structure ErrorMsg *)
+end
