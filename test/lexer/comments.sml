@@ -19,6 +19,7 @@ Test.test(fn () =>
         val s = "hello world"
     in
         Test.assertEq(Tokens.STRING(s, 36, 48), List.hd(tokens), Tokens.toString);
-        Test.assertEq(4, Newline.getLine(36), Int.toString)
+        Test.assertEq(4, Newline.getLine(36), Int.toString);
+        Test.assertEq(1, Newline.getPos(36), Int.toString)
     end
 );
