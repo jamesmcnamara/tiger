@@ -4,7 +4,7 @@ sig
     val anyErrors : bool ref
     val fileName : string ref
     val sourceStream : TextIO.instream ref
-    val error : string -> unit
+    val error : int -> string -> unit
     val impossible : string -> 'a   (* raises Error *)
     val reset : unit -> unit
 end
@@ -22,7 +22,7 @@ struct
 		 fileName := "";
 		 sourceStream := TextIO.stdIn)
 
-  fun error msg =
+  fun error pos msg =
     print msg
 
   (*fun error msg =

@@ -45,7 +45,7 @@ struct
         STRING of string * int * int |
         INT of int * int * int |
         ID of string * int * int |
-        EOF of int * int;
+        EOF;
 
     fun toString token =
         case token of
@@ -92,5 +92,5 @@ struct
           | STRING(s,i,j) => "STRING(" ^ s ^ "," ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
           | INT(n,i,j) => "INT(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
           | ID(s,i,j) => "ID(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")"
-          | EOF(i,j) => "EOF(" ^ Int.toString(i) ^ "," ^ Int.toString(j) ^ ")";
+          | EOF => "EOF";
 end

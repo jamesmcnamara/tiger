@@ -47,5 +47,5 @@ sig
     val STRING: string * int * int -> token
     val INT: int * int * int -> token
     val ID: string * int * int -> token
-    val EOF: int * int -> token
+    val EOF: unit -> token
 end

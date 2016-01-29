@@ -1,19 +1,13 @@
 type pos = int
 type lexresult = Tokens.token
 
-val lineNum = Tracking.lineNum
-val linePos = Tracking.linePos
-val currentLineStartPos = Tracking.currentLineStartPos
 val commentDepth = ref 0;
 fun err(p1,p2) = ErrorMsg.error p1
 
 fun eof() =
-    let val pos = Tracking.getLinePos(hd(!linePos))
-        val eofToken = Tokens.EOF(pos,pos,!lineNum) in
-            (ErrorMsg.reset();
-             Tracking.reset();
-             eofToken)
-    end
+    (Newline.reset();
+     ErrorMsg.reset();
+     Tokens.EOF)
 
 fun atoi(a) =
     valOf (Int.fromString a)
@@ -36,70 +30,70 @@ alpha = [a-zA-Z];
 whitespace = [\n\t\r ];
 
 %%
-<INITIAL>type     => (Tokens.TYPE(Tracking.getLinePos(yypos), size yytext,!lineNum));
-<INITIAL>var      => (Tokens.VAR(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>function => (Tokens.FUNCTION(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>break    => (Tokens.BREAK(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>of       => (Tokens.OF(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>end      => (Tokens.END(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>in       => (Tokens.IN(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>nil      => (Tokens.NIL(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>let      => (Tokens.LET(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>do       => (Tokens.DO(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>to       => (Tokens.TO(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>for      => (Tokens.FOR(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>while    => (Tokens.WHILE(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>else     => (Tokens.ELSE(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>then     => (Tokens.THEN(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>if       => (Tokens.IF(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>array    => (Tokens.ARRAY(Tracking.getLinePos(yypos), size yytext, !lineNum));
+<INITIAL>type     => (Tokens.TYPE(yypos, size yytext));
+<INITIAL>var      => (Tokens.VAR(yypos, size yytext));
+<INITIAL>function => (Tokens.FUNCTION(yypos, size yytext));
+<INITIAL>break    => (Tokens.BREAK(yypos, size yytext));
+<INITIAL>of       => (Tokens.OF(yypos, size yytext));
+<INITIAL>end      => (Tokens.END(yypos, size yytext));
+<INITIAL>in       => (Tokens.IN(yypos, size yytext));
+<INITIAL>nil      => (Tokens.NIL(yypos, size yytext));
+<INITIAL>let      => (Tokens.LET(yypos, size yytext));
+<INITIAL>do       => (Tokens.DO(yypos, size yytext));
+<INITIAL>to       => (Tokens.TO(yypos, size yytext));
+<INITIAL>for      => (Tokens.FOR(yypos, size yytext));
+<INITIAL>while    => (Tokens.WHILE(yypos, size yytext));
+<INITIAL>else     => (Tokens.ELSE(yypos, size yytext));
+<INITIAL>then     => (Tokens.THEN(yypos, size yytext));
+<INITIAL>if       => (Tokens.IF(yypos, size yytext));
+<INITIAL>array    => (Tokens.ARRAY(yypos, size yytext));
 
-<INITIAL>:\=  => (Tokens.ASSIGN(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\|   => (Tokens.OR(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>&    => (Tokens.AND(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\>\= => (Tokens.GE(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\>   => (Tokens.GT(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\<\= => (Tokens.LE(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\<   => (Tokens.LT(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\<\> => (Tokens.NEQ(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\=   => (Tokens.EQ(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\/   => (Tokens.DIVIDE(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\*   => (Tokens.TIMES(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>-    => (Tokens.MINUS(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\+   => (Tokens.PLUS(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\.   => (Tokens.DOT(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\}   => (Tokens.RBRACE(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\{   => (Tokens.LBRACE(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\]   => (Tokens.RBRACK(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>"\[" => (Tokens.LBRACK(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\)   => (Tokens.RPAREN(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\(   => (Tokens.LPAREN(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>\;   => (Tokens.SEMICOLON(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>:    => (Tokens.COLON(Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>,    => (Tokens.COMMA(Tracking.getLinePos(yypos), size yytext, !lineNum));
+<INITIAL>:\=  => (Tokens.ASSIGN(yypos, size yytext));
+<INITIAL>\|   => (Tokens.OR(yypos, size yytext));
+<INITIAL>&    => (Tokens.AND(yypos, size yytext));
+<INITIAL>\>\= => (Tokens.GE(yypos, size yytext));
+<INITIAL>\>   => (Tokens.GT(yypos, size yytext));
+<INITIAL>\<\= => (Tokens.LE(yypos, size yytext));
+<INITIAL>\<   => (Tokens.LT(yypos, size yytext));
+<INITIAL>\<\> => (Tokens.NEQ(yypos, size yytext));
+<INITIAL>\=   => (Tokens.EQ(yypos, size yytext));
+<INITIAL>\/   => (Tokens.DIVIDE(yypos, size yytext));
+<INITIAL>\*   => (Tokens.TIMES(yypos, size yytext));
+<INITIAL>-    => (Tokens.MINUS(yypos, size yytext));
+<INITIAL>\+   => (Tokens.PLUS(yypos, size yytext));
+<INITIAL>\.   => (Tokens.DOT(yypos, size yytext));
+<INITIAL>\}   => (Tokens.RBRACE(yypos, size yytext));
+<INITIAL>\{   => (Tokens.LBRACE(yypos, size yytext));
+<INITIAL>\]   => (Tokens.RBRACK(yypos, size yytext));
+<INITIAL>"\[" => (Tokens.LBRACK(yypos, size yytext));
+<INITIAL>\)   => (Tokens.RPAREN(yypos, size yytext));
+<INITIAL>\(   => (Tokens.LPAREN(yypos, size yytext));
+<INITIAL>\;   => (Tokens.SEMICOLON(yypos, size yytext));
+<INITIAL>:    => (Tokens.COLON(yypos, size yytext));
+<INITIAL>,    => (Tokens.COMMA(yypos, size yytext));
 
-<INITIAL>{digit}+  => (Tokens.INT(atoi yytext, Tracking.getLinePos(yypos), size yytext, !lineNum));
-<INITIAL>{id}     => (Tokens.ID(yytext, Tracking.getLinePos(yypos), size yytext, !lineNum));
+<INITIAL>{digit}+  => (Tokens.INT(atoi yytext, yypos, size yytext));
+<INITIAL>{id}     => (Tokens.ID(yytext, yypos, size yytext));
 <INITIAL>[ \t]*   => (continue());
 
-<INITIAL>\"   => (YYBEGIN STRING; SrcString.new(Tracking.getLinePos(yypos)); continue());
-<STRING>\"    => (YYBEGIN INITIAL; SrcString.emit());
+<INITIAL>\"   => (YYBEGIN STRING; SrcString.new(yypos); continue());
+<STRING>\"    => (YYBEGIN INITIAL; SrcString.emit(yypos));
 <STRING>\\  => (YYBEGIN ESCAPE; continue());
-<ESCAPE>n => (SrcString.pushString("\n"); YYBEGIN STRING; continue());
-<ESCAPE>t => (SrcString.pushString("\t"); YYBEGIN STRING; continue());
-<ESCAPE>\\ => (SrcString.pushString("\\"); YYBEGIN STRING; continue());
-<ESCAPE>{digit}{3}  => (SrcString.pushAscii(yytext, Tracking.getLinePos(yypos));
+<ESCAPE>n => (SrcString.pushString("\n", yypos); YYBEGIN STRING; continue());
+<ESCAPE>t => (SrcString.pushString("\t", yypos); YYBEGIN STRING; continue());
+<ESCAPE>\\ => (SrcString.pushString("\\", yypos); YYBEGIN STRING; continue());
+<ESCAPE>{digit}{3}  => (SrcString.pushAscii(yytext, yypos);
                             YYBEGIN STRING;  continue());
-<ESCAPE>\^.  => (SrcString.pushControl(yytext, Tracking.getLinePos(yypos));
+<ESCAPE>\^.  => (SrcString.pushControl(yytext, yypos);
                     YYBEGIN STRING; continue());
 <ESCAPE>{whitespace}*\\  => (YYBEGIN STRING; continue());
-<STRING>.     => (SrcString.pushString(yytext); continue());
+<STRING>.     => (SrcString.pushString(yytext, yypos); continue());
 
 
 <INITIAL,COMMENT>"/*" => (YYBEGIN COMMENT; incComment(); continue());
 <COMMENT>"*/"         => (decComment(); if !commentDepth=0 then YYBEGIN INITIAL else (); continue());
 <COMMENT>.            => (continue());
 
-"\n" => (Tracking.incrementLine(yypos); continue());
+"\n" => (Newline.add(yypos); continue());
 
 .       => (ErrorMsg.error yypos ("illegal character " ^ yytext); continue());
