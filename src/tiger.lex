@@ -21,7 +21,6 @@ fun decComment() =
 %%
 
 %s ESCAPE COMMENT STRING;
-%posarg
 
 digit = [0-9];
 id = [a-zA-Z][a-zA-Z0-9_]*;
@@ -29,50 +28,50 @@ alpha = [a-zA-Z];
 whitespace = [\n\t\r ];
 
 %%
-<INITIAL>type     => (Tokens.TYPE(yypos - 1, yypos + size yytext - 2));
-<INITIAL>var      => (Tokens.VAR(yypos - 1, yypos + size yytext - 2));
-<INITIAL>function => (Tokens.FUNCTION(yypos - 1, yypos + size yytext - 2));
-<INITIAL>break    => (Tokens.BREAK(yypos - 1, yypos + size yytext - 2));
-<INITIAL>of       => (Tokens.OF(yypos - 1, yypos + size yytext - 2));
-<INITIAL>end      => (Tokens.END(yypos - 1, yypos + size yytext - 2));
-<INITIAL>in       => (Tokens.IN(yypos - 1, yypos + size yytext - 2));
-<INITIAL>nil      => (Tokens.NIL(yypos - 1, yypos + size yytext - 2));
-<INITIAL>let      => (Tokens.LET(yypos - 1, yypos + size yytext - 2));
-<INITIAL>do       => (Tokens.DO(yypos - 1, yypos + size yytext - 2));
-<INITIAL>to       => (Tokens.TO(yypos - 1, yypos + size yytext - 2));
-<INITIAL>for      => (Tokens.FOR(yypos - 1, yypos + size yytext - 2));
-<INITIAL>while    => (Tokens.WHILE(yypos - 1, yypos + size yytext - 2));
-<INITIAL>else     => (Tokens.ELSE(yypos - 1, yypos + size yytext - 2));
-<INITIAL>then     => (Tokens.THEN(yypos - 1, yypos + size yytext - 2));
-<INITIAL>if       => (Tokens.IF(yypos - 1, yypos + size yytext - 2));
-<INITIAL>array    => (Tokens.ARRAY(yypos - 1, yypos + size yytext - 2));
+<INITIAL>type     => (Tokens.TYPE(yypos, yypos + size yytext));
+<INITIAL>var      => (Tokens.VAR(yypos, yypos + size yytext));
+<INITIAL>function => (Tokens.FUNCTION(yypos, yypos + size yytext));
+<INITIAL>break    => (Tokens.BREAK(yypos, yypos + size yytext));
+<INITIAL>of       => (Tokens.OF(yypos, yypos + size yytext));
+<INITIAL>end      => (Tokens.END(yypos, yypos + size yytext));
+<INITIAL>in       => (Tokens.IN(yypos, yypos + size yytext));
+<INITIAL>nil      => (Tokens.NIL(yypos, yypos + size yytext));
+<INITIAL>let      => (Tokens.LET(yypos, yypos + size yytext));
+<INITIAL>do       => (Tokens.DO(yypos, yypos + size yytext));
+<INITIAL>to       => (Tokens.TO(yypos, yypos + size yytext));
+<INITIAL>for      => (Tokens.FOR(yypos, yypos + size yytext));
+<INITIAL>while    => (Tokens.WHILE(yypos, yypos + size yytext));
+<INITIAL>else     => (Tokens.ELSE(yypos, yypos + size yytext));
+<INITIAL>then     => (Tokens.THEN(yypos, yypos + size yytext));
+<INITIAL>if       => (Tokens.IF(yypos, yypos + size yytext));
+<INITIAL>array    => (Tokens.ARRAY(yypos, yypos + size yytext));
 
-<INITIAL>:\=  => (Tokens.ASSIGN(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\|   => (Tokens.OR(yypos - 1, yypos + size yytext - 2));
-<INITIAL>&    => (Tokens.AND(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\>\= => (Tokens.GE(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\>   => (Tokens.GT(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\<\= => (Tokens.LE(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\<   => (Tokens.LT(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\<\> => (Tokens.NEQ(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\=   => (Tokens.EQ(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\/   => (Tokens.DIVIDE(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\*   => (Tokens.TIMES(yypos - 1, yypos + size yytext - 2));
-<INITIAL>-    => (Tokens.MINUS(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\+   => (Tokens.PLUS(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\.   => (Tokens.DOT(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\}   => (Tokens.RBRACE(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\{   => (Tokens.LBRACE(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\]   => (Tokens.RBRACK(yypos - 1, yypos + size yytext - 2));
-<INITIAL>"\[" => (Tokens.LBRACK(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\)   => (Tokens.RPAREN(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\(   => (Tokens.LPAREN(yypos - 1, yypos + size yytext - 2));
-<INITIAL>\;   => (Tokens.SEMICOLON(yypos - 1, yypos + size yytext - 2));
-<INITIAL>:    => (Tokens.COLON(yypos - 1, yypos + size yytext - 2));
-<INITIAL>,    => (Tokens.COMMA(yypos - 1, yypos + size yytext - 2));
+<INITIAL>:\=  => (Tokens.ASSIGN(yypos, yypos + size yytext));
+<INITIAL>\|   => (Tokens.OR(yypos, yypos + size yytext));
+<INITIAL>&    => (Tokens.AND(yypos, yypos + size yytext));
+<INITIAL>\>\= => (Tokens.GE(yypos, yypos + size yytext));
+<INITIAL>\>   => (Tokens.GT(yypos, yypos + size yytext));
+<INITIAL>\<\= => (Tokens.LE(yypos, yypos + size yytext));
+<INITIAL>\<   => (Tokens.LT(yypos, yypos + size yytext));
+<INITIAL>\<\> => (Tokens.NEQ(yypos, yypos + size yytext));
+<INITIAL>\=   => (Tokens.EQ(yypos, yypos + size yytext));
+<INITIAL>\/   => (Tokens.DIVIDE(yypos, yypos + size yytext));
+<INITIAL>\*   => (Tokens.TIMES(yypos, yypos + size yytext));
+<INITIAL>-    => (Tokens.MINUS(yypos, yypos + size yytext));
+<INITIAL>\+   => (Tokens.PLUS(yypos, yypos + size yytext));
+<INITIAL>\.   => (Tokens.DOT(yypos, yypos + size yytext));
+<INITIAL>\}   => (Tokens.RBRACE(yypos, yypos + size yytext));
+<INITIAL>\{   => (Tokens.LBRACE(yypos, yypos + size yytext));
+<INITIAL>\]   => (Tokens.RBRACK(yypos, yypos + size yytext));
+<INITIAL>"\[" => (Tokens.LBRACK(yypos, yypos + size yytext));
+<INITIAL>\)   => (Tokens.RPAREN(yypos, yypos + size yytext));
+<INITIAL>\(   => (Tokens.LPAREN(yypos, yypos + size yytext));
+<INITIAL>\;   => (Tokens.SEMICOLON(yypos, yypos + size yytext));
+<INITIAL>:    => (Tokens.COLON(yypos, yypos + size yytext));
+<INITIAL>,    => (Tokens.COMMA(yypos, yypos + size yytext));
 
-<INITIAL>{digit}+  => (Tokens.INT(atoi yytext, yypos, yypos + size yytext - 2));
-<INITIAL>{id}     => (Tokens.ID(yytext, yypos, yypos + size yytext - 2));
+<INITIAL>{digit}+  => (Tokens.INT(atoi yytext, yypos, yypos + size yytext));
+<INITIAL>{id}     => (Tokens.ID(yytext, yypos, yypos + size yytext));
 <INITIAL>[ \t]*   => (continue());
 
 <INITIAL>\"   => (YYBEGIN STRING; SrcString.new(yypos); continue());
