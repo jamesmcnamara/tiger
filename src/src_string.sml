@@ -1,14 +1,3 @@
-signature SRC_STRING =
-sig
-    type yypos = int
-
-    val new : yypos -> unit
-    val pushString : string * yypos -> unit
-    val pushAscii : string * yypos -> unit
-    val pushControl : string * yypos -> unit
-    val emit : yypos -> Tokens.token
-end
-
 structure SrcString :> SRC_STRING = struct
     val startPos = ref 0
     val innerString = ref ""
