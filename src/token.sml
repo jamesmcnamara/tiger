@@ -1,4 +1,4 @@
-structure Tokens =
+structure Token =
 struct
     type linenum = int
     datatype token =

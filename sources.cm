@@ -4,8 +4,7 @@ $/basis.cm
 $/smlnj-lib.cm
 $/ml-yacc-lib.cm
 
-src/tokens.sig
-src/tokens.sml
+src/token.sml
 src/errormsg.sml
 
 src/test.sig

@@ -6,5 +6,5 @@ sig
     val pushString : string * yypos -> unit
     val pushAscii : string * yypos -> unit
     val pushControl : string * yypos -> unit
-    val emit : yypos -> Tokens.token
+    val emit : yypos -> Token.token
 end

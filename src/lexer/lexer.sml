@@ -4,7 +4,7 @@ struct
         let val t = lexer ()
         in
             case t of
-                Tokens.EOF => [Tokens.EOF]
+                Token.EOF => [t]
               | t => t::(run lexer)
         end
 
