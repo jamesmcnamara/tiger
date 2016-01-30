@@ -1,5 +1,11 @@
 Test.test(fn () =>
     (Newline.reset();
+     Test.assertEq(1, Newline.getLine(1), Int.toString);
+     Test.assertEq(1, Newline.getLine(100), Int.toString))
+);
+
+Test.test(fn () =>
+    (Newline.reset();
      Newline.add(5);
      Test.assertEq(1, Newline.getLine(1), Int.toString);
      Test.assertEq(1, Newline.getLine(4), Int.toString);

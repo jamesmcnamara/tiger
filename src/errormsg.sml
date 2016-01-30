@@ -22,24 +22,13 @@ struct
 		 fileName := "";
 		 sourceStream := TextIO.stdIn)
 
-  fun error pos msg =
-    print msg
-
-  (*fun error msg =
-      let fun look(a::rest,n) =
-		if a<pos then app print [":",
-				       Int.toString n,
-				       ".",
-				       Int.toString (pos-a)]
-		       else look(rest,n-1)
-	    | look _ = print "0.0"
-       in anyErrors := true;
-	  print (!fileName);
-	  look(!Tracking.linePos,!Tracking.lineNum);
-	  print ":";
-	  print msg;
-	  print "\n"
-      end*)
+  fun error yypos msg =
+    let val line = Int.toString(Newline.getLine(yypos))
+        val pos = Int.toString(Newline.getPos(yypos))
+    in
+      anyErrors := true;
+      (app print [!fileName, ":", line, ".", pos, ":", msg, "\n"])
+    end
 
   fun impossible msg =
     (app print ["Error: Compiler bug: ", msg, "\n"];
