@@ -1,11 +1,11 @@
 structure Newline :> NEWLINE =
 struct
-    val lines = ref [1]
+    val lines = ref [0]
 
     type yypos = int
 
     fun reset () =
-        lines := [1]
+        lines := [0]
 
     fun add yypos =
         lines := yypos :: !lines
@@ -18,9 +18,9 @@ struct
         end
 
     fun getPos yypos =
-        let fun look (p::ps, n) = if p <= yypos then yypos - p else look(ps, n-1)
-            |   look _ = 0
+        let fun look (p::ps) = if p <= yypos then yypos - p else look(ps)
+            |   look [] = 0
         in
-            look(!lines, List.length(!lines))
+            look(!lines)
         end
 end

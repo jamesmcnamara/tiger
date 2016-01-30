@@ -20,8 +20,8 @@ Test.test(fn () =>
 Test.test(fn () =>
     (Newline.reset();
      Newline.add(5);
-     Test.assertEq(0, Newline.getPos(1), Int.toString);
-     Test.assertEq(3, Newline.getPos(4), Int.toString);
+     Test.assertEq(1, Newline.getPos(1), Int.toString);
+     Test.assertEq(4, Newline.getPos(4), Int.toString);
      Test.assertEq(0, Newline.getPos(5), Int.toString);
      Test.assertEq(1, Newline.getPos(6), Int.toString);
      Newline.add(20);
