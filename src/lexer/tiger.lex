@@ -20,12 +20,12 @@ fun decComment() =
 
 %%
 
-%s ESCAPE COMMENT STRING;
+%s ERROR ESCAPE COMMENT STRING;
 
 digit = [0-9];
 id = [a-zA-Z][a-zA-Z0-9_]*;
 alpha = [a-zA-Z];
-whitespace = [\n\t\r ];
+whitespace = [\t\r ];
 
 %%
 <INITIAL>type     => (Token.TYPE(yypos, yypos + size yytext));
@@ -82,9 +82,11 @@ whitespace = [\n\t\r ];
 <ESCAPE>\\               => (SrcString.pushString("\\", yypos); YYBEGIN STRING; continue());
 <ESCAPE>{digit}{3}       => (SrcString.pushAscii(yytext, yypos); YYBEGIN STRING;  continue());
 <ESCAPE>\^.              => (SrcString.pushControl(yytext, yypos); YYBEGIN STRING; continue());
+<ESCAPE>"\n"             => (Newline.add(yypos); continue());
 <ESCAPE>{whitespace}*\\  => (YYBEGIN STRING; continue());
+<ESCAPE>.                => (YYBEGIN ERROR; ErrorMsg.error yypos ("illegal character in escape " ^ yytext); continue());
+<ERROR>.*\"              => (YYBEGIN INITIAL; continue());
 <STRING>.                => (SrcString.pushString(yytext, yypos); continue());
-
 
 <INITIAL,COMMENT>"/*" => (YYBEGIN COMMENT; incComment(); continue());
 <COMMENT>"*/"         => (decComment(); if !commentDepth=0 then YYBEGIN INITIAL else (); continue());
