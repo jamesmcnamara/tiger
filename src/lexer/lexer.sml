@@ -1,4 +1,4 @@
-structure Lexer =
+structure Lexer :> LEXER =
 struct
     fun run lexer =
         let val t = lexer ()

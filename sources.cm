@@ -11,6 +11,7 @@ src/errormsg.sml
 src/test.sig
 src/test.sml
 
+src/lexer/lexer.sig
 src/lexer/lexer.sml
 src/lexer/src_string.sig
 src/lexer/src_string.sml

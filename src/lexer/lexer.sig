@@ -1,5 +1,5 @@
 signature LEXER =
 sig
-    val parseFile : string -> [Token.token]
-    val parseString : string -> [Token.token]
+    val lexFile : string -> Tokens.token list
+    val lexString : string -> Tokens.token list
 end
