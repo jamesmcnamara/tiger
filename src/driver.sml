@@ -4,8 +4,8 @@ struct
     fun run lexer =
         let val t = lexer ()
         in
-            case lexer () of
-                Tokens.EOF(i,j) => [Tokens.EOF(i,j)]
+            case t of
+                Tokens.EOF => [Tokens.EOF]
               | t => t::(run lexer)
         end
 
@@ -13,13 +13,19 @@ struct
         let val file = TextIO.openIn filename
             fun get _ = TextIO.input file
             val lexer = Mlex.makeLexer get
-        in run lexer
+        in
+            ErrorMsg.reset();
+            Newline.reset();
+            run lexer
         end
 
     fun parseString string =
         (* TODO: This is not correct at all. *)
         let val lexer = Mlex.makeLexer (fn n => string)
-        in run lexer
+        in
+            ErrorMsg.reset();
+            Newline.reset();
+            run lexer
         end
 
 end

