@@ -1,6 +1,5 @@
-structure Parse =
+structure Lexer =
 struct
-
     fun run lexer =
         let val t = lexer ()
         in
@@ -9,7 +8,7 @@ struct
               | t => t::(run lexer)
         end
 
-    fun parseFile filename =
+    fun lexFile filename =
         let val file = TextIO.openIn filename
             fun get _ = TextIO.input file
             val lexer = Mlex.makeLexer get
@@ -19,7 +18,7 @@ struct
             run lexer
         end
 
-    fun parseString string =
+    fun lexString string =
         (* TODO: This is not correct at all. *)
         let val lexer = Mlex.makeLexer (fn n => string)
         in

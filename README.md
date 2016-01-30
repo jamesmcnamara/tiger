@@ -20,7 +20,7 @@ Standard ML of New Jersey v110.78 [built: Thu Aug 20 19:23:18 2015]
 ...
 val it = true : bool
 
-- Parse.parse "fixtures/test1.tig";
+- Lexer.lexFile "fixtures/test1.tig";
 ```
 
 ## Coding Conventions

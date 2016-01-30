@@ -1,19 +1,19 @@
 Group is
 
-src/tiger.lex
-
-src/test.sig
-src/tokens.sig
-src/src_string.sig
-src/newline.sig
-
-src/newline.sml
-src/src_string.sml
-src/tokens.sml
-src/driver.sml
-src/errormsg.sml
-src/test.sml
-
 $/basis.cm
 $/smlnj-lib.cm
 $/ml-yacc-lib.cm
+
+src/tokens.sig
+src/tokens.sml
+src/errormsg.sml
+
+src/test.sig
+src/test.sml
+
+src/lexer/lexer.sml
+src/lexer/src_string.sig
+src/lexer/src_string.sml
+src/lexer/newline.sig
+src/lexer/newline.sml
+src/lexer/tiger.lex

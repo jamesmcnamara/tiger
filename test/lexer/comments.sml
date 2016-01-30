@@ -1,5 +1,5 @@
 Test.test(fn () =>
-    let val tokens = Parse.parseFile "fixtures/lexer/comments/one.tig"
+    let val tokens = Lexer.lexFile "fixtures/lexer/comments/one.tig"
         val s = "hello world"
     in
         Test.assertEq(Tokens.STRING(s, 25, 37), List.hd(tokens), Tokens.toString)
@@ -7,7 +7,7 @@ Test.test(fn () =>
 );
 
 Test.test(fn () =>
-    let val tokens = Parse.parseFile "fixtures/lexer/comments/two.tig"
+    let val tokens = Lexer.lexFile "fixtures/lexer/comments/two.tig"
         val s = "hello world"
     in
         Test.assertEq(Tokens.STRING(s, 43, 55), List.hd(tokens), Tokens.toString)
@@ -15,7 +15,7 @@ Test.test(fn () =>
 );
 
 Test.test(fn () =>
-    let val tokens = Parse.parseFile "fixtures/lexer/comments/three.tig"
+    let val tokens = Lexer.lexFile "fixtures/lexer/comments/three.tig"
         val s = "hello world"
     in
         Test.assertEq(Tokens.STRING(s, 36, 48), List.hd(tokens), Tokens.toString);
