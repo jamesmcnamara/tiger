@@ -2,7 +2,6 @@ type pos = int
 type lexresult = Token.token
 
 val commentDepth = ref 0;
-fun err(p1,p2) = ErrorMsg.error p1
 
 fun eof() = Token.EOF
 
