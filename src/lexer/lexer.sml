@@ -3,9 +3,7 @@ struct
     fun run lexer =
         let val t = lexer ()
         in
-            case t of
-                Token.EOF => [t]
-              | t => t::(run lexer)
+            if Token.isEof(t) then [t] else t::(run lexer)
         end
 
     fun lexFile filename =

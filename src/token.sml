@@ -1,51 +1,92 @@
-structure Token =
+structure Token :> TOKEN =
 struct
-    type linenum = int
     datatype token =
-        TYPE of int * int |
-        VAR of int * int |
-        FUNCTION of int * int |
-        BREAK of int * int |
-        OF of int * int |
-        END of int * int |
-        IN of int * int |
-        NIL of int * int |
-        LET of int * int |
-        DO of int * int |
-        TO of int * int |
-        FOR of int * int |
-        WHILE of int * int |
-        ELSE of int * int |
-        THEN of int * int |
-        IF of int * int |
-        ARRAY of int * int |
-        ASSIGN of int * int |
-        OR of int * int |
-        AND of int * int |
-        GE of int * int |
-        GT of int * int |
-        LE of int * int |
-        LT of int * int |
-        NEQ of int * int |
-        EQ of int * int |
-        DIVIDE of int * int |
-        TIMES of int * int |
-        MINUS of int * int |
-        PLUS of int * int |
-        DOT of int * int |
-        RBRACE of int * int |
-        LBRACE of int * int |
-        RBRACK of int * int |
-        LBRACK of int * int |
-        RPAREN of int * int |
-        LPAREN of int * int |
+        STRING    of string * int * int |
+        INT       of int    * int * int |
+        ID        of string * int * int |
+        TYPE      of int * int |
+        VAR       of int * int |
+        FUNCTION  of int * int |
+        BREAK     of int * int |
+        OF        of int * int |
+        END       of int * int |
+        IN        of int * int |
+        NIL       of int * int |
+        LET       of int * int |
+        DO        of int * int |
+        TO        of int * int |
+        FOR       of int * int |
+        WHILE     of int * int |
+        ELSE      of int * int |
+        THEN      of int * int |
+        IF        of int * int |
+        ARRAY     of int * int |
+        ASSIGN    of int * int |
+        OR        of int * int |
+        AND       of int * int |
+        GE        of int * int |
+        GT        of int * int |
+        LE        of int * int |
+        LT        of int * int |
+        NEQ       of int * int |
+        EQ        of int * int |
+        DIVIDE    of int * int |
+        TIMES     of int * int |
+        MINUS     of int * int |
+        PLUS      of int * int |
+        DOT       of int * int |
+        RBRACE    of int * int |
+        LBRACE    of int * int |
+        RBRACK    of int * int |
+        LBRACK    of int * int |
+        RPAREN    of int * int |
+        LPAREN    of int * int |
         SEMICOLON of int * int |
-        COLON of int * int |
-        COMMA of int * int |
-        STRING of string * int * int |
-        INT of int * int * int |
-        ID of string * int * int |
+        COLON     of int * int |
+        COMMA     of int * int |
         EOF;
+
+    fun string text (yypos, yyend) = STRING(text, yypos, yyend)
+    fun int num (yypos, yyend) = INT(num, yypos, yyend)
+    fun id text (yypos, yyend) = ID(text, yypos, yyend)
+
+    val lookupTable: (string, (int * int -> token)) HashTable.hash_table =
+        HashTable.mkTable (HashString.hashString, op=) (100, Fail "ident not found");
+
+    (*HashTable.insert lookupTable ("type", TYPE);
+    HashTable.insert lookupTable ("var", VAR);
+    HashTable.insert lookupTable ("function", FUNCTION);
+    HashTable.insert lookupTable ("break", BREAK);
+    HashTable.insert lookupTable ("of", OF);
+    HashTable.insert lookupTable ("end", END);
+    HashTable.insert lookupTable ("in", IN);
+    HashTable.insert lookupTable ("nil", NIL);
+    HashTable.insert lookupTable ("let", LET);
+    HashTable.insert lookupTable ("do", DO);
+    HashTable.insert lookupTable ("to", TO);
+    HashTable.insert lookupTable ("for", FOR);
+    HashTable.insert lookupTable ("while", WHILE);
+    HashTable.insert lookupTable ("else", ELSE);
+    HashTable.insert lookupTable ("then", THEN);
+    HashTable.insert lookupTable ("if", IF);
+    HashTable.insert lookupTable ("array", ARRAY))*)
+
+    fun find (yytext, yypos, yyend) =
+        let val item = HashTable.find lookupTable yytext
+        in
+            case item of
+                SOME tokenFn => tokenFn (yypos, yyend)
+              | NONE => let val tokenFn = (id yytext)
+                        in
+                            HashTable.insert lookupTable (yytext, tokenFn);
+                            tokenFn (yypos, yyend)
+                        end
+        end
+
+    fun isEof token =
+        case token of
+            EOF => true
+          | _ => false
 
     fun toString token =
         case token of

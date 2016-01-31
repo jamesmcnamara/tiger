@@ -56,5 +56,5 @@ structure SrcString :> SRC_STRING = struct
 
     fun emit (yypos) =
         (buildingString := false;
-         Token.STRING(!innerString, !startPos, yypos))
+         Token.string (!innerString) (!startPos, yypos))
 end
