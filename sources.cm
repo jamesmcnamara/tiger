@@ -12,6 +12,8 @@ src/test.sml
 
 src/lexer/lexer.sig
 src/lexer/lexer.sml
+src/lexer/src_comment.sig
+src/lexer/src_comment.sml
 src/lexer/src_string.sig
 src/lexer/src_string.sml
 src/lexer/newline.sig

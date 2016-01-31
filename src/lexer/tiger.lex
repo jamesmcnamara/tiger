@@ -1,21 +1,10 @@
 type pos = int
 type lexresult = Token.token
 
-val commentDepth = ref 0;
-
 fun eof() = Token.EOF
 
 fun atoi(a) =
     valOf (Int.fromString a)
-
-fun updateDepth amt =
-    commentDepth := !commentDepth + amt
-
-fun incComment() =
-    updateDepth 1
-
-fun decComment() =
-    updateDepth ~1
 
 %%
 
@@ -87,8 +76,8 @@ whitespace = [\t\r ];
 <ERROR>.*\"              => (YYBEGIN INITIAL; continue());
 <STRING>.                => (SrcString.pushString(yytext, yypos); continue());
 
-<INITIAL,COMMENT>"/*" => (YYBEGIN COMMENT; incComment(); continue());
-<COMMENT>"*/"         => (decComment(); if !commentDepth=0 then YYBEGIN INITIAL else (); continue());
+<INITIAL,COMMENT>"/*" => (YYBEGIN COMMENT; SrcComment.start(yypos); continue());
+<COMMENT>"*/"         => (SrcComment.finish(yypos); if SrcComment.closed() then YYBEGIN INITIAL else (); continue());
 <COMMENT>.            => (continue());
 
 "\n" => (Newline.add(yypos); continue());
