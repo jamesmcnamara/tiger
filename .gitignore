@@ -1,4 +1,6 @@
-**/.cm\/*
+**.cm
 *.swp
 *.lex.sml
 tiger/
+
+!sources.cm
