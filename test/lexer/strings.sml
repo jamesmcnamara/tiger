@@ -53,3 +53,21 @@ Test.test(fn () =>
         Test.assertEq(Token.STRING(string,1,35), List.hd(tokens), Token.toString)
     end
 );
+
+Test.test(fn () =>
+    let val tokens = Lexer.lexFile "fixtures/lexer/strings/eight.tig"
+    in
+        Test.assert(false)
+    end
+    handle SrcString.StringNotClosed (1, 2) => Test.assert(true)
+        | _ => Test.assert(false)
+);
+
+Test.test(fn () =>
+    let val tokens = Lexer.lexFile "fixtures/lexer/strings/nine.tig"
+    in
+        Test.assert(false)
+    end
+    handle SrcString.StringNotClosed (15, 6) => Test.assert(true)
+        | _ => Test.assert(false)
+);

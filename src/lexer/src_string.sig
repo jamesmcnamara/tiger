@@ -1,7 +1,9 @@
 signature SRC_STRING =
 sig
     type yypos = int
-
+    exception StringNotClosed of int * int (* line position * line number *)
+    val startPos : int ref
+    val buildingString : bool ref
     val new : yypos -> unit
     val pushString : string * yypos -> unit
     val pushAscii : string * yypos -> unit

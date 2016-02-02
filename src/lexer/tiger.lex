@@ -1,7 +1,11 @@
 type pos = int
 type lexresult = Token.token
 
-fun eof() = Token.EOF
+exception StringFailed;
+
+fun eof() =
+    (if !SrcString.buildingString then raise SrcString.StringNotClosed(Newline.getPos(!SrcString.startPos), Newline.getLine(!SrcString.startPos))
+    else Token.EOF)
 
 fun atoi(a) =
     valOf (Int.fromString a)

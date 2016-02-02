@@ -2,6 +2,8 @@ structure SrcString :> SRC_STRING = struct
     val startPos = ref 0
     val innerString = ref ""
     val innerLength = ref 0
+    val buildingString = ref false
+    exception StringNotClosed of int * int
 
     type yypos = int
 
@@ -12,7 +14,8 @@ structure SrcString :> SRC_STRING = struct
     fun new yypos =
         (startPos := yypos;
          innerString := "";
-         innerLength := 0)
+         innerLength := 0;
+         buildingString := true)
 
     fun pushString (str, yypos) =
         push(str, size(str))
@@ -40,5 +43,6 @@ structure SrcString :> SRC_STRING = struct
                 ErrorMsg.error yypos ("unrecognized control sequence: " ^ text)
 
     fun emit (yypos) =
-        Token.STRING(!innerString, !startPos, yypos)
+        (buildingString := false;
+         Token.STRING(!innerString, !startPos, yypos))
 end
