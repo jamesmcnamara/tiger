@@ -2,6 +2,8 @@ structure SrcComment :> SRC_COMMENT =
 struct
     type yypos = int
 
+    exception CommentNotClosed of int * int
+
     val comments: yypos list ref = ref []
 
     fun reset () =
@@ -17,4 +19,6 @@ struct
 
     fun closed () =
         null(!comments)
+
+    fun getComments () = !comments
 end
