@@ -23,3 +23,21 @@ Test.test(fn () =>
         Test.assertEq(1, Newline.getPos(36), Int.toString)
     end
 );
+
+Test.test(fn () =>
+    let val tokens = Lexer.lexFile "fixtures/lexer/comments/four.tig"
+    in
+        Test.assert(false)
+    end
+    handle SrcComment.CommentNotClosed (1,1) => Test.assert(true)
+        | _ => Test.assert(false)
+);
+
+Test.test(fn () =>
+    let val tokens = Lexer.lexFile "fixtures/lexer/comments/five.tig"
+    in
+        Test.assert(false)
+    end
+    handle SrcComment.CommentNotClosed (9,3) => Test.assert(true)
+        | _ => Test.assert(false)
+);
