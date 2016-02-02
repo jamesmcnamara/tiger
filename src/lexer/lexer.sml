@@ -15,6 +15,8 @@ struct
         in
             ErrorMsg.reset();
             Newline.reset();
+            SrcComment.reset();
+            SrcString.reset();
             run lexer
         end
 
