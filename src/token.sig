@@ -51,4 +51,5 @@ sig
     val isEof : token -> bool
     val toString : token -> string
     val find : string * int * int -> token
+    val reset : unit -> unit
 end

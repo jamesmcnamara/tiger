@@ -53,23 +53,25 @@ struct
     val lookupTable: (string, (int * int -> token)) HashTable.hash_table =
         HashTable.mkTable (HashString.hashString, op=) (100, Fail "ident not found");
 
-    (*HashTable.insert lookupTable ("type", TYPE);
-    HashTable.insert lookupTable ("var", VAR);
-    HashTable.insert lookupTable ("function", FUNCTION);
-    HashTable.insert lookupTable ("break", BREAK);
-    HashTable.insert lookupTable ("of", OF);
-    HashTable.insert lookupTable ("end", END);
-    HashTable.insert lookupTable ("in", IN);
-    HashTable.insert lookupTable ("nil", NIL);
-    HashTable.insert lookupTable ("let", LET);
-    HashTable.insert lookupTable ("do", DO);
-    HashTable.insert lookupTable ("to", TO);
-    HashTable.insert lookupTable ("for", FOR);
-    HashTable.insert lookupTable ("while", WHILE);
-    HashTable.insert lookupTable ("else", ELSE);
-    HashTable.insert lookupTable ("then", THEN);
-    HashTable.insert lookupTable ("if", IF);
-    HashTable.insert lookupTable ("array", ARRAY))*)
+    fun reset () =
+        (HashTable.clear lookupTable;
+         HashTable.insert lookupTable ("type", TYPE);
+         HashTable.insert lookupTable ("var", VAR);
+         HashTable.insert lookupTable ("function", FUNCTION);
+         HashTable.insert lookupTable ("break", BREAK);
+         HashTable.insert lookupTable ("of", OF);
+         HashTable.insert lookupTable ("end", END);
+         HashTable.insert lookupTable ("in", IN);
+         HashTable.insert lookupTable ("nil", NIL);
+         HashTable.insert lookupTable ("let", LET);
+         HashTable.insert lookupTable ("do", DO);
+         HashTable.insert lookupTable ("to", TO);
+         HashTable.insert lookupTable ("for", FOR);
+         HashTable.insert lookupTable ("while", WHILE);
+         HashTable.insert lookupTable ("else", ELSE);
+         HashTable.insert lookupTable ("then", THEN);
+         HashTable.insert lookupTable ("if", IF);
+         HashTable.insert lookupTable ("array", ARRAY))
 
     fun find (yytext, yypos, yyend) =
         let val item = HashTable.find lookupTable yytext
