@@ -11,6 +11,12 @@ structure SrcString :> SRC_STRING = struct
 
     fun isBuildingString () = !buildingString
 
+    fun reset () =
+        (startPos := 0;
+         innerString := "";
+         innerLength := 0;
+         buildingString := false)
+
     fun push (str, len) =
         (innerString := !innerString ^ str;
          innerLength := !innerLength + len)

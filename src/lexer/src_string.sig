@@ -4,6 +4,7 @@ sig
     exception StringNotClosed of int * int (* line position * line number *)
     val getStartPos : unit -> int
     val isBuildingString : unit -> bool
+    val reset : unit -> unit
     val new : yypos -> unit
     val pushString : string * yypos -> unit
     val pushAscii : string * yypos -> unit
