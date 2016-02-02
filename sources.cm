@@ -1,11 +1,22 @@
 Group is
 
-src/driver.sml
-src/errormsg.sml
-src/tokens.sig
-src/tokens.sml
-src/tiger.lex
-
 $/basis.cm
 $/smlnj-lib.cm
 $/ml-yacc-lib.cm
+
+src/token.sig
+src/token.sml
+src/errormsg.sml
+
+src/test.sig
+src/test.sml
+
+src/lexer/lexer.sig
+src/lexer/lexer.sml
+src/lexer/src_comment.sig
+src/lexer/src_comment.sml
+src/lexer/src_string.sig
+src/lexer/src_string.sml
+src/lexer/newline.sig
+src/lexer/newline.sml
+src/lexer/tiger.lex

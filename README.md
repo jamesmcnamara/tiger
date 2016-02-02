@@ -12,17 +12,14 @@ $ brew install smlnj rlwrap
 We'll make use of the `CM` module for building the projects. To use it you
 need a `sources.cm` file. Then run the following commands.
 
+Due to a bug in MLex you currently need to manually change the generated
+tiger.lex.sml to `val initPos = 1` instead of `val initPos = 2`. This only needs
+to be done after cahnging the tiger.lex file.
 
 ```sh
-$ rlwrap sml
+$ rlwrap sml sources.cm
 Standard ML of New Jersey v110.78 [built: Thu Aug 20 19:23:18 2015]
-- CM.make "sources.cm";
 ...
-val it = true : bool
 
-- Parse.parse "fixtures/test1.tig";
+- Lexer.lexFile "fixtures/test1.tig";
 ```
-
-## Coding Conventions
-
-- Use 4 spaces for basic indentation, and **never** use tabs.
