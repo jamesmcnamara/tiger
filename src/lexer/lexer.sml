@@ -3,9 +3,7 @@ struct
     fun run lexer =
         let val t = lexer ()
         in
-            case t of
-                Token.EOF => [t]
-              | t => t::(run lexer)
+            if Token.isEof(t) then [t] else t::(run lexer)
         end
 
     fun lexFile filename =
@@ -13,20 +11,11 @@ struct
             fun get _ = TextIO.input file
             val lexer = Mlex.makeLexer get
         in
+            Token.reset();
             ErrorMsg.reset();
             Newline.reset();
             SrcComment.reset();
             SrcString.reset();
             run lexer
         end
-
-    fun lexString string =
-        (* TODO: This is not correct at all. *)
-        let val lexer = Mlex.makeLexer (fn n => string)
-        in
-            ErrorMsg.reset();
-            Newline.reset();
-            run lexer
-        end
-
 end

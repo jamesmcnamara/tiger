@@ -22,24 +22,6 @@ alpha = [a-zA-Z];
 whitespace = [\t\r ];
 
 %%
-<INITIAL>type     => (Token.TYPE(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>var      => (Token.VAR(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>function => (Token.FUNCTION(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>break    => (Token.BREAK(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>of       => (Token.OF(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>end      => (Token.END(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>in       => (Token.IN(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>nil      => (Token.NIL(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>let      => (Token.LET(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>do       => (Token.DO(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>to       => (Token.TO(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>for      => (Token.FOR(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>while    => (Token.WHILE(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>else     => (Token.ELSE(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>then     => (Token.THEN(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>if       => (Token.IF(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>array    => (Token.ARRAY(sub1 yypos, sub1 yypos + size yytext));
-
 <INITIAL>:\=  => (Token.ASSIGN(sub1 yypos, sub1 yypos + size yytext));
 <INITIAL>\|   => (Token.OR(sub1 yypos, sub1 yypos + size yytext));
 <INITIAL>&    => (Token.AND(sub1 yypos, sub1 yypos + size yytext));
@@ -64,8 +46,8 @@ whitespace = [\t\r ];
 <INITIAL>:    => (Token.COLON(sub1 yypos, sub1 yypos + size yytext));
 <INITIAL>,    => (Token.COMMA(sub1 yypos, sub1 yypos + size yytext));
 
-<INITIAL>{digit}+  => (Token.INT(atoi yytext, sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>{id}     => (Token.ID(yytext, sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>{digit}+ => (Token.int (atoi yytext) (sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>{id}     => (Token.find(yytext, sub1 yypos, sub1 yypos + size yytext));
 <INITIAL>[ \t]*   => (continue());
 
 <INITIAL>\"              => (YYBEGIN STRING; SrcString.new(sub1 yypos); continue());
