@@ -2,7 +2,7 @@ type pos = int
 type lexresult = Token.token
 
 fun eof() =
-    (if !SrcString.buildingString then raise SrcString.StringNotClosed(Newline.getPos(SrcString.getStartPos()), Newline.getLine(SrcString.getStartPos()))
+    (if SrcString.isBuildingString() then raise SrcString.StringNotClosed(Newline.getPos(SrcString.getStartPos()), Newline.getLine(SrcString.getStartPos()))
     else if not (SrcComment.closed()) then raise SrcComment.CommentNotClosed(Newline.getPos(hd(SrcComment.getComments())), Newline.getLine(hd(SrcComment.getComments())))
     else Token.EOF)
 

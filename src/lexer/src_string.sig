@@ -3,7 +3,7 @@ sig
     type yypos = int
     exception StringNotClosed of int * int (* line position * line number *)
     val getStartPos : unit -> int
-    val buildingString : bool ref
+    val isBuildingString : unit -> bool
     val new : yypos -> unit
     val pushString : string * yypos -> unit
     val pushAscii : string * yypos -> unit

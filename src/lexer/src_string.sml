@@ -9,6 +9,8 @@ structure SrcString :> SRC_STRING = struct
 
     fun getStartPos () = !startPos
 
+    fun isBuildingString () = !buildingString
+
     fun push (str, len) =
         (innerString := !innerString ^ str;
          innerLength := !innerLength + len)
