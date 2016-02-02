@@ -2,8 +2,12 @@ type pos = int
 type lexresult = Token.token
 
 fun eof() =
-    (if not (SrcString.closed()) then raise SrcString.StringNotClosed(SrcString.getStartPos())
-    else if not (SrcComment.closed()) then raise SrcComment.CommentNotClosed(SrcComment.getStartPos())
+    (if not (SrcString.closed()) then
+        (ErrorMsg.error (SrcString.getStartPos()) ("String not closed");
+         raise SrcString.StringNotClosed(SrcString.getStartPos()))
+     else if not (SrcComment.closed()) then
+        (ErrorMsg.error (SrcComment.getStartPos()) ("Comment not closed");
+         raise SrcComment.CommentNotClosed(SrcComment.getStartPos()))
     else Token.EOF)
 
 fun atoi(a) =
