@@ -7,6 +7,8 @@ structure SrcString :> SRC_STRING = struct
 
     type yypos = int
 
+    fun getStartPos () = !startPos
+
     fun push (str, len) =
         (innerString := !innerString ^ str;
          innerLength := !innerLength + len)
