@@ -2,8 +2,8 @@ type pos = int
 type lexresult = Token.token
 
 fun eof() =
-    (if SrcString.isBuildingString() then raise SrcString.StringNotClosed(Newline.getPos(SrcString.getStartPos()), Newline.getLine(SrcString.getStartPos()))
-    else if not (SrcComment.closed()) then raise SrcComment.CommentNotClosed(Newline.getPos(hd(SrcComment.getComments())), Newline.getLine(hd(SrcComment.getComments())))
+    (if not (SrcString.closed()) then raise SrcString.StringNotClosed(SrcString.getStartPos())
+    else if not (SrcComment.closed()) then raise SrcComment.CommentNotClosed(SrcComment.getStartPos())
     else Token.EOF)
 
 fun atoi(a) =

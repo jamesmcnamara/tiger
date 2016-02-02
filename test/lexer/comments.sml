@@ -29,7 +29,7 @@ Test.test(fn () =>
     in
         Test.assert(false)
     end
-    handle SrcComment.CommentNotClosed (1,1) => Test.assert(true)
+    handle SrcComment.CommentNotClosed(n) => Test.assertEq(1, n, Int.toString)
         | _ => Test.assert(false)
 );
 
@@ -38,6 +38,6 @@ Test.test(fn () =>
     in
         Test.assert(false)
     end
-    handle SrcComment.CommentNotClosed (9,3) => Test.assert(true)
+    handle SrcComment.CommentNotClosed(n) => Test.assertEq(15, n, Int.toString)
         | _ => Test.assert(false)
 );

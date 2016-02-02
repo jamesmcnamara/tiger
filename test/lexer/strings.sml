@@ -59,7 +59,7 @@ Test.test(fn () =>
     in
         Test.assert(false)
     end
-    handle SrcString.StringNotClosed (1, 2) => Test.assert(true)
+    handle SrcString.StringNotClosed(n) => Test.assertEq(2, n, Int.toString)
         | _ => Test.assert(false)
 );
 
@@ -68,6 +68,6 @@ Test.test(fn () =>
     in
         Test.assert(false)
     end
-    handle SrcString.StringNotClosed (15, 6) => Test.assert(true)
+    handle SrcString.StringNotClosed(n) => Test.assertEq(159, n, Int.toString)
         | _ => Test.assert(false)
 );

@@ -1,15 +1,17 @@
 structure SrcString :> SRC_STRING = struct
+    type yypos = int
+    exception StringNotClosed of yypos
+
     val startPos = ref 0
     val innerString = ref ""
     val innerLength = ref 0
     val buildingString = ref false
-    exception StringNotClosed of int * int
 
-    type yypos = int
+    fun getStartPos () =
+        !startPos
 
-    fun getStartPos () = !startPos
-
-    fun isBuildingString () = !buildingString
+    fun closed () =
+        not (!buildingString)
 
     fun reset () =
         (startPos := 0;
