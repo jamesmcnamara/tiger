@@ -5,3 +5,5 @@ We handled comments by creating a structure which acts as a stack containing lin
 Our error handling for strings and comments was done in the EOF function. In a similar way to how we had a structure to handle comments, we also had one to handle strings. In the EOF function, we checked the state of both of these structures to ensure comments and strings were fully closed. If one of them is not, we print an error and throw an appropriate exception. If all comments and strings are closed, we simply return the EOF token.
 
 One aspect of our code which we think will be of great importance as we progress through the compiler is how we tested our code. We developed our own test structure which allows us to run tests in a repeatable manner. Our testing code includes statistics on how many tests pass or fail as well as verbose output when a test fails.
+
+Another interesting aspect of our compiler is that we use a lookup table to manage ids and keywords. Using this lookup table, we are able to easily map strings to reserved keywords and seen ids.
