@@ -1,8 +1,6 @@
 type pos = int
 type lexresult = Token.token
 
-exception StringFailed;
-
 fun eof() =
     (if !SrcString.buildingString then raise SrcString.StringNotClosed(Newline.getPos(!SrcString.startPos), Newline.getLine(!SrcString.startPos))
     else Token.EOF)
