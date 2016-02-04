@@ -4,15 +4,11 @@ $/basis.cm
 $/smlnj-lib.cm
 $/ml-yacc-lib.cm
 
-src/token.sig
-src/token.sml
 src/errormsg.sml
 
 src/test.sig
 src/test.sml
 
-src/lexer/lexer.sig
-src/lexer/lexer.sml
 src/lexer/src_comment.sig
 src/lexer/src_comment.sml
 src/lexer/src_string.sig

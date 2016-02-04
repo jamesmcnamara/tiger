@@ -1,10 +1,12 @@
 type pos = int
-type lexresult = Token.token
+type svalue = Tokens.svalue
+type ('a,'b) token = ('a,'b) Tokens.token
+type lexresult  = (svalue,pos) token
 
 fun eof() =
     (if not (SrcString.closed()) then raise SrcString.StringNotClosed(SrcString.getStartPos())
     else if not (SrcComment.closed()) then raise SrcComment.CommentNotClosed(SrcComment.getStartPos())
-    else Token.EOF)
+    else Tokens.EOF(1,2))
 
 fun atoi(a) =
     valOf (Int.fromString a)
@@ -14,6 +16,8 @@ fun sub1 n =
 
 %%
 
+%header (functor TigerLexFun(structure Tokens : Tiger_TOKENS));
+
 %s ERROR ESCAPE COMMENT STRING;
 
 digit = [0-9];
@@ -22,32 +26,32 @@ alpha = [a-zA-Z];
 whitespace = [\t\r ];
 
 %%
-<INITIAL>:\=  => (Token.ASSIGN(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\|   => (Token.OR(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>&    => (Token.AND(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\>\= => (Token.GE(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\>   => (Token.GT(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\<\= => (Token.LE(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\<   => (Token.LT(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\<\> => (Token.NEQ(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\=   => (Token.EQ(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\/   => (Token.DIVIDE(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\*   => (Token.TIMES(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>-    => (Token.MINUS(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\+   => (Token.PLUS(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\.   => (Token.DOT(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\}   => (Token.RBRACE(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\{   => (Token.LBRACE(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\]   => (Token.RBRACK(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>"\[" => (Token.LBRACK(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\)   => (Token.RPAREN(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\(   => (Token.LPAREN(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>\;   => (Token.SEMICOLON(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>:    => (Token.COLON(sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>,    => (Token.COMMA(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>:\=  => (Tokens.ASSIGN(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\|   => (Tokens.OR(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>&    => (Tokens.AND(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\>\= => (Tokens.GE(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\>   => (Tokens.GT(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\<\= => (Tokens.LE(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\<   => (Tokens.LT(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\<\> => (Tokens.NEQ(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\=   => (Tokens.EQ(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\/   => (Tokens.DIVIDE(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\*   => (Tokens.TIMES(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>-    => (Tokens.MINUS(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\+   => (Tokens.PLUS(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\.   => (Tokens.DOT(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\}   => (Tokens.RBRACE(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\{   => (Tokens.LBRACE(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\]   => (Tokens.RBRACK(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>"\[" => (Tokens.LBRACK(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\)   => (Tokens.RPAREN(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\(   => (Tokens.LPAREN(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>\;   => (Tokens.SEMICOLON(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>:    => (Tokens.COLON(sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>,    => (Tokens.COMMA(sub1 yypos, sub1 yypos + size yytext));
 
-<INITIAL>{digit}+ => (Token.int (atoi yytext) (sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>{id}     => (Token.find(yytext, sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>{digit}+ => (Tokens.int (atoi yytext) (sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>{id}     => (Tokens.find(yytext, sub1 yypos, sub1 yypos + size yytext));
 <INITIAL>[ \t]*   => (continue());
 
 <INITIAL>\"              => (YYBEGIN STRING; SrcString.new(sub1 yypos); continue());
