@@ -1,4 +1,4 @@
-structure SrcComment :> SRC_COMMENT =
+structure SrcComment =
 struct
     type yypos = int
 

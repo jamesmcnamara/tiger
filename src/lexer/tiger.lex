@@ -3,6 +3,9 @@ type svalue = Tokens.svalue
 type ('a,'b) token = ('a,'b) Tokens.token
 type lexresult  = (svalue,pos) token
 
+structure SrcString = SrcStringFun(Tokens)
+structure SrcId = SrcIdFun(Tokens)
+
 fun eof() =
     (if not (SrcString.closed()) then raise SrcString.StringNotClosed(SrcString.getStartPos())
     else if not (SrcComment.closed()) then raise SrcComment.CommentNotClosed(SrcComment.getStartPos())
@@ -50,8 +53,8 @@ whitespace = [\t\r ];
 <INITIAL>:    => (Tokens.COLON(sub1 yypos, sub1 yypos + size yytext));
 <INITIAL>,    => (Tokens.COMMA(sub1 yypos, sub1 yypos + size yytext));
 
-<INITIAL>{digit}+ => (Tokens.int (atoi yytext) (sub1 yypos, sub1 yypos + size yytext));
-<INITIAL>{id}     => (Tokens.find(yytext, sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>{digit}+ => (Tokens.INT(atoi yytext, sub1 yypos, sub1 yypos + size yytext));
+<INITIAL>{id}     => (SrcId.lookup(yytext, sub1 yypos, sub1 yypos + size yytext));
 <INITIAL>[ \t]*   => (continue());
 
 <INITIAL>\"              => (YYBEGIN STRING; SrcString.new(sub1 yypos); continue());

@@ -9,11 +9,10 @@ src/errormsg.sml
 src/test.sig
 src/test.sml
 
-src/lexer/src_comment.sig
+
 src/lexer/src_comment.sml
-src/lexer/src_string.sig
 src/lexer/src_string.sml
-src/lexer/newline.sig
+src/lexer/src_id.sml
 src/lexer/newline.sml
 src/lexer/tiger.lex
 
