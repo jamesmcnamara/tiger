@@ -20,3 +20,11 @@ src/lexer/src_string.sml
 src/lexer/newline.sig
 src/lexer/newline.sml
 src/lexer/tiger.lex
+
+src/parser/absyn.sml
+src/parser/parse.sml
+src/parser/prabsyn.sml
+src/parser/symbol.sml
+src/parser/table.sig
+src/parser/table.sml
+src/parser/tiger.grm
