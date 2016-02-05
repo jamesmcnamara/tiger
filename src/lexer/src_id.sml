@@ -23,7 +23,8 @@ functor SrcIdFun(Token : Tiger_TOKENS) = struct
          HashTable.insert lookupTable ("array", Token.ARRAY))
 
     fun lookup (text, startPos, endPos) =
+        (if (HashTable.numItems lookupTable) = 0 then reset() else ();
         case HashTable.find lookupTable text of
             SOME tokenFn => tokenFn (startPos, endPos)
-          | NONE => Token.ID(text, startPos, endPos)
+          | NONE => Token.ID(text, startPos, endPos))
 end

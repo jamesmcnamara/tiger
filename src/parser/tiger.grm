@@ -11,7 +11,7 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program
+%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | infixexp | op
 
 %pos int
 %verbose
@@ -41,3 +41,35 @@ program :  exp   ()
 
 
 exp:    NIL ()
+    | INT ()
+    | seqexp ()
+    | negation ()
+    | callexp ()
+    | infixexp ()
+
+seqexp: LPAREN seqexplist RPAREN ()
+
+seqexplist: seqexplist SEMICOLON exp ()
+    | exp ()
+
+negation: MINUS exp ()
+
+callexp: ID LPAREN callexplist RPAREN ()
+
+callexplist: callexplist COMMA exp ()
+    | exp ()
+
+infixexp: exp op exp ()
+
+op: PLUS ()
+    | MINUS ()
+    | TIMES ()
+    | DIVIDE ()
+    | AND ()
+    | OR ()
+    | EQ ()
+    | NEQ ()
+    | LT ()
+    | LE ()
+    | GT ()
+    | GE ()

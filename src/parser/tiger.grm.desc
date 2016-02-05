@@ -1,26 +1,110 @@
+24 shift/reduce conflicts
+
+error:  state 24: shift/reduce conflict (shift OR, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift AND, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift GE, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift GT, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift LE, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift LT, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift NEQ, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift EQ, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift DIVIDE, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift TIMES, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift MINUS, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift PLUS, reduce by rule 10)
+error:  state 28: shift/reduce conflict (shift OR, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift AND, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift GE, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift GT, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift LE, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift LT, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift NEQ, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift EQ, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift DIVIDE, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift TIMES, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift MINUS, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift PLUS, reduce by rule 14)
 
 state 0:
 
 	program : . exp 
 
-	NIL	shift 2
+	ID	shift 10
+	INT	shift 9
+	LPAREN	shift 8
+	MINUS	shift 7
+	NIL	shift 6
 
-	exp	goto 1
-	program	goto 3
+	exp	goto 5
+	program	goto 37
+	seqexp	goto 4
+	negation	goto 3
+	callexp	goto 2
+	infixexp	goto 1
 
 	.	error
 
 
 state 1:
 
+	exp : infixexp .  (reduce by rule 6)
+
+
+
+	.	reduce by rule 6
+
+
+state 2:
+
+	exp : callexp .  (reduce by rule 5)
+
+
+
+	.	reduce by rule 5
+
+
+state 3:
+
+	exp : negation .  (reduce by rule 4)
+
+
+
+	.	reduce by rule 4
+
+
+state 4:
+
+	exp : seqexp .  (reduce by rule 3)
+
+
+
+	.	reduce by rule 3
+
+
+state 5:
+
 	program : exp .  (reduce by rule 0)
+	infixexp : exp . op exp 
 
+	PLUS	shift 23
+	MINUS	shift 22
+	TIMES	shift 21
+	DIVIDE	shift 20
+	EQ	shift 19
+	NEQ	shift 18
+	LT	shift 17
+	LE	shift 16
+	GT	shift 15
+	GE	shift 14
+	AND	shift 13
+	OR	shift 12
 
+	op	goto 11
 
 	.	reduce by rule 0
 
 
-state 2:
+state 6:
 
 	exp : NIL .  (reduce by rule 1)
 
@@ -29,7 +113,454 @@ state 2:
 	.	reduce by rule 1
 
 
-state 3:
+state 7:
+
+	negation : MINUS . exp 
+
+	ID	shift 10
+	INT	shift 9
+	LPAREN	shift 8
+	MINUS	shift 7
+	NIL	shift 6
+
+	exp	goto 24
+	seqexp	goto 4
+	negation	goto 3
+	callexp	goto 2
+	infixexp	goto 1
+
+	.	error
+
+
+state 8:
+
+	seqexp : LPAREN . seqexplist RPAREN 
+
+	ID	shift 10
+	INT	shift 9
+	LPAREN	shift 8
+	MINUS	shift 7
+	NIL	shift 6
+
+	exp	goto 26
+	seqexp	goto 4
+	seqexplist	goto 25
+	negation	goto 3
+	callexp	goto 2
+	infixexp	goto 1
+
+	.	error
+
+
+state 9:
+
+	exp : INT .  (reduce by rule 2)
+
+
+
+	.	reduce by rule 2
+
+
+state 10:
+
+	callexp : ID . LPAREN callexplist RPAREN 
+
+	LPAREN	shift 27
+
+
+	.	error
+
+
+state 11:
+
+	infixexp : exp op . exp 
+
+	ID	shift 10
+	INT	shift 9
+	LPAREN	shift 8
+	MINUS	shift 7
+	NIL	shift 6
+
+	exp	goto 28
+	seqexp	goto 4
+	negation	goto 3
+	callexp	goto 2
+	infixexp	goto 1
+
+	.	error
+
+
+state 12:
+
+	op : OR .  (reduce by rule 20)
+
+
+
+	.	reduce by rule 20
+
+
+state 13:
+
+	op : AND .  (reduce by rule 19)
+
+
+
+	.	reduce by rule 19
+
+
+state 14:
+
+	op : GE .  (reduce by rule 26)
+
+
+
+	.	reduce by rule 26
+
+
+state 15:
+
+	op : GT .  (reduce by rule 25)
+
+
+
+	.	reduce by rule 25
+
+
+state 16:
+
+	op : LE .  (reduce by rule 24)
+
+
+
+	.	reduce by rule 24
+
+
+state 17:
+
+	op : LT .  (reduce by rule 23)
+
+
+
+	.	reduce by rule 23
+
+
+state 18:
+
+	op : NEQ .  (reduce by rule 22)
+
+
+
+	.	reduce by rule 22
+
+
+state 19:
+
+	op : EQ .  (reduce by rule 21)
+
+
+
+	.	reduce by rule 21
+
+
+state 20:
+
+	op : DIVIDE .  (reduce by rule 18)
+
+
+
+	.	reduce by rule 18
+
+
+state 21:
+
+	op : TIMES .  (reduce by rule 17)
+
+
+
+	.	reduce by rule 17
+
+
+state 22:
+
+	op : MINUS .  (reduce by rule 16)
+
+
+
+	.	reduce by rule 16
+
+
+state 23:
+
+	op : PLUS .  (reduce by rule 15)
+
+
+
+	.	reduce by rule 15
+
+error:  state 24: shift/reduce conflict (shift OR, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift AND, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift GE, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift GT, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift LE, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift LT, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift NEQ, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift EQ, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift DIVIDE, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift TIMES, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift MINUS, reduce by rule 10)
+error:  state 24: shift/reduce conflict (shift PLUS, reduce by rule 10)
+
+state 24:
+
+	negation : MINUS exp .  (reduce by rule 10)
+	infixexp : exp . op exp 
+
+	PLUS	shift 23
+	MINUS	shift 22
+	TIMES	shift 21
+	DIVIDE	shift 20
+	EQ	shift 19
+	NEQ	shift 18
+	LT	shift 17
+	LE	shift 16
+	GT	shift 15
+	GE	shift 14
+	AND	shift 13
+	OR	shift 12
+
+	op	goto 11
+
+	.	reduce by rule 10
+
+
+state 25:
+
+	seqexp : LPAREN seqexplist . RPAREN 
+	seqexplist : seqexplist . SEMICOLON exp 
+
+	SEMICOLON	shift 30
+	RPAREN	shift 29
+
+
+	.	error
+
+
+state 26:
+
+	seqexplist : exp .  (reduce by rule 9)
+	infixexp : exp . op exp 
+
+	PLUS	shift 23
+	MINUS	shift 22
+	TIMES	shift 21
+	DIVIDE	shift 20
+	EQ	shift 19
+	NEQ	shift 18
+	LT	shift 17
+	LE	shift 16
+	GT	shift 15
+	GE	shift 14
+	AND	shift 13
+	OR	shift 12
+
+	op	goto 11
+
+	.	reduce by rule 9
+
+
+state 27:
+
+	callexp : ID LPAREN . callexplist RPAREN 
+
+	ID	shift 10
+	INT	shift 9
+	LPAREN	shift 8
+	MINUS	shift 7
+	NIL	shift 6
+
+	exp	goto 32
+	seqexp	goto 4
+	negation	goto 3
+	callexp	goto 2
+	callexplist	goto 31
+	infixexp	goto 1
+
+	.	error
+
+error:  state 28: shift/reduce conflict (shift OR, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift AND, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift GE, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift GT, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift LE, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift LT, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift NEQ, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift EQ, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift DIVIDE, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift TIMES, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift MINUS, reduce by rule 14)
+error:  state 28: shift/reduce conflict (shift PLUS, reduce by rule 14)
+
+state 28:
+
+	infixexp : exp . op exp 
+	infixexp : exp op exp .  (reduce by rule 14)
+
+	PLUS	shift 23
+	MINUS	shift 22
+	TIMES	shift 21
+	DIVIDE	shift 20
+	EQ	shift 19
+	NEQ	shift 18
+	LT	shift 17
+	LE	shift 16
+	GT	shift 15
+	GE	shift 14
+	AND	shift 13
+	OR	shift 12
+
+	op	goto 11
+
+	.	reduce by rule 14
+
+
+state 29:
+
+	seqexp : LPAREN seqexplist RPAREN .  (reduce by rule 7)
+
+
+
+	.	reduce by rule 7
+
+
+state 30:
+
+	seqexplist : seqexplist SEMICOLON . exp 
+
+	ID	shift 10
+	INT	shift 9
+	LPAREN	shift 8
+	MINUS	shift 7
+	NIL	shift 6
+
+	exp	goto 33
+	seqexp	goto 4
+	negation	goto 3
+	callexp	goto 2
+	infixexp	goto 1
+
+	.	error
+
+
+state 31:
+
+	callexp : ID LPAREN callexplist . RPAREN 
+	callexplist : callexplist . COMMA exp 
+
+	COMMA	shift 35
+	RPAREN	shift 34
+
+
+	.	error
+
+
+state 32:
+
+	callexplist : exp .  (reduce by rule 13)
+	infixexp : exp . op exp 
+
+	PLUS	shift 23
+	MINUS	shift 22
+	TIMES	shift 21
+	DIVIDE	shift 20
+	EQ	shift 19
+	NEQ	shift 18
+	LT	shift 17
+	LE	shift 16
+	GT	shift 15
+	GE	shift 14
+	AND	shift 13
+	OR	shift 12
+
+	op	goto 11
+
+	.	reduce by rule 13
+
+
+state 33:
+
+	seqexplist : seqexplist SEMICOLON exp .  (reduce by rule 8)
+	infixexp : exp . op exp 
+
+	PLUS	shift 23
+	MINUS	shift 22
+	TIMES	shift 21
+	DIVIDE	shift 20
+	EQ	shift 19
+	NEQ	shift 18
+	LT	shift 17
+	LE	shift 16
+	GT	shift 15
+	GE	shift 14
+	AND	shift 13
+	OR	shift 12
+
+	op	goto 11
+
+	.	reduce by rule 8
+
+
+state 34:
+
+	callexp : ID LPAREN callexplist RPAREN .  (reduce by rule 11)
+
+
+
+	.	reduce by rule 11
+
+
+state 35:
+
+	callexplist : callexplist COMMA . exp 
+
+	ID	shift 10
+	INT	shift 9
+	LPAREN	shift 8
+	MINUS	shift 7
+	NIL	shift 6
+
+	exp	goto 36
+	seqexp	goto 4
+	negation	goto 3
+	callexp	goto 2
+	infixexp	goto 1
+
+	.	error
+
+
+state 36:
+
+	callexplist : callexplist COMMA exp .  (reduce by rule 12)
+	infixexp : exp . op exp 
+
+	PLUS	shift 23
+	MINUS	shift 22
+	TIMES	shift 21
+	DIVIDE	shift 20
+	EQ	shift 19
+	NEQ	shift 18
+	LT	shift 17
+	LE	shift 16
+	GT	shift 15
+	GE	shift 14
+	AND	shift 13
+	OR	shift 12
+
+	op	goto 11
+
+	.	reduce by rule 12
+
+
+state 37:
 
 
 	EOF	accept
@@ -37,5 +568,5 @@ state 3:
 
 	.	error
 
-2 of 6 action table entries left after compaction
-2 goto table entries
+95 of 163 action table entries left after compaction
+45 goto table entries
