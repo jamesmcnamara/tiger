@@ -15,6 +15,7 @@ src/lexer/src_string.sml
 src/lexer/src_id.sml
 src/lexer/newline.sml
 src/lexer/tiger.lex
+src/lexer/lexer.sml
 
 src/parser/absyn.sml
 src/parser/parse.sml

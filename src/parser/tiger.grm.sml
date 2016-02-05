@@ -2,35 +2,37 @@ functor TigerLrValsFun(structure Token : TOKEN)
  : sig structure ParserData : PARSER_DATA
        structure Tokens : Tiger_TOKENS
    end
- =
+ = 
 struct
 structure ParserData=
 struct
-structure Header =
+structure Header = 
 struct
 
 end
 structure LrTable = Token.LrTable
 structure Token = Token
-local open LrTable in
+local open LrTable in 
 val table=let val actionRows =
 "\
 \\001\000\001\000\000\000\000\000\
-\\005\000\000\000\
+\\001\000\041\000\004\000\000\000\
 \\006\000\000\000\
+\\007\000\000\000\
 \"
 val actionRowNumbers =
-"\002\000\001\000\000\000"
+"\001\000\002\000\003\000\000\000"
 val gotoT =
 "\
-\\001\000\001\000\002\000\002\000\000\000\
+\\001\000\001\000\002\000\003\000\000\000\
+\\000\000\
 \\000\000\
 \\000\000\
 \"
-val numstates = 3
+val numstates = 4
 val numrules = 2
 val s = ref "" and index = ref 0
-val string_to_int = fn () =>
+val string_to_int = fn () => 
 let val i = !index
 in index := i+2; Char.ord(String.sub(!s,i)) + Char.ord(String.sub(!s,i+1)) * 256
 end
@@ -88,7 +90,7 @@ end
 local open Header in
 type pos = int
 type arg = unit
-structure MlyValue =
+structure MlyValue = 
 struct
 datatype svalue = VOID | ntVOID of unit ->  unit
  | STRING of unit ->  (string) | INT of unit ->  (int)
@@ -108,7 +110,7 @@ fn (T 31) => true | (T 32) => true | (T 33) => true | (T 39) => true
  | (T 42) => true | (T 43) => true | (T 27) => true | (T 28) => true
  | (T 29) => true | (T 30) => true | (T 34) => true | (T 38) => true
  | (T 40) => true | _ => false
-val preferred_change : (term list * term list) list =
+val preferred_change : (term list * term list) list = 
 (nil
 ,nil
  $$ (T 29))::
@@ -119,7 +121,7 @@ val preferred_change : (term list * term list) list =
 ,nil
  $$ (T 7))::
 nil
-val noShift =
+val noShift = 
 fn (T 0) => true | _ => false
 val showTerminal =
 fn (T 0) => "EOF"
@@ -169,9 +171,9 @@ fn (T 0) => "EOF"
   | _ => "bogus-term"
 local open Header in
 val errtermvalue=
-fn (T 1) => MlyValue.ID(fn () => ("bogus")) |
-(T 2) => MlyValue.INT(fn () => (1)) |
-(T 3) => MlyValue.STRING(fn () => ("")) |
+fn (T 1) => MlyValue.ID(fn () => ("bogus")) | 
+(T 2) => MlyValue.INT(fn () => (1)) | 
+(T 3) => MlyValue.STRING(fn () => ("")) | 
 _ => MlyValue.VOID
 end
 val terms : term list = nil
@@ -182,22 +184,23 @@ val terms : term list = nil
  $$ (T 15) $$ (T 14) $$ (T 13) $$ (T 12) $$ (T 11) $$ (T 10) $$ (T 9)
  $$ (T 8) $$ (T 7) $$ (T 6) $$ (T 5) $$ (T 4) $$ (T 0)end
 structure Actions =
-struct
+struct 
 exception mlyAction of int
 local open Header in
-val actions =
+val actions = 
 fn (i392,defaultPos,stack,
     (()):arg) =>
 case (i392,stack)
-of  ( 0, ( ( _, ( MlyValue.ntVOID exp1, exp1left, exp1right)) ::
-rest671)) => let val  result = MlyValue.ntVOID (fn _ => ( let val
+of  ( 0, ( ( _, ( MlyValue.ntVOID exp1, exp1left, exp1right)) :: 
+rest671)) => let val  result = MlyValue.ntVOID (fn _ => ( let val  
 exp1 = exp1 ()
  in ()
 end; ()))
  in ( LrTable.NT 1, ( result, exp1left, exp1right), rest671)
 end
-|  ( 1, ( rest671)) => let val  result = MlyValue.ntVOID (fn _ => ())
- in ( LrTable.NT 0, ( result, defaultPos, defaultPos), rest671)
+|  ( 1, ( ( _, ( _, NIL1left, NIL1right)) :: rest671)) => let val  
+result = MlyValue.ntVOID (fn _ => ())
+ in ( LrTable.NT 0, ( result, NIL1left, NIL1right), rest671)
 end
 | _ => raise (mlyAction i392)
 end

@@ -9,7 +9,7 @@ Test.test (fn () =>
                     ()
                 else
                     (print ("-> " ^ filename ^ "\n");
-                     Parse.parse(filename);
+                     Lex.lexFile(filename);
                      ())
             end;
             file := OS.FileSys.readDir(dir));
