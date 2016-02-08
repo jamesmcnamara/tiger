@@ -11,7 +11,7 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | infixexp | op
+%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | infixexp | op | arraycreateexp
 
 %pos int
 %verbose
@@ -47,6 +47,7 @@ exp:    NIL ()
     | negation ()
     | callexp ()
     | infixexp ()
+    | arraycreateexp ()
 
 seqexp: LPAREN seqexplist RPAREN ()
 
@@ -74,3 +75,5 @@ op: PLUS ()
     | LE ()
     | GT ()
     | GE ()
+
+arraycreateexp: ID LBRACK INT RBRACK OF INT ()
