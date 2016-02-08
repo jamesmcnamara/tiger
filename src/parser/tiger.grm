@@ -48,7 +48,8 @@
 program :  exp   ()
 
 
-exp:    NIL ()
+exp:  lvalue ()  
+    | NIL ()
     | INT ()
     | STRING ()
     | seqexp ()
