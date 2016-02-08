@@ -11,7 +11,15 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | infixexp | op | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | recordassignment | assignmentexp | lvalue
+%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | recordassignment | assignmentexp | lvalue
+
+%nonassoc THEN DO TYPE FUNCTION ID
+%nonassoc ASSIGN LBRACK ELSE OF
+%left OR
+%left AND
+%nonassoc EQ NEQ LE LT GT GE
+%left PLUS MINUS
+%left TIMES DIVIDE
 
 %pos int
 %verbose
@@ -46,37 +54,34 @@ exp:    NIL ()
     | seqexp ()
     | negation ()
     | callexp ()
-    | infixexp ()
     | arraycreateexp ()
     | recordcreateexp ()
     | assignmentexp ()
+
+    | exp PLUS exp ()
+    | exp MINUS exp ()
+    | exp TIMES exp ()
+    | exp DIVIDE exp ()
+    | exp AND exp ()
+    | exp OR exp ()
+    | exp EQ exp ()
+    | exp NEQ exp ()
+    | exp LT exp ()
+    | exp LE exp ()
+    | exp GT exp ()
+    | exp GE exp ()
+
+negation: MINUS exp ()
 
 seqexp: LPAREN seqexplist RPAREN ()
 
 seqexplist: seqexplist SEMICOLON exp ()
     | exp ()
 
-negation: MINUS exp ()
-
 callexp: ID LPAREN callexplist RPAREN ()
 
 callexplist: callexplist COMMA exp ()
     | exp ()
-
-infixexp: exp op exp ()
-
-op: PLUS ()
-    | MINUS ()
-    | TIMES ()
-    | DIVIDE ()
-    | AND ()
-    | OR ()
-    | EQ ()
-    | NEQ ()
-    | LT ()
-    | LE ()
-    | GT ()
-    | GE ()
 
 arraycreateexp: ID LBRACK exp RBRACK OF exp ()
 
