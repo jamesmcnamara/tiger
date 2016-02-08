@@ -1,4 +1,5 @@
 (nil;
  123;
  -123;
- concat(chr(1+2), chr(2-2)))
+ concat(chr(1+2), chr(2-2));
+ "hello")

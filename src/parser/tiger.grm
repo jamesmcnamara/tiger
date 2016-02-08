@@ -42,6 +42,7 @@ program :  exp   ()
 
 exp:    NIL ()
     | INT ()
+    | STRING ()
     | seqexp ()
     | negation ()
     | callexp ()
