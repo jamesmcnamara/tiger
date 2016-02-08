@@ -55,6 +55,7 @@ seqexplist: seqexplist SEMICOLON exp ()
 negation: MINUS exp ()
 
 callexp: ID LPAREN callexplist RPAREN ()
+       | ID LPAREN RPAREN ()
 
 callexplist: callexplist COMMA exp ()
     | exp ()
