@@ -6,4 +6,8 @@
  intArray[1+1] of 1+10;
  myFirstTestRecord{};
  mySecondTestRecord{name="derp"};
- myThirdTestRecord{name="derp",age=1})
+ myThirdTestRecord{name="derp",age=1};
+ someVar := 1;
+ someRecord.name := "derp";
+ someField[1] := "lvalue";
+ someList[0].someField[1] := "complex lvalue")

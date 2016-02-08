@@ -11,7 +11,7 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | infixexp | op | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | recordassignment
+%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | infixexp | op | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | recordassignment | assignmentexp | lvalue
 
 %pos int
 %verbose
@@ -89,3 +89,10 @@ recordassignment: ID EQ exp ()
 
 recordcreatelist: recordcreatelist COMMA recordassignment ()
     | recordassignment ()
+
+assignmentexp: lvalue ASSIGN exp ()
+
+lvalue: ID ()
+    | lvalue DOT ID ()
+    | lvalue LBRACK exp RBRACK ()
+    | ID LBRACK exp RBRACK ()
