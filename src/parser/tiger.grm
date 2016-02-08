@@ -11,7 +11,7 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | infixexp | op | arraycreateexp | recordcreateexp | recordcreatelist | recordassignment
+%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | infixexp | op | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | recordassignment
 
 %pos int
 %verbose
@@ -49,6 +49,7 @@ exp:    NIL ()
     | infixexp ()
     | arraycreateexp ()
     | recordcreateexp ()
+    | assignmentexp ()
 
 seqexp: LPAREN seqexplist RPAREN ()
 
@@ -77,9 +78,12 @@ op: PLUS ()
     | GT ()
     | GE ()
 
-arraycreateexp: ID LBRACK INT RBRACK OF INT ()
+arraycreateexp: ID LBRACK exp RBRACK OF exp ()
 
-recordcreateexp: ID LBRACE recordcreatelist RBRACE ()
+recordcreateexp: ID LBRACE recordcreatelistexp RBRACE ()
+
+recordcreatelistexp: recordcreatelist ()
+    | ()
 
 recordassignment: ID EQ exp ()
 

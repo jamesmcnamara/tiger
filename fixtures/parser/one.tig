@@ -5,5 +5,5 @@
  "hello";
  intArray[1+1] of 1+10;
  myFirstTestRecord{};
- mySecondTestRecord{name="derp"}
+ mySecondTestRecord{name="derp"};
  myThirdTestRecord{name="derp",age=1})
