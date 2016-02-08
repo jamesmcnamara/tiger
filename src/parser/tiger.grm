@@ -11,7 +11,7 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | fieldcreate | assignmentexp | lvalue | ifthenelseexp | ifthenexp | whileexp
+%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | fieldcreate | assignmentexp | lvalue | ifthenelseexp | ifthenexp | whileexp | forexp
 
 %nonassoc ID THEN DO
 %nonassoc ASSIGN LBRACK ELSE OF
@@ -74,6 +74,7 @@ exp:    NIL ()
     | ifthenelseexp ()
     | ifthenexp ()
     | whileexp ()
+    | forexp ()
 
 negation: MINUS exp ()
 
@@ -112,3 +113,5 @@ ifthenelseexp: IF exp THEN exp ELSE exp ()
 ifthenexp: IF exp THEN exp ()
 
 whileexp: WHILE exp DO exp ()
+
+forexp: FOR ID ASSIGN exp TO exp DO exp ()
