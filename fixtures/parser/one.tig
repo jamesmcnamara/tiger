@@ -1,6 +1,7 @@
 (nil;
  123;
  -123;
+ foo();
  concat(chr(1+2), chr(2-2));
  "hello";
  intArray[1+1] of 1+10;

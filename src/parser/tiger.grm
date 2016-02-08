@@ -79,6 +79,7 @@ seqexplist: seqexplist SEMICOLON exp ()
     | exp ()
 
 callexp: ID LPAREN callexplist RPAREN ()
+       | ID LPAREN RPAREN ()
 
 callexplist: callexplist COMMA exp ()
     | exp ()
