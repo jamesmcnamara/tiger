@@ -11,9 +11,9 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | fieldcreate | assignmentexp | lvalue
+%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | fieldcreate | assignmentexp | lvalue | ifthenelseexp
 
-%nonassoc THEN DO TYPE FUNCTION ID
+%nonassoc ID
 %nonassoc ASSIGN LBRACK ELSE OF
 %left OR
 %left AND
@@ -71,6 +71,8 @@ exp:    NIL ()
     | exp GT exp ()
     | exp GE exp ()
 
+    | ifthenelseexp ()
+
 negation: MINUS exp ()
 
 seqexp: LPAREN seqexplist RPAREN ()
@@ -102,3 +104,5 @@ lvalue: ID ()
     | lvalue DOT ID ()
     | lvalue LBRACK exp RBRACK ()
     | ID LBRACK exp RBRACK ()
+
+ifthenelseexp: IF exp THEN exp ELSE exp ()
