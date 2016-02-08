@@ -3,4 +3,7 @@
  -123;
  concat(chr(1+2), chr(2-2));
  "hello";
- intArray[1+1] of 1+10)
+ intArray[1+1] of 1+10;
+ myFirstTestRecord{};
+ mySecondTestRecord{name="derp"}
+ myThirdTestRecord{name="derp",age=1})
