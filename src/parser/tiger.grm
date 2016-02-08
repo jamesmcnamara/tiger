@@ -11,7 +11,7 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | recordassignment | assignmentexp | lvalue
+%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | fieldcreate | assignmentexp | lvalue
 
 %nonassoc THEN DO TYPE FUNCTION ID
 %nonassoc ASSIGN LBRACK ELSE OF
@@ -90,10 +90,10 @@ recordcreateexp: ID LBRACE recordcreatelistexp RBRACE ()
 recordcreatelistexp: recordcreatelist ()
     | ()
 
-recordassignment: ID EQ exp ()
+fieldcreate: ID EQ exp ()
 
-recordcreatelist: recordcreatelist COMMA recordassignment ()
-    | recordassignment ()
+recordcreatelist: recordcreatelist COMMA fieldcreate ()
+    | fieldcreate ()
 
 assignmentexp: lvalue ASSIGN exp ()
 
