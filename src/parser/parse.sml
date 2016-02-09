@@ -1,5 +1,5 @@
 (*structure Parse : sig val parse : string -> Absyn.exp  end =*)
-structure Parse : sig val parse : string -> unit  end =
+structure Parse : sig val parse : string -> string  end =
 struct
   structure TigerLrVals = TigerLrValsFun(structure Token = LrParser.Token)
   structure Lex = TigerLexFun(structure Tokens = TigerLrVals.Tokens)

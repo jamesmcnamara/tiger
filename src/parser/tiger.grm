@@ -11,7 +11,34 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | fieldcreate | assignmentexp | lvalue | ifthenelseexp | ifthenexp | whileexp | forexp | letexp | tyfield | tyfieldlist | tyfields | ty | typedec | decs | dec | vardec | fundec
+%nonterm exp of string
+       | program of string
+       | seqexp of string
+       | seqexplist of string
+       | negation of string
+       | callexp of string
+       | callexplist of string
+       | arraycreateexp of string
+       | recordcreateexp of string
+       | recordcreatelist of string
+       | recordcreatelistexp of string
+       | fieldcreate of string
+       | assignmentexp of string
+       | lvalue of string
+       | ifthenelseexp of string
+       | ifthenexp of string
+       | whileexp of string
+       | forexp of string
+       | letexp of string
+       | tyfield of string
+       | tyfieldlist of string
+       | tyfields of string
+       | ty of string
+       | typedec of string
+       | decs of string
+       | dec of string
+       | vardec of string
+       | fundec of string
 
 %nonassoc ID THEN DO
 %nonassoc ASSIGN LBRACK ELSE OF
@@ -44,106 +71,106 @@
  *  to replace the two dummy productions below with an actual grammar.
  *)
 
-program :  exp   ()
+program : exp (print("\n\n" ^ exp ^ "\n\n"); "")
 
 
-exp:  lvalue ()
-    | NIL ()
-    | INT ()
-    | STRING ()
-    | seqexp ()
-    | negation ()
-    | callexp ()
-    | arraycreateexp ()
-    | recordcreateexp ()
-    | assignmentexp ()
+exp: lvalue          (lvalue)
+   | NIL             ("nil")
+   | INT             (Int.toString INT)
+   | STRING          (STRING)
+   | seqexp          (seqexp)
+   | negation        (negation)
+   | callexp         (callexp)
+   | arraycreateexp  (arraycreateexp)
+   | recordcreateexp (recordcreateexp)
+   | assignmentexp   (assignmentexp)
 
-    | exp PLUS exp ()
-    | exp MINUS exp ()
-    | exp TIMES exp ()
-    | exp DIVIDE exp ()
-    | exp AND exp ()
-    | exp OR exp ()
-    | exp EQ exp ()
-    | exp NEQ exp ()
-    | exp LT exp ()
-    | exp LE exp ()
-    | exp GT exp ()
-    | exp GE exp ()
+   | exp PLUS exp   ("(" ^ exp1 ^ "+" ^ exp2 ^ ")")
+   | exp MINUS exp  ("(" ^ exp1 ^ "-" ^ exp2 ^ ")")
+   | exp TIMES exp  ("(" ^ exp1 ^ "*" ^ exp2 ^ ")")
+   | exp DIVIDE exp ("(" ^ exp1 ^ "/" ^ exp2 ^ ")")
+   | exp AND exp    ("(" ^ exp1 ^ " and " ^ exp2 ^ ")")
+   | exp OR exp     ("(" ^ exp1 ^ " or " ^ exp2 ^ ")")
+   | exp EQ exp     ("(" ^ exp1 ^ "=" ^ exp2 ^ ")")
+   | exp NEQ exp    ("(" ^ exp1 ^ "<>" ^ exp2 ^ ")")
+   | exp LT exp     ("(" ^ exp1 ^ "<" ^ exp2 ^ ")")
+   | exp LE exp     ("(" ^ exp1 ^ "<=" ^ exp2 ^ ")")
+   | exp GT exp     ("(" ^ exp1 ^ ">" ^ exp2 ^ ")")
+   | exp GE exp     ("(" ^ exp1 ^ ">=" ^ exp2 ^ ")")
 
-    | ifthenelseexp ()
-    | ifthenexp ()
-    | whileexp ()
-    | forexp ()
-    | BREAK ()
-    | letexp ()
+   | ifthenelseexp (ifthenelseexp)
+   | ifthenexp     (ifthenexp)
+   | whileexp      (whileexp)
+   | forexp        (forexp)
+   | BREAK         ("break")
+   | letexp        (letexp)
 
-negation: MINUS exp ()
+negation: MINUS exp ("(-" ^ exp ^ ")")
 
-seqexp: LPAREN seqexplist RPAREN ()
+seqexp: LPAREN seqexplist RPAREN ("(" ^ seqexplist ^ ")")
 
-seqexplist: seqexplist SEMICOLON exp ()
-    | exp ()
+seqexplist: seqexplist SEMICOLON exp (seqexplist ^ "; " ^ exp)
+    | exp                            (exp)
 
-callexp: ID LPAREN callexplist RPAREN ()
-       | ID LPAREN RPAREN ()
+callexp: ID LPAREN callexplist RPAREN ("")
+       | ID LPAREN RPAREN ("")
 
-callexplist: callexplist COMMA exp ()
-    | exp ()
+callexplist: callexplist COMMA exp ("")
+    | exp ("")
 
-arraycreateexp: ID LBRACK exp RBRACK OF exp ()
+arraycreateexp: ID LBRACK exp RBRACK OF exp (ID ^ "[" ^ exp1 ^ "] of " ^ exp2)
 
-recordcreateexp: ID LBRACE recordcreatelistexp RBRACE ()
+recordcreateexp: ID LBRACE recordcreatelistexp RBRACE ("")
 
-recordcreatelistexp: recordcreatelist ()
-    | ()
+recordcreatelistexp: recordcreatelist ("")
+    | ("")
 
-fieldcreate: ID EQ exp ()
+fieldcreate: ID EQ exp ("")
 
-recordcreatelist: recordcreatelist COMMA fieldcreate ()
-    | fieldcreate ()
+recordcreatelist: recordcreatelist COMMA fieldcreate ("")
+    | fieldcreate ("")
 
-assignmentexp: lvalue ASSIGN exp ()
+assignmentexp: lvalue ASSIGN exp ("")
 
-lvalue: ID ()
-    | lvalue DOT ID ()
-    | lvalue LBRACK exp RBRACK ()
-    | ID LBRACK exp RBRACK ()
+lvalue: ID                     (ID)
+    | lvalue DOT ID            (lvalue ^ "." ^ ID)
+    | lvalue LBRACK exp RBRACK (lvalue ^ "[" ^ exp ^ "]")
+    | ID LBRACK exp RBRACK     (ID ^ "[" ^ exp ^ "]")
 
-ifthenelseexp: IF exp THEN exp ELSE exp ()
+ifthenelseexp: IF exp THEN exp ELSE exp ("(if " ^ exp1 ^ " then " ^ exp2 ^ " else " ^ exp3 ^ ")")
 
-ifthenexp: IF exp THEN exp ()
+ifthenexp: IF exp THEN exp ("(if " ^ exp1 ^ " then " ^ exp2 ^ ")")
 
-whileexp: WHILE exp DO exp ()
+whileexp: WHILE exp DO exp ("")
 
-forexp: FOR ID ASSIGN exp TO exp DO exp ()
+forexp: FOR ID ASSIGN exp TO exp DO exp ("")
 
-letexp: LET decs IN seqexplist END ()
+letexp: LET decs IN seqexplist END ("let *dec* in " ^ seqexplist ^ "end")
 
-decs: dec ()
-    | decs dec ()
+decs: dec ("")
+    | decs dec ("")
 
-dec: typedec ()
-    | vardec ()
-    | fundec ()
+dec: typedec ("")
+    | vardec ("")
+    | fundec ("")
 
 
-typedec: TYPE ID EQ ty ()
+typedec: TYPE ID EQ ty ("")
 
-ty: ID ()
-    | LBRACE tyfields RBRACE ()
-    | ARRAY OF ID ()
+ty: ID ("")
+    | LBRACE tyfields RBRACE ("")
+    | ARRAY OF ID ("")
 
-tyfields: tyfieldlist ()
-    | ()
+tyfields: tyfieldlist ("")
+    | ("")
 
-tyfieldlist: tyfield ()
-    | tyfieldlist COMMA tyfield ()
+tyfieldlist: tyfield ("")
+    | tyfieldlist COMMA tyfield ("")
 
-tyfield: ID COLON ID ()
+tyfield: ID COLON ID ("")
 
-vardec: VAR ID ASSIGN exp ()
-    | VAR ID COLON ID ASSIGN exp ()
+vardec: VAR ID ASSIGN exp ("")
+    | VAR ID COLON ID ASSIGN exp ("")
 
-fundec: FUNCTION ID LPAREN tyfields RPAREN EQ exp ()
-    | FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp ()
+fundec: FUNCTION ID LPAREN tyfields RPAREN EQ exp ("")
+    | FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp ("")
