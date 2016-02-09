@@ -109,7 +109,7 @@ exp: lvalue          (Absyn.NilExp)
 
 negation: MINUS exp %prec UMINUS (Absyn.NegExp(exp, MINUSleft))
 
-seqexp: LPAREN seqexplist RPAREN (Absyn.SeqExp(seqexplist))
+seqexp: LPAREN seqexplist RPAREN (Absyn.SeqExp(List.rev(seqexplist)))
 
 seqexplist: seqexplist SEMICOLON exp ((exp, expleft)::seqexplist)
     | exp                            ([(exp, expleft)])
