@@ -11,9 +11,9 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | fieldcreate | assignmentexp | lvalue | ifthenelseexp | ifthenexp | whileexp | forexp
+%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | fieldcreate | assignmentexp | lvalue | ifthenelseexp | ifthenexp | whileexp | forexp | letexp | tyfield | tyfieldlist | tyfields | ty | typedec | decs | dec | vardec | fundec
 
-%nonassoc ID THEN DO
+%nonassoc ID THEN DO RPAREN
 %nonassoc ASSIGN LBRACK ELSE OF
 %left OR
 %left AND
@@ -77,6 +77,7 @@ exp:  lvalue ()
     | whileexp ()
     | forexp ()
     | BREAK ()
+    | letexp ()
 
 negation: MINUS exp ()
 
@@ -117,3 +118,33 @@ ifthenexp: IF exp THEN exp ()
 whileexp: WHILE exp DO exp ()
 
 forexp: FOR ID ASSIGN exp TO exp DO exp ()
+
+letexp: LET decs IN seqexplist END ()
+
+decs: dec ()
+    | decs dec ()
+
+dec: typedec ()
+    | vardec ()
+    | fundec ()
+
+
+typedec: TYPE ID EQ ty ()
+
+ty: ID ()
+    | LBRACE tyfields RBRACE ()
+    | ARRAY OF ID ()
+
+tyfields: tyfieldlist ()
+    | ()
+
+tyfieldlist: tyfield ()
+    | tyfieldlist COMMA tyfield ()
+
+tyfield: ID COLON ID ()
+
+vardec: VAR ID ASSIGN exp ()
+    | VAR ID COLON ID ASSIGN exp ()
+
+fundec: FUNCTION ID LPAREN tyfields RPAREN EQ exp ()
+    | FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp ()
