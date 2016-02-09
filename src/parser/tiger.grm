@@ -12,34 +12,34 @@
   | FUNCTION | VAR | TYPE
   | UMINUS
 
-%nonterm exp of string
-       | program of string
-       | seqexp of string
-       | seqexplist of string
-       | negation of string
-       | callexp of string
-       | callexplist of string
-       | arraycreateexp of string
-       | recordcreateexp of string
-       | recordcreatelist of string
-       | recordcreatelistexp of string
-       | fieldcreate of string
-       | assignmentexp of string
-       | lvalue of string
-       | ifthenelseexp of string
-       | ifthenexp of string
-       | whileexp of string
-       | forexp of string
-       | letexp of string
-       | tyfield of string
-       | tyfieldlist of string
-       | tyfields of string
-       | ty of string
-       | typedec of string
-       | decs of string
-       | dec of string
-       | vardec of string
-       | fundec of string
+%nonterm exp of Absyn.exp
+       | program of Absyn.exp
+       | seqexp of Absyn.exp
+       | seqexplist of (Absyn.exp * pos) list
+       | negation of Absyn.exp
+       | callexp of Absyn.exp
+       | callexplist of Absyn.exp
+       | arraycreateexp of Absyn.exp
+       | recordcreateexp of Absyn.exp
+       | recordcreatelist of Absyn.exp
+       | recordcreatelistexp of Absyn.exp
+       | fieldcreate of Absyn.exp
+       | assignmentexp of Absyn.exp
+       | lvalue of Absyn.exp
+       | ifthenelseexp of Absyn.exp
+       | ifthenexp of Absyn.exp
+       | whileexp of Absyn.exp
+       | forexp of Absyn.exp
+       | letexp of Absyn.exp
+       | tyfield of Absyn.exp
+       | tyfieldlist of Absyn.exp
+       | tyfields of Absyn.exp
+       | ty of Absyn.exp
+       | typedec of Absyn.exp
+       | decs of Absyn.exp
+       | dec of Absyn.exp
+       | vardec of Absyn.exp
+       | fundec of Absyn.exp
 
 %nonassoc ID THEN DO
 %nonassoc ASSIGN LBRACK ELSE OF
@@ -73,106 +73,106 @@
  *  to replace the two dummy productions below with an actual grammar.
  *)
 
-program : exp (print("\n\n" ^ exp ^ "\n\n"); "")
+program : exp (print("\n\n"); PrintAbsyn.print(TextIO.stdOut, exp); print("\n\n"); exp)
 
 
-exp: lvalue          (lvalue)
-   | NIL             ("nil")
-   | INT             (Int.toString INT)
-   | STRING          (STRING)
+exp: lvalue          (Absyn.NilExp)
+   | NIL             (Absyn.NilExp)
+   | INT             (Absyn.IntExp(INT))
+   | STRING          (Absyn.StringExp(STRING, STRINGleft))
    | seqexp          (seqexp)
    | negation        (negation)
-   | callexp         (callexp)
-   | arraycreateexp  (arraycreateexp)
-   | recordcreateexp (recordcreateexp)
-   | assignmentexp   (assignmentexp)
+   | callexp         (Absyn.NilExp)
+   | arraycreateexp  (Absyn.NilExp)
+   | recordcreateexp (Absyn.NilExp)
+   | assignmentexp   (Absyn.NilExp)
 
-   | exp PLUS exp   ("(" ^ exp1 ^ "+" ^ exp2 ^ ")")
-   | exp MINUS exp  ("(" ^ exp1 ^ "-" ^ exp2 ^ ")")
-   | exp TIMES exp  ("(" ^ exp1 ^ "*" ^ exp2 ^ ")")
-   | exp DIVIDE exp ("(" ^ exp1 ^ "/" ^ exp2 ^ ")")
-   | exp AND exp    ("(" ^ exp1 ^ " and " ^ exp2 ^ ")")
-   | exp OR exp     ("(" ^ exp1 ^ " or " ^ exp2 ^ ")")
-   | exp EQ exp     ("(" ^ exp1 ^ "=" ^ exp2 ^ ")")
-   | exp NEQ exp    ("(" ^ exp1 ^ "<>" ^ exp2 ^ ")")
-   | exp LT exp     ("(" ^ exp1 ^ "<" ^ exp2 ^ ")")
-   | exp LE exp     ("(" ^ exp1 ^ "<=" ^ exp2 ^ ")")
-   | exp GT exp     ("(" ^ exp1 ^ ">" ^ exp2 ^ ")")
-   | exp GE exp     ("(" ^ exp1 ^ ">=" ^ exp2 ^ ")")
+   | exp PLUS exp   (Absyn.OpExp { left=exp1, oper=Absyn.PlusOp, right=exp2, pos=exp1left })
+   | exp MINUS exp  (Absyn.OpExp { left=exp1, oper=Absyn.MinusOp, right=exp2, pos=exp1left })
+   | exp TIMES exp  (Absyn.OpExp { left=exp1, oper=Absyn.TimesOp, right=exp2, pos=exp1left })
+   | exp DIVIDE exp (Absyn.OpExp { left=exp1, oper=Absyn.DivideOp, right=exp2, pos=exp1left })
+   | exp AND exp    (Absyn.OpExp { left=exp1, oper=Absyn.AndOp, right=exp2, pos=exp1left })
+   | exp OR exp     (Absyn.OpExp { left=exp1, oper=Absyn.OrOp, right=exp2, pos=exp1left })
+   | exp EQ exp     (Absyn.OpExp { left=exp1, oper=Absyn.EqOp, right=exp2, pos=exp1left })
+   | exp NEQ exp    (Absyn.OpExp { left=exp1, oper=Absyn.NeqOp, right=exp2, pos=exp1left })
+   | exp LT exp     (Absyn.OpExp { left=exp1, oper=Absyn.LtOp, right=exp2, pos=exp1left })
+   | exp LE exp     (Absyn.OpExp { left=exp1, oper=Absyn.LeOp, right=exp2, pos=exp1left })
+   | exp GT exp     (Absyn.OpExp { left=exp1, oper=Absyn.GtOp, right=exp2, pos=exp1left })
+   | exp GE exp     (Absyn.OpExp { left=exp1, oper=Absyn.GeOp, right=exp2, pos=exp1left })
 
    | ifthenelseexp (ifthenelseexp)
    | ifthenexp     (ifthenexp)
    | whileexp      (whileexp)
-   | forexp        (forexp)
-   | BREAK         ("break")
-   | letexp        (letexp)
+   | forexp        (Absyn.NilExp)
+   | BREAK         (Absyn.BreakExp(BREAKleft))
+   | letexp        (Absyn.NilExp)
 
-negation: MINUS exp %prec UMINUS ("(-" ^ exp ^ ")")
+negation: MINUS exp %prec UMINUS (Absyn.NegExp(exp, MINUSleft))
 
-seqexp: LPAREN seqexplist RPAREN ("(" ^ seqexplist ^ ")")
+seqexp: LPAREN seqexplist RPAREN (Absyn.SeqExp(seqexplist))
 
-seqexplist: seqexplist SEMICOLON exp (seqexplist ^ "; " ^ exp)
-    | exp                            (exp)
+seqexplist: seqexplist SEMICOLON exp ((exp, expleft)::seqexplist)
+    | exp                            ([(exp, expleft)])
 
-callexp: ID LPAREN callexplist RPAREN ("")
-       | ID LPAREN RPAREN ("")
+callexp: ID LPAREN callexplist RPAREN (Absyn.NilExp)
+       | ID LPAREN RPAREN             (Absyn.NilExp)
 
-callexplist: callexplist COMMA exp ("")
-    | exp ("")
+callexplist: callexplist COMMA exp (Absyn.NilExp)
+    | exp                          (Absyn.NilExp)
 
-arraycreateexp: ID LBRACK exp RBRACK OF exp (ID ^ "[" ^ exp1 ^ "] of " ^ exp2)
+arraycreateexp: ID LBRACK exp RBRACK OF exp (Absyn.NilExp)
 
-recordcreateexp: ID LBRACE recordcreatelistexp RBRACE ("")
+recordcreateexp: ID LBRACE recordcreatelistexp RBRACE (Absyn.NilExp)
 
-recordcreatelistexp: recordcreatelist ("")
-    | ("")
+recordcreatelistexp: recordcreatelist (Absyn.NilExp)
+    |                                 (Absyn.NilExp)
 
-fieldcreate: ID EQ exp ("")
+fieldcreate: ID EQ exp (Absyn.NilExp)
 
-recordcreatelist: recordcreatelist COMMA fieldcreate ("")
-    | fieldcreate ("")
+recordcreatelist: recordcreatelist COMMA fieldcreate (Absyn.NilExp)
+    | fieldcreate                                    (Absyn.NilExp)
 
-assignmentexp: lvalue ASSIGN exp ("")
+assignmentexp: lvalue ASSIGN exp (Absyn.NilExp)
 
-lvalue: ID                     (ID)
-    | lvalue DOT ID            (lvalue ^ "." ^ ID)
-    | lvalue LBRACK exp RBRACK (lvalue ^ "[" ^ exp ^ "]")
-    | ID LBRACK exp RBRACK     (ID ^ "[" ^ exp ^ "]")
+lvalue: ID                     (Absyn.NilExp)
+    | lvalue DOT ID            (Absyn.NilExp)
+    | lvalue LBRACK exp RBRACK (Absyn.NilExp)
+    | ID LBRACK exp RBRACK     (Absyn.NilExp)
 
-ifthenelseexp: IF exp THEN exp ELSE exp ("(if " ^ exp1 ^ " then " ^ exp2 ^ " else " ^ exp3 ^ ")")
+ifthenelseexp: IF exp THEN exp ELSE exp (Absyn.IfExp { test=exp1, then'=exp2, else'=Option.SOME(exp3), pos=IFleft })
 
-ifthenexp: IF exp THEN exp ("(if " ^ exp1 ^ " then " ^ exp2 ^ ")")
+ifthenexp: IF exp THEN exp (Absyn.IfExp { test=exp1, then'=exp2, else'=Option.NONE, pos=IFleft })
 
-whileexp: WHILE exp DO exp ("")
+whileexp: WHILE exp DO exp (Absyn.WhileExp { test=exp1, body=exp2, pos=WHILEleft })
 
-forexp: FOR ID ASSIGN exp TO exp DO exp ("")
+forexp: FOR ID ASSIGN exp TO exp DO exp (Absyn.NilExp)
 
-letexp: LET decs IN seqexplist END ("let *dec* in " ^ seqexplist ^ "end")
+letexp: LET decs IN seqexplist END (Absyn.NilExp)
 
-decs: dec ("")
-    | decs dec ("")
+decs: dec      (Absyn.NilExp)
+    | decs dec (Absyn.NilExp)
 
-dec: typedec ("")
-    | vardec ("")
-    | fundec ("")
+dec: typedec (Absyn.NilExp)
+    | vardec (Absyn.NilExp)
+    | fundec (Absyn.NilExp)
 
 
-typedec: TYPE ID EQ ty ("")
+typedec: TYPE ID EQ ty (Absyn.NilExp)
 
-ty: ID ("")
-    | LBRACE tyfields RBRACE ("")
-    | ARRAY OF ID ("")
+ty: ID                       (Absyn.NilExp)
+    | LBRACE tyfields RBRACE (Absyn.NilExp)
+    | ARRAY OF ID            (Absyn.NilExp)
 
-tyfields: tyfieldlist ("")
-    | ("")
+tyfields: tyfieldlist (Absyn.NilExp)
+    |                 (Absyn.NilExp)
 
-tyfieldlist: tyfield ("")
-    | tyfieldlist COMMA tyfield ("")
+tyfieldlist: tyfield            (Absyn.NilExp)
+    | tyfieldlist COMMA tyfield (Absyn.NilExp)
 
-tyfield: ID COLON ID ("")
+tyfield: ID COLON ID (Absyn.NilExp)
 
-vardec: VAR ID ASSIGN exp ("")
-    | VAR ID COLON ID ASSIGN exp ("")
+vardec: VAR ID ASSIGN exp        (Absyn.NilExp)
+    | VAR ID COLON ID ASSIGN exp (Absyn.NilExp)
 
-fundec: FUNCTION ID LPAREN tyfields RPAREN EQ exp ("")
-    | FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp ("")
+fundec: FUNCTION ID LPAREN tyfields RPAREN EQ exp        (Absyn.NilExp)
+    | FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp (Absyn.NilExp)
