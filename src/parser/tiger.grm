@@ -48,7 +48,7 @@
 program :  exp   ()
 
 
-exp:  lvalue ()  
+exp:  lvalue ()
     | NIL ()
     | INT ()
     | STRING ()
@@ -76,6 +76,7 @@ exp:  lvalue ()
     | ifthenexp ()
     | whileexp ()
     | forexp ()
+    | BREAK ()
 
 negation: MINUS exp ()
 

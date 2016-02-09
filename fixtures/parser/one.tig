@@ -16,4 +16,5 @@
  if 1=1 then 1 else 2;
  if "a"="b" then "c";
  while 1=1 do bar();
- for i := 0 to 10 do foo())
+ for i := 0 to 10 do foo();
+ while 1=1 do break)
