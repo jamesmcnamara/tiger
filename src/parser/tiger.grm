@@ -13,10 +13,9 @@
 
 %nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | fieldcreate | assignmentexp | lvalue | ifthenelseexp | ifthenexp | whileexp | forexp | letexp | tyfield | tyfieldlist | tyfields | ty | typedec | decs | dec | vardec | fundec
 
-%nonassoc ID THEN DO RPAREN
+%nonassoc ID THEN DO
 %nonassoc ASSIGN LBRACK ELSE OF
-%left OR
-%left AND
+%left OR AND (* Does precedence matter here? *)
 %nonassoc EQ NEQ LE LT GT GE
 %left PLUS MINUS
 %left TIMES DIVIDE
