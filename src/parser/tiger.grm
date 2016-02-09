@@ -83,7 +83,7 @@ exp: lvalue          (Absyn.NilExp)
    | seqexp          (seqexp)
    | negation        (negation)
    | callexp         (Absyn.NilExp)
-   | arraycreateexp  (Absyn.NilExp)
+   | arraycreateexp  (arraycreateexp)
    | recordcreateexp (Absyn.NilExp)
    | assignmentexp   (Absyn.NilExp)
 
@@ -120,7 +120,7 @@ callexp: ID LPAREN callexplist RPAREN (Absyn.NilExp)
 callexplist: callexplist COMMA exp (Absyn.NilExp)
     | exp                          (Absyn.NilExp)
 
-arraycreateexp: ID LBRACK exp RBRACK OF exp (Absyn.NilExp)
+arraycreateexp: ID LBRACK exp RBRACK OF exp (Absyn.ArrayExp { typ=Symbol.symbol(ID), size=exp1, init=exp2, pos=IDleft })
 
 recordcreateexp: ID LBRACE recordcreatelistexp RBRACE (Absyn.NilExp)
 
