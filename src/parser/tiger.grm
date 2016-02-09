@@ -11,7 +11,14 @@
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
 
-%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | infixexp | op
+%nonterm  exp | program | seqexp | seqexplist | negation | callexp | callexplist | arraycreateexp | recordcreateexp | recordcreatelist | recordcreatelistexp | fieldcreate | assignmentexp | lvalue | ifthenelseexp | ifthenexp | whileexp | forexp | letexp | tyfield | tyfieldlist | tyfields | ty | typedec | decs | dec | vardec | fundec
+
+%nonassoc ID THEN DO
+%nonassoc ASSIGN LBRACK ELSE OF
+%left OR AND (* Does precedence matter here? *)
+%nonassoc EQ NEQ LE LT GT GE
+%left PLUS MINUS
+%left TIMES DIVIDE
 
 %pos int
 %verbose
@@ -40,19 +47,43 @@
 program :  exp   ()
 
 
-exp:    NIL ()
+exp:  lvalue ()
+    | NIL ()
     | INT ()
+    | STRING ()
     | seqexp ()
     | negation ()
     | callexp ()
-    | infixexp ()
+    | arraycreateexp ()
+    | recordcreateexp ()
+    | assignmentexp ()
+
+    | exp PLUS exp ()
+    | exp MINUS exp ()
+    | exp TIMES exp ()
+    | exp DIVIDE exp ()
+    | exp AND exp ()
+    | exp OR exp ()
+    | exp EQ exp ()
+    | exp NEQ exp ()
+    | exp LT exp ()
+    | exp LE exp ()
+    | exp GT exp ()
+    | exp GE exp ()
+
+    | ifthenelseexp ()
+    | ifthenexp ()
+    | whileexp ()
+    | forexp ()
+    | BREAK ()
+    | letexp ()
+
+negation: MINUS exp ()
 
 seqexp: LPAREN seqexplist RPAREN ()
 
 seqexplist: seqexplist SEMICOLON exp ()
     | exp ()
-
-negation: MINUS exp ()
 
 callexp: ID LPAREN callexplist RPAREN ()
        | ID LPAREN RPAREN ()
@@ -60,17 +91,59 @@ callexp: ID LPAREN callexplist RPAREN ()
 callexplist: callexplist COMMA exp ()
     | exp ()
 
-infixexp: exp op exp ()
+arraycreateexp: ID LBRACK exp RBRACK OF exp ()
 
-op: PLUS ()
-    | MINUS ()
-    | TIMES ()
-    | DIVIDE ()
-    | AND ()
-    | OR ()
-    | EQ ()
-    | NEQ ()
-    | LT ()
-    | LE ()
-    | GT ()
-    | GE ()
+recordcreateexp: ID LBRACE recordcreatelistexp RBRACE ()
+
+recordcreatelistexp: recordcreatelist ()
+    | ()
+
+fieldcreate: ID EQ exp ()
+
+recordcreatelist: recordcreatelist COMMA fieldcreate ()
+    | fieldcreate ()
+
+assignmentexp: lvalue ASSIGN exp ()
+
+lvalue: ID ()
+    | lvalue DOT ID ()
+    | lvalue LBRACK exp RBRACK ()
+    | ID LBRACK exp RBRACK ()
+
+ifthenelseexp: IF exp THEN exp ELSE exp ()
+
+ifthenexp: IF exp THEN exp ()
+
+whileexp: WHILE exp DO exp ()
+
+forexp: FOR ID ASSIGN exp TO exp DO exp ()
+
+letexp: LET decs IN seqexplist END ()
+
+decs: dec ()
+    | decs dec ()
+
+dec: typedec ()
+    | vardec ()
+    | fundec ()
+
+
+typedec: TYPE ID EQ ty ()
+
+ty: ID ()
+    | LBRACE tyfields RBRACE ()
+    | ARRAY OF ID ()
+
+tyfields: tyfieldlist ()
+    | ()
+
+tyfieldlist: tyfield ()
+    | tyfieldlist COMMA tyfield ()
+
+tyfield: ID COLON ID ()
+
+vardec: VAR ID ASSIGN exp ()
+    | VAR ID COLON ID ASSIGN exp ()
+
+fundec: FUNCTION ID LPAREN tyfields RPAREN EQ exp ()
+    | FUNCTION ID LPAREN tyfields RPAREN COLON ID EQ exp ()
