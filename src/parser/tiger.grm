@@ -10,6 +10,7 @@
   | ARRAY | IF | THEN | ELSE | WHILE | FOR | TO | DO | LET | IN | END | OF
   | BREAK | NIL
   | FUNCTION | VAR | TYPE
+  | UMINUS
 
 %nonterm exp of string
        | program of string
@@ -46,6 +47,7 @@
 %nonassoc EQ NEQ LE LT GT GE
 %left PLUS MINUS
 %left TIMES DIVIDE
+%left UMINUS
 
 %pos int
 %verbose
@@ -105,7 +107,7 @@ exp: lvalue          (lvalue)
    | BREAK         ("break")
    | letexp        (letexp)
 
-negation: MINUS exp ("(-" ^ exp ^ ")")
+negation: MINUS exp %prec UMINUS ("(-" ^ exp ^ ")")
 
 seqexp: LPAREN seqexplist RPAREN ("(" ^ seqexplist ^ ")")
 
