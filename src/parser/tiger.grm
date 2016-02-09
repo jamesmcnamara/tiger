@@ -21,9 +21,8 @@
        | callexplist of Absyn.exp
        | arraycreateexp of Absyn.exp
        | recordcreateexp of Absyn.exp
-       | recordcreatelist of Absyn.exp
-       | recordcreatelistexp of Absyn.exp
-       | fieldcreate of Absyn.exp
+       | recordcreatelistexp of (Absyn.symbol * Absyn.exp * pos) list
+       | fieldcreate of (Absyn.symbol * Absyn.exp * pos)
        | assignmentexp of Absyn.exp
        | lvalue of Absyn.var
        | ifthenelseexp of Absyn.exp
@@ -86,7 +85,7 @@ exp: lvalue          (Absyn.VarExp(lvalue))
    | negation        (negation)
    | callexp         (Absyn.NilExp)
    | arraycreateexp  (arraycreateexp)
-   | recordcreateexp (Absyn.NilExp)
+   | recordcreateexp (recordcreateexp)
    | assignmentexp   (assignmentexp)
 
    | exp PLUS exp   (Absyn.OpExp { left=exp1, oper=Absyn.PlusOp, right=exp2, pos=exp1left })
@@ -124,15 +123,12 @@ callexplist: callexplist COMMA exp (Absyn.NilExp)
 
 arraycreateexp: ID LBRACK exp RBRACK OF exp (Absyn.ArrayExp { typ=Symbol.symbol(ID), size=exp1, init=exp2, pos=IDleft })
 
-recordcreateexp: ID LBRACE recordcreatelistexp RBRACE (Absyn.NilExp)
+recordcreateexp: ID LBRACE recordcreatelistexp RBRACE (Absyn.RecordExp { fields=List.rev(recordcreatelistexp), typ=Symbol.symbol(ID), pos=IDleft })
 
-recordcreatelistexp: recordcreatelist (Absyn.NilExp)
-    |                                 (Absyn.NilExp)
+recordcreatelistexp: recordcreatelistexp COMMA fieldcreate (fieldcreate :: recordcreatelistexp)
+    | fieldcreate                                    ([fieldcreate])
 
-fieldcreate: ID EQ exp (Absyn.NilExp)
-
-recordcreatelist: recordcreatelist COMMA fieldcreate (Absyn.NilExp)
-    | fieldcreate                                    (Absyn.NilExp)
+fieldcreate: ID EQ exp ((Symbol.symbol(ID), exp, IDleft))
 
 assignmentexp: lvalue ASSIGN exp (Absyn.AssignExp { var=lvalue, exp=exp, pos=lvalueleft })
 
