@@ -41,8 +41,10 @@
        | vardec of Absyn.exp
        | fundec of Absyn.exp
 
-%nonassoc ID THEN DO
-%nonassoc ASSIGN LBRACK ELSE OF
+%nonassoc ID
+%nonassoc THEN DO
+%nonassoc ELSE OF
+%left ASSIGN LBRACK
 %left OR AND (* Does precedence matter here? *)
 %nonassoc EQ NEQ LE LT GT GE
 %left PLUS MINUS
