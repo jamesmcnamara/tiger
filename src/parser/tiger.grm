@@ -25,7 +25,7 @@
        | recordcreatelistexp of Absyn.exp
        | fieldcreate of Absyn.exp
        | assignmentexp of Absyn.exp
-       | lvalue of Absyn.exp
+       | lvalue of Absyn.var
        | ifthenelseexp of Absyn.exp
        | ifthenexp of Absyn.exp
        | whileexp of Absyn.exp
@@ -76,7 +76,7 @@
 program : exp (print("\n\n"); PrintAbsyn.print(TextIO.stdOut, exp); print("\n\n"); exp)
 
 
-exp: lvalue          (Absyn.NilExp)
+exp: lvalue          (Absyn.VarExp(lvalue))
    | NIL             (Absyn.NilExp)
    | INT             (Absyn.IntExp(INT))
    | STRING          (Absyn.StringExp(STRING, STRINGleft))
@@ -85,7 +85,7 @@ exp: lvalue          (Absyn.NilExp)
    | callexp         (Absyn.NilExp)
    | arraycreateexp  (arraycreateexp)
    | recordcreateexp (Absyn.NilExp)
-   | assignmentexp   (Absyn.NilExp)
+   | assignmentexp   (assignmentexp)
 
    | exp PLUS exp   (Absyn.OpExp { left=exp1, oper=Absyn.PlusOp, right=exp2, pos=exp1left })
    | exp MINUS exp  (Absyn.OpExp { left=exp1, oper=Absyn.MinusOp, right=exp2, pos=exp1left })
@@ -132,12 +132,11 @@ fieldcreate: ID EQ exp (Absyn.NilExp)
 recordcreatelist: recordcreatelist COMMA fieldcreate (Absyn.NilExp)
     | fieldcreate                                    (Absyn.NilExp)
 
-assignmentexp: lvalue ASSIGN exp (Absyn.NilExp)
+assignmentexp: lvalue ASSIGN exp (Absyn.AssignExp { var=lvalue, exp=exp, pos=lvalueleft })
 
-lvalue: ID                     (Absyn.NilExp)
-    | lvalue DOT ID            (Absyn.NilExp)
-    | lvalue LBRACK exp RBRACK (Absyn.NilExp)
-    | ID LBRACK exp RBRACK     (Absyn.NilExp)
+lvalue: ID                     (Absyn.SimpleVar(Symbol.symbol(ID), IDleft))
+    | lvalue DOT ID            (Absyn.FieldVar(lvalue, Symbol.symbol(ID), lvalueleft))
+    | lvalue LBRACK exp RBRACK (Absyn.SubscriptVar(lvalue, exp, lvalueleft))
 
 ifthenelseexp: IF exp THEN exp ELSE exp (Absyn.IfExp { test=exp1, then'=exp2, else'=Option.SOME(exp3), pos=IFleft })
 
