@@ -1,0 +1,9 @@
+let
+    type arrayType = array of int
+    type recordType = {field : int}
+    var i = 0
+    function plus5(num: int) : int =
+        num + 5
+in
+    1
+end

@@ -163,6 +163,57 @@ Test.test(fn () =>
     in
         Test.assertEqIO(expected, actual, astPrint)
     end
+ );
+ Test.test(fn () =>
+    let val actual = Parse.parse "fixtures/parser/simple/fourteen.tig"
+        val expected = Absyn.LetExp {
+            decs=[
+                Absyn.TypeDec [{
+                    name=Symbol.symbol("arrayType"),
+                    ty=Absyn.ArrayTy(Symbol.symbol("int"),19),
+                    pos=5
+                }],
+                Absyn.TypeDec [{
+                    name=Symbol.symbol("recordType"),
+                    ty=Absyn.RecordTy [{
+                        name=Symbol.symbol("field"),
+                        escape=ref false,
+                        typ=Symbol.symbol("int"),
+                        pos=24
+                    }],
+                    pos=5
+                }],
+                Absyn.VarDec {
+                    name=Symbol.symbol("i"),
+                    escape=ref false,
+                    typ=Option.NONE,
+                    init=Absyn.IntExp(0),
+                    pos=5
+                },
+                Absyn.FunctionDec [{
+                    name=Symbol.symbol("plus5"),
+                    params=[{
+                        name=Symbol.symbol("num"),
+                        escape=ref false,
+                        typ=Symbol.symbol("int"),
+                        pos=20
+                    }],
+                    result=Option.SOME(Symbol.symbol("int"),30),
+                    body=Absyn.OpExp {
+                        left=Absyn.VarExp(Absyn.SimpleVar(Symbol.symbol("num"),9)),
+                        oper=Absyn.PlusOp,
+                        right=Absyn.IntExp(5),
+                        pos=13
+                    },
+                    pos=5
+                }]
+            ],
+            body=Absyn.IntExp(1),
+            pos=1
+        }
+    in
+        Test.assertEqIO(expected, actual, astPrint)
+    end
  )
 
 end
