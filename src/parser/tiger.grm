@@ -127,6 +127,7 @@ recordexp: ID LBRACE recordexplist RBRACE    (Absyn.RecordExp { fields=List.rev(
 
 recordexplist: recordexplist COMMA recordexpfields    (recordexpfields :: recordexplist)
              | recordexpfields                        ([recordexpfields])
+             |                                        ([])
 
 recordexpfields: ID EQ exp    ((Symbol.symbol(ID), exp, IDleft))
 
@@ -234,3 +235,4 @@ tyfield: ID COLON ID    ({ name=Symbol.symbol(ID1),
 
 tyfieldlist: tyfieldlist COMMA tyfield    (tyfield :: tyfieldlist)
            | tyfield                      ([tyfield])
+           |                              ([])
