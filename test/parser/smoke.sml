@@ -11,7 +11,8 @@ Test.test (fn () =>
                     (print ("-> " ^ filename ^ "\n");
                      Parse.parse(filename);
                      ())
-            end;
+            end
+            handle Error => ();
             file := OS.FileSys.readDir(dir));
         true
     end
