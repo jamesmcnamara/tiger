@@ -74,7 +74,7 @@
  *  to replace the two dummy productions below with an actual grammar.
  *)
 
-program : exp (print("\n\n"); PrintAbsyn.print(TextIO.stdOut, exp); print("\n\n"); exp)
+program : exp (exp)
 
 
 exp: lvalue          (Absyn.VarExp(lvalue))
