@@ -10,7 +10,6 @@ datatype var = SimpleVar of symbol * pos
 and exp = VarExp of var
         | NilExp
         | IntExp of int
-        | NegExp of exp * pos
         | StringExp of string * pos
         | CallExp of {func: symbol, args: exp list, pos: pos}
         | OpExp of {left: exp, oper: oper, right: exp, pos: pos}
@@ -40,7 +39,6 @@ and ty = NameTy of symbol * pos
 
 and oper = PlusOp | MinusOp | TimesOp | DivideOp
          | EqOp | NeqOp | LtOp | LeOp | GtOp | GeOp
-         | AndOp | OrOp
 
 withtype field = {name: symbol, escape: bool ref,
           typ: symbol, pos: pos}

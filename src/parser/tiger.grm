@@ -85,15 +85,21 @@ var: ID                    (Absyn.SimpleVar(Symbol.symbol(ID), IDleft))
 exp: var                    (Absyn.VarExp(var))
    | NIL                    (Absyn.NilExp)
    | INT                    (Absyn.IntExp(INT))
-   | MINUS exp %prec UMINUS (Absyn.NegExp(exp, MINUSleft))
+   | MINUS exp %prec UMINUS (Absyn.OpExp { left=Absyn.IntExp(0), oper=Absyn.MinusOp, right=exp, pos=MINUSleft })
    | STRING                 (Absyn.StringExp(STRING, STRINGleft))
    | callexp                (callexp)
    | exp PLUS exp           (Absyn.OpExp { left=exp1, oper=Absyn.PlusOp, right=exp2, pos=exp1left })
    | exp MINUS exp          (Absyn.OpExp { left=exp1, oper=Absyn.MinusOp, right=exp2, pos=exp1left })
    | exp TIMES exp          (Absyn.OpExp { left=exp1, oper=Absyn.TimesOp, right=exp2, pos=exp1left })
    | exp DIVIDE exp         (Absyn.OpExp { left=exp1, oper=Absyn.DivideOp, right=exp2, pos=exp1left })
-   | exp AND exp            (Absyn.OpExp { left=exp1, oper=Absyn.AndOp, right=exp2, pos=exp1left })
-   | exp OR exp             (Absyn.OpExp { left=exp1, oper=Absyn.OrOp, right=exp2, pos=exp1left })
+   | exp AND exp            (Absyn.IfExp { test=exp1,
+                                           then'=exp2,
+                                           else'=Option.SOME(Absyn.IntExp(0)),
+                                           pos=exp1left })
+   | exp OR exp             (Absyn.IfExp { test=exp1,
+                                           then'=Absyn.IntExp(1),
+                                           else'=Option.SOME(exp2),
+                                           pos=exp1left })
    | exp EQ exp             (Absyn.OpExp { left=exp1, oper=Absyn.EqOp, right=exp2, pos=exp1left })
    | exp NEQ exp            (Absyn.OpExp { left=exp1, oper=Absyn.NeqOp, right=exp2, pos=exp1left })
    | exp LT exp             (Absyn.OpExp { left=exp1, oper=Absyn.LtOp, right=exp2, pos=exp1left })

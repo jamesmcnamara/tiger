@@ -21,8 +21,6 @@ fun print (outstream, e0) =
     | opname A.LeOp = "LeOp"
     | opname A.GtOp = "GtOp"
     | opname A.GeOp = "GeOp"
-    | opname A.AndOp = "AndOp"
-    | opname A.OrOp = "OrOp"
 
   fun dolist d f [a] = (sayln ""; f(a,d+1))
     | dolist d f (a::r) = (sayln ""; f(a,d+1); say ","; dolist d f r)
@@ -40,8 +38,6 @@ fun print (outstream, e0) =
   and exp(A.VarExp v, d) = (indent d; sayln "VarExp("; var(v,d+1); say ")")
     | exp(A.NilExp, d) = (indent d; say "NilExp")
     | exp(A.IntExp i, d) = (indent d; say "IntExp("; say(Int.toString i);
-			    say ")")
-    | exp(A.NegExp (e, p), d) = (indent d; sayln "NegExp("; exp(e, d+1);
 			    say ")")
     | exp(A.StringExp(s,p),d) = (indent d; say "StringExp(\"";
 				 say s; say "\")")
