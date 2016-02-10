@@ -1,4 +1,4 @@
-(*Test.test (fn () =>
+Test.test (fn () =>
     let val dir = OS.FileSys.openDir("fixtures")
         val file = ref (OS.FileSys.readDir dir)
     in
@@ -14,13 +14,5 @@
             end;
             file := OS.FileSys.readDir(dir));
         true
-    end
-);
-*)
-
-Test.test(fn () =>
-    let val tokens = Parse.parse "fixtures/parser/one.tig"
-    in
-        Test.assert(true)
     end
 );
