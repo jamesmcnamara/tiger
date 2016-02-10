@@ -21,6 +21,17 @@ struct
          raise Failed
        end
 
+  fun assertEqIO(expected,actual,printer) =
+    if expected = actual
+    then true
+    else
+      (print "\nExpected: ";
+       printer(expected);
+       print "but got: ";
+       printer(actual);
+       print "\n";
+       raise Failed)
+
   fun assert test =
      if test
      then true
