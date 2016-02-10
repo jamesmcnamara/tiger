@@ -1,15 +1,17 @@
+open Absyn;
+
 let val astPrint = (fn ast => PrintAbsyn.print(TextIO.stdOut, ast))
 in
 (Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/one.tig"
-        val expected = Absyn.IntExp(1)
+        val expected = IntExp(1)
     in
          Test.assertEqIO(expected, actual, astPrint)
     end
  );
  Test.test(fn () =>
      let val actual = Parse.parse "fixtures/parser/simple/two.tig"
-         val expected = Absyn.StringExp("hello",1)
+         val expected = StringExp("hello",1)
      in
           Test.assertEqIO(expected, actual, astPrint)
      end
@@ -17,44 +19,44 @@ in
 );
 Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/three.tig"
-        val expected = Absyn.NilExp
+        val expected = NilExp
     in
          Test.assertEqIO(expected, actual, astPrint)
     end
  );
  Test.test(fn () =>
      let val actual = Parse.parse "fixtures/parser/simple/four.tig"
-         val expected = Absyn.NegExp(Absyn.IntExp(123), 1)
+         val expected = NegExp(IntExp(123), 1)
      in
           Test.assertEqIO(expected, actual, astPrint)
      end
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/five.tig"
-        val expected = Absyn.SeqExp([(Absyn.IntExp(123),2),(Absyn.StringExp("hello",6),6)])
+        val expected = SeqExp([(IntExp(123),2),(StringExp("hello",6),6)])
     in
         Test.assertEqIO(expected, actual, astPrint)
     end
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/six.tig"
-        val expected = Absyn.SeqExp([
-            (Absyn.OpExp {
-                left=Absyn.IntExp(1),
-                oper=Absyn.PlusOp,
-                right=Absyn.IntExp(1),
+        val expected = SeqExp([
+            (OpExp {
+                left=IntExp(1),
+                oper=PlusOp,
+                right=IntExp(1),
                 pos=2
             },2),
-            (Absyn.OpExp {
-                left=Absyn.IntExp(1),
-                oper=Absyn.AndOp,
-                right=Absyn.IntExp(1),
+            (OpExp {
+                left=IntExp(1),
+                oper=AndOp,
+                right=IntExp(1),
                 pos=8
             },8),
-            (Absyn.OpExp {
-                left=Absyn.IntExp(1),
-                oper=Absyn.OrOp,
-                right=Absyn.IntExp(1),
+            (OpExp {
+                left=IntExp(1),
+                oper=OrOp,
+                right=IntExp(1),
                 pos=14
             },14)
         ])
@@ -64,7 +66,7 @@ Test.test(fn () =>
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/seven.tig"
-        val expected = Absyn.CallExp {
+        val expected = CallExp {
             func=Symbol.symbol("foo"),
             args=[],
             pos=1
@@ -75,9 +77,9 @@ Test.test(fn () =>
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/eight.tig"
-        val expected = Absyn.CallExp {
+        val expected = CallExp {
             func=Symbol.symbol("foo"),
-            args=[Absyn.IntExp(1)],
+            args=[IntExp(1)],
             pos=1
         }
     in
@@ -86,10 +88,10 @@ Test.test(fn () =>
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/nine.tig"
-        val expected = Absyn.ArrayExp {
+        val expected = ArrayExp {
             typ=Symbol.symbol("intArray"),
-            size=Absyn.IntExp(10),
-            init=Absyn.IntExp(0),
+            size=IntExp(10),
+            init=IntExp(0),
             pos=1
         }
     in
@@ -98,9 +100,9 @@ Test.test(fn () =>
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/ten.tig"
-        val expected = Absyn.AssignExp {
-            var=Absyn.SubscriptVar(Absyn.SimpleVar(Symbol.symbol("myArray"),1),Absyn.IntExp(10),1),
-            exp=Absyn.IntExp(1),
+        val expected = AssignExp {
+            var=SubscriptVar(SimpleVar(Symbol.symbol("myArray"),1),IntExp(10),1),
+            exp=IntExp(1),
             pos=1
         }
     in
@@ -109,9 +111,9 @@ Test.test(fn () =>
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/eleven.tig"
-        val expected = Absyn.AssignExp {
-            var=Absyn.FieldVar(Absyn.SimpleVar(Symbol.symbol("myRecord"),1),Symbol.symbol("someField"),1),
-            exp=Absyn.StringExp("hello",23),
+        val expected = AssignExp {
+            var=FieldVar(SimpleVar(Symbol.symbol("myRecord"),1),Symbol.symbol("someField"),1),
+            exp=StringExp("hello",23),
             pos=1
         }
     in
@@ -120,12 +122,12 @@ Test.test(fn () =>
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/danglingelse.tig"
-        val expected = Absyn.IfExp {
-            test=Absyn.IntExp(1),
-            then'=Absyn.IfExp {
-                test=Absyn.IntExp(2),
-                then'=Absyn.IntExp(3),
-                else'=Option.SOME(Absyn.IntExp(4)),
+        val expected = IfExp {
+            test=IntExp(1),
+            then'=IfExp {
+                test=IntExp(2),
+                then'=IntExp(3),
+                else'=Option.SOME(IntExp(4)),
                 pos=11
             },
             else'=Option.NONE,
@@ -137,9 +139,9 @@ Test.test(fn () =>
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/twelve.tig"
-        val expected = Absyn.WhileExp {
-            test=Absyn.VarExp(Absyn.SimpleVar(Symbol.symbol("i"),7)),
-            body=Absyn.IntExp(1),
+        val expected = WhileExp {
+            test=VarExp(SimpleVar(Symbol.symbol("i"),7)),
+            body=IntExp(1),
             pos=1
         }
     in
@@ -148,12 +150,12 @@ Test.test(fn () =>
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/thirteen.tig"
-        val expected = Absyn.ForExp {
+        val expected = ForExp {
             var=Symbol.symbol("i"),
             escape=ref false,
-            lo=Absyn.IntExp(0),
-            hi=Absyn.IntExp(10),
-            body=Absyn.CallExp {
+            lo=IntExp(0),
+            hi=IntExp(10),
+            body=CallExp {
                 func=Symbol.symbol("foo"),
                 args=[],
                 pos=21
@@ -166,16 +168,21 @@ Test.test(fn () =>
  );
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/fourteen.tig"
-        val expected = Absyn.LetExp {
+        val expected = LetExp {
             decs=[
-                Absyn.TypeDec [{
-                    name=Symbol.symbol("arrayType"),
-                    ty=Absyn.ArrayTy(Symbol.symbol("int"),19),
+                TypeDec [{
+                    name=Symbol.symbol("a"),
+                    ty=NameTy(Symbol.symbol("int"),14),
                     pos=5
                 }],
-                Absyn.TypeDec [{
+                TypeDec [{
+                    name=Symbol.symbol("arrayType"),
+                    ty=ArrayTy(Symbol.symbol("int"),19),
+                    pos=5
+                }],
+                TypeDec [{
                     name=Symbol.symbol("recordType"),
-                    ty=Absyn.RecordTy [{
+                    ty=RecordTy [{
                         name=Symbol.symbol("field"),
                         escape=ref false,
                         typ=Symbol.symbol("int"),
@@ -183,14 +190,14 @@ Test.test(fn () =>
                     }],
                     pos=5
                 }],
-                Absyn.VarDec {
+                VarDec {
                     name=Symbol.symbol("i"),
                     escape=ref false,
                     typ=Option.NONE,
-                    init=Absyn.IntExp(0),
+                    init=IntExp(0),
                     pos=5
                 },
-                Absyn.FunctionDec [{
+                FunctionDec [{
                     name=Symbol.symbol("plus5"),
                     params=[{
                         name=Symbol.symbol("num"),
@@ -199,21 +206,36 @@ Test.test(fn () =>
                         pos=20
                     }],
                     result=Option.SOME(Symbol.symbol("int"),30),
-                    body=Absyn.OpExp {
-                        left=Absyn.VarExp(Absyn.SimpleVar(Symbol.symbol("num"),9)),
-                        oper=Absyn.PlusOp,
-                        right=Absyn.IntExp(5),
+                    body=OpExp {
+                        left=VarExp(SimpleVar(Symbol.symbol("num"),9)),
+                        oper=PlusOp,
+                        right=IntExp(5),
                         pos=13
                     },
                     pos=5
                 }]
             ],
-            body=Absyn.IntExp(1),
+            body=IntExp(1),
+            pos=1
+        }
+    in
+        Test.assertEqIO(expected, actual, astPrint)
+    end
+ );
+ Test.test(fn () =>
+    let val actual = Parse.parse "fixtures/parser/simple/fifteen.tig"
+        val expected = RecordExp {
+            fields=[
+                (Symbol.symbol("name"),StringExp("derp",17),12),
+                (Symbol.symbol("age"),IntExp(1),24)
+            ],
+            typ=Symbol.symbol("testRecord"),
             pos=1
         }
     in
         Test.assertEqIO(expected, actual, astPrint)
     end
  )
+
 
 end

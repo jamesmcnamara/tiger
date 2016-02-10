@@ -1,4 +1,5 @@
 let
+    type a = int
     type arrayType = array of int
     type recordType = {field : int}
     var i = 0
