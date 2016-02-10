@@ -114,6 +114,7 @@ seqexp: LPAREN seqexplist RPAREN (Absyn.SeqExp(List.rev(seqexplist)))
 
 seqexplist: seqexplist SEMICOLON exp ((exp, expleft)::seqexplist)
     | exp                            ([(exp, expleft)])
+    |                                ([])
 
 callexp: ID LPAREN callexplist RPAREN (Absyn.CallExp { func=Symbol.symbol(ID), args=List.rev(callexplist), pos=IDleft})
 
