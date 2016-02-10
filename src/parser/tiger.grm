@@ -112,8 +112,8 @@ opexp: exp PLUS exp      (OpExp { left=exp1,oper=PlusOp,   right=exp2,pos=exp1le
 
 
 callexp: ID LPAREN callexplist RPAREN    (CallExp { func=Symbol.symbol(ID),
-                                                          args=List.rev(callexplist),
-                                                          pos=IDleft })
+                                                    args=List.rev(callexplist),
+                                                    pos=IDleft })
 
 callexplist: callexplist COMMA exp    (exp :: callexplist)
            | exp                      ([exp])
@@ -121,8 +121,8 @@ callexplist: callexplist COMMA exp    (exp :: callexplist)
 
 
 recordexp: ID LBRACE recordexplist RBRACE    (RecordExp { fields=List.rev(recordexplist),
-                                                                typ=Symbol.symbol(ID),
-                                                                pos=IDleft })
+                                                          typ=Symbol.symbol(ID),
+                                                          pos=IDleft })
 
 recordexplist: recordexplist COMMA recordexpfields    (recordexpfields :: recordexplist)
              | recordexpfields                        ([recordexpfields])
@@ -139,61 +139,61 @@ seqexplist: seqexplist SEMICOLON exp    ((exp, expleft) :: seqexplist)
 
 
 assignexp: var ASSIGN exp    (AssignExp { var=var,
-                                                exp=exp,
-                                                pos=varleft })
+                                          exp=exp,
+                                          pos=varleft })
 
 
 ifthenelseexp: IF exp THEN exp ELSE exp    (IfExp { test=exp1,
-                                                          then'=exp2,
-                                                          else'=Option.SOME(exp3),
-                                                          pos=IFleft })
+                                                    then'=exp2,
+                                                    else'=Option.SOME(exp3),
+                                                    pos=IFleft })
 
 
 ifthenexp: IF exp THEN exp    (IfExp { test=exp1,
-                                             then'=exp2,
-                                             else'=Option.NONE,
-                                             pos=IFleft })
+                                       then'=exp2,
+                                       else'=Option.NONE,
+                                       pos=IFleft })
 
 
 whileexp: WHILE exp DO exp    (WhileExp { test=exp1,
-                                                body=exp2,
-                                                pos=WHILEleft })
+                                          body=exp2,
+                                          pos=WHILEleft })
 
 
 forexp: FOR ID ASSIGN exp TO exp DO exp    (ForExp { var=Symbol.symbol(ID),
-                                                           escape=ref true,
-                                                           lo=exp1,
-                                                           hi=exp2,
-                                                           body=exp3,
-                                                           pos=FORleft })
+                                                     escape=ref true,
+                                                     lo=exp1,
+                                                     hi=exp2,
+                                                     body=exp3,
+                                                     pos=FORleft })
 
 
 arrayexp: ID LBRACK exp RBRACK OF exp (ArrayExp { typ=Symbol.symbol(ID),
-                                                        size=exp1,
-                                                        init=exp2,
-                                                        pos=IDleft })
+                                                  size=exp1,
+                                                  init=exp2,
+                                                  pos=IDleft })
 
 
 letexp: LET declist IN exp END (LetExp { decs=List.rev declist,
-                                               body=exp,
-                                               pos=LETleft })
+                                         body=exp,
+                                         pos=LETleft })
 
 
-dec: fundeclist     (FunctionDec(fundeclist))
+dec: fundeclist     (FunctionDec(List.rev(fundeclist)))
    | vardec         (vardec)
-   | typedeclist    (TypeDec(typedeclist))
+   | typedeclist    (TypeDec(List.rev(typedeclist)))
 
 declist: declist dec    (dec :: declist)
        | dec            ([dec])
 
 
 fundec: FUNCTION ID LPAREN tyfieldlist RPAREN EQ exp             ({ name=Symbol.symbol(ID),
-                                                                    params=tyfieldlist,
+                                                                    params=List.rev(tyfieldlist),
                                                                     result=Option.NONE,
                                                                     body=exp,
                                                                     pos=FUNCTIONleft })
       | FUNCTION ID LPAREN tyfieldlist RPAREN COLON ID EQ exp    ({ name=Symbol.symbol(ID1),
-                                                                    params=tyfieldlist,
+                                                                    params=List.rev(tyfieldlist),
                                                                     result=Option.SOME(Symbol.symbol(ID2), ID2left),
                                                                     body=exp,
                                                                     pos=FUNCTIONleft })
@@ -203,15 +203,15 @@ fundeclist: fundeclist fundec    (fundec :: fundeclist)
 
 
 vardec: VAR ID ASSIGN exp            (VarDec { name=Symbol.symbol(ID),
-                                                     escape=ref true,
-                                                     typ=Option.NONE,
-                                                     init=exp,
-                                                     pos=VARleft })
+                                               escape=ref true,
+                                               typ=Option.NONE,
+                                               init=exp,
+                                               pos=VARleft })
      | VAR ID COLON ID ASSIGN exp    (VarDec { name=Symbol.symbol(ID1),
-                                                     escape=ref true,
-                                                     typ=Option.SOME(Symbol.symbol(ID2), ID2left),
-                                                     init=exp,
-                                                     pos=VARleft })
+                                               escape=ref true,
+                                               typ=Option.SOME(Symbol.symbol(ID2), ID2left),
+                                               init=exp,
+                                               pos=VARleft })
 
 
 typedec: TYPE ID EQ ty    ({ name=Symbol.symbol(ID),
@@ -222,9 +222,9 @@ typedeclist: typedeclist typedec    (typedec :: typedeclist)
            | typedec                ([typedec])
 
 
-ty: ID                           (NameTy (Symbol.symbol(ID), IDleft))
-  | LBRACE tyfieldlist RBRACE    (RecordTy tyfieldlist)
-  | ARRAY OF ID                  (ArrayTy (Symbol.symbol(ID), ARRAYleft))
+ty: ID                           (NameTy(Symbol.symbol(ID), IDleft))
+  | LBRACE tyfieldlist RBRACE    (RecordTy(List.rev(tyfieldlist)))
+  | ARRAY OF ID                  (ArrayTy(Symbol.symbol(ID), ARRAYleft))
 
 
 tyfield: ID COLON ID    ({ name=Symbol.symbol(ID1),
