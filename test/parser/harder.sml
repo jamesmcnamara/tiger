@@ -28,12 +28,27 @@ Test.test(fn () =>
     end
 );
 
-(* a[3] *)
 Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/harder/three.tig"
         val expected = VarExp(SubscriptVar(SimpleVar(Symbol.symbol("a"),1),
                                            IntExp(3),
                                            1))
+    in
+        Test.assertEqIO(expected, actual, astPrint)
+    end
+);
+
+(*a[3] := b[1] of 2*)
+Test.test(fn () =>
+    let val actual = Parse.parse "fixtures/parser/harder/four.tig"
+        val expected = AssignExp { pos=1,
+                                   var=SubscriptVar(SimpleVar(Symbol.symbol("a"),1),
+                                                    IntExp(3),
+                                                    1),
+                                   exp=ArrayExp { pos=9,
+                                                  typ=Symbol.symbol("b"),
+                                                  size=IntExp(1),
+                                                  init=IntExp(2) }}
     in
         Test.assertEqIO(expected, actual, astPrint)
     end
