@@ -8,7 +8,7 @@ struct
   fun test f =
     (testsRan := !testsRan + 1;
      (if f () then (testsPassed := !testsPassed + 1; true) else false)
-     handle Failed => false)
+     handle _ => false)
 
   fun assertEq(expected,actual,toString) =
      if expected = actual
