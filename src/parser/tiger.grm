@@ -50,14 +50,20 @@ open Absyn;
          DO OF NIL
 
 %nonassoc FUNCTION VAR TYPE IN
+
 %nonassoc ID
-%nonassoc THEN DO
-%nonassoc ELSE OF
-%left ASSIGN LBRACK
-%left OR AND
+
+%nonassoc THEN
+%nonassoc ELSE OF DO
+(* An assignment is a valueless expression *)
+%nonassoc ASSIGN
+(* The comparison operations are non-associative *)
+%nonassoc OR AND
 %nonassoc EQ NEQ LE LT GT GE
+(* This follows from common mathematics *)
 %left PLUS MINUS
 %left TIMES DIVIDE
+(* Unary minus binds the tightest of all. *)
 %left UMINUS
 
 %pos int
@@ -78,7 +84,7 @@ program : exp (exp)
 
 var: ID                       (SimpleVar(Symbol.symbol(ID), IDleft))
    | var DOT ID               (FieldVar(var, Symbol.symbol(ID), varleft))
-   | var LBRACK exp RBRACK    (SubscriptVar(var, exp, varleft))
+   (*| var LBRACK exp RBRACK    (SubscriptVar(var, exp, varleft))*)
 
 exp: var                       (VarExp(var))
    | NIL                       (NilExp)
