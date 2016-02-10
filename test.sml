@@ -7,7 +7,9 @@ use "test/lexer/comments.sml";
 use "test/lexer/strings.sml";
 use "test/lexer/smoke.sml";*)
 
+use "test/parser/simple.sml";
 use "test/parser/smoke.sml";
+use "test/parser/harder.sml";
 
 Test.printStats();
 
