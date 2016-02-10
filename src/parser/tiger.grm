@@ -19,6 +19,7 @@ open Absyn;
 %nonterm program         of exp
        | var             of var
        | exp             of exp
+       | opexp           of exp
        | callexp         of exp
        | callexplist     of exp list
        | recordexp       of exp
@@ -43,12 +44,6 @@ open Absyn;
        | ty              of ty
        | tyfield         of field
        | tyfieldlist     of field list
-
-
-
-
-
-
 
 %keyword WHILE FOR TO BREAK LET IN END FUNCTION VAR TYPE ARRAY IF THEN ELSE
          DO OF NIL
@@ -80,44 +75,40 @@ open Absyn;
 
 program : exp (exp)
 
-var: ID                    (SimpleVar(Symbol.symbol(ID), IDleft))
-   | var DOT ID            (FieldVar(var, Symbol.symbol(ID), varleft))
-   | var LBRACK exp RBRACK (SubscriptVar(var, exp, varleft))
+var: ID                       (SimpleVar(Symbol.symbol(ID), IDleft))
+   | var DOT ID               (FieldVar(var, Symbol.symbol(ID), varleft))
+   | var LBRACK exp RBRACK    (SubscriptVar(var, exp, varleft))
 
-exp: var                    (VarExp(var))
-   | NIL                    (NilExp)
-   | INT                    (IntExp(INT))
-   | MINUS exp %prec UMINUS (OpExp { left=IntExp(0), oper=MinusOp, right=exp, pos=MINUSleft })
-   | STRING                 (StringExp(STRING, STRINGleft))
-   | callexp                (callexp)
-   | exp PLUS exp           (OpExp { left=exp1, oper=PlusOp, right=exp2, pos=exp1left })
-   | exp MINUS exp          (OpExp { left=exp1, oper=MinusOp, right=exp2, pos=exp1left })
-   | exp TIMES exp          (OpExp { left=exp1, oper=TimesOp, right=exp2, pos=exp1left })
-   | exp DIVIDE exp         (OpExp { left=exp1, oper=DivideOp, right=exp2, pos=exp1left })
-   | exp AND exp            (IfExp { test=exp1,
-                                           then'=exp2,
-                                           else'=Option.SOME(IntExp(0)),
-                                           pos=exp1left })
-   | exp OR exp             (IfExp { test=exp1,
-                                           then'=IntExp(1),
-                                           else'=Option.SOME(exp2),
-                                           pos=exp1left })
-   | exp EQ exp             (OpExp { left=exp1, oper=EqOp, right=exp2, pos=exp1left })
-   | exp NEQ exp            (OpExp { left=exp1, oper=NeqOp, right=exp2, pos=exp1left })
-   | exp LT exp             (OpExp { left=exp1, oper=LtOp, right=exp2, pos=exp1left })
-   | exp LE exp             (OpExp { left=exp1, oper=LeOp, right=exp2, pos=exp1left })
-   | exp GT exp             (OpExp { left=exp1, oper=GtOp, right=exp2, pos=exp1left })
-   | exp GE exp             (OpExp { left=exp1, oper=GeOp, right=exp2, pos=exp1left })
-   | recordexp              (recordexp)
-   | seqexp                 (seqexp)
-   | assignexp              (assignexp)
-   | ifthenelseexp          (ifthenelseexp)
-   | ifthenexp              (ifthenexp)
-   | whileexp               (whileexp)
-   | forexp                 (forexp)
-   | BREAK                  (BreakExp(BREAKleft))
-   | arrayexp               (arrayexp)
-   | letexp                 (letexp)
+exp: var                       (VarExp(var))
+   | NIL                       (NilExp)
+   | INT                       (IntExp(INT))
+   | MINUS exp %prec UMINUS    (OpExp { left=IntExp(0), oper=MinusOp, right=exp, pos=MINUSleft })
+   | STRING                    (StringExp(STRING, STRINGleft))
+   | callexp                   (callexp)
+   | opexp                     (opexp)
+   | recordexp                 (recordexp)
+   | seqexp                    (seqexp)
+   | assignexp                 (assignexp)
+   | ifthenelseexp             (ifthenelseexp)
+   | ifthenexp                 (ifthenexp)
+   | whileexp                  (whileexp)
+   | forexp                    (forexp)
+   | BREAK                     (BreakExp(BREAKleft))
+   | arrayexp                  (arrayexp)
+   | letexp                    (letexp)
+
+opexp: exp PLUS exp      (OpExp { left=exp1,oper=PlusOp,   right=exp2,pos=exp1left })
+     | exp MINUS exp     (OpExp { left=exp1,oper=MinusOp,  right=exp2,pos=exp1left })
+     | exp TIMES exp     (OpExp { left=exp1,oper=TimesOp,  right=exp2,pos=exp1left })
+     | exp DIVIDE exp    (OpExp { left=exp1,oper=DivideOp, right=exp2,pos=exp1left })
+     | exp EQ exp        (OpExp { left=exp1,oper=EqOp,     right=exp2,pos=exp1left })
+     | exp NEQ exp       (OpExp { left=exp1,oper=NeqOp,    right=exp2,pos=exp1left })
+     | exp LT exp        (OpExp { left=exp1,oper=LtOp,     right=exp2,pos=exp1left })
+     | exp LE exp        (OpExp { left=exp1,oper=LeOp,     right=exp2,pos=exp1left })
+     | exp GT exp        (OpExp { left=exp1,oper=GtOp,     right=exp2,pos=exp1left })
+     | exp GE exp        (OpExp { left=exp1,oper=GeOp,     right=exp2,pos=exp1left })
+     | exp AND exp       (IfExp { test=exp1,then'=exp2,      else'=Option.SOME(IntExp(0)),pos=exp1left })
+     | exp OR exp        (IfExp { test=exp1,then'=IntExp(1), else'=Option.SOME(exp2),     pos=exp1left })
 
 
 callexp: ID LPAREN callexplist RPAREN    (CallExp { func=Symbol.symbol(ID),
