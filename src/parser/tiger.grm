@@ -1,3 +1,5 @@
+open Absyn;
+
 %%
 %name Tiger
 
@@ -14,33 +16,33 @@
     | FUNCTION | VAR | TYPE
     | UMINUS
 
-%nonterm program         of Absyn.exp
-       | var             of Absyn.var
-       | exp             of Absyn.exp
-       | callexp         of Absyn.exp
-       | callexplist     of Absyn.exp list
-       | recordexp       of Absyn.exp
-       | recordexplist   of (Absyn.symbol * Absyn.exp * pos) list
-       | recordexpfields of (Absyn.symbol * Absyn.exp * pos)
-       | seqexp          of Absyn.exp
-       | seqexplist      of (Absyn.exp * pos) list
-       | assignexp       of Absyn.exp
-       | ifthenelseexp   of Absyn.exp
-       | ifthenexp       of Absyn.exp
-       | whileexp        of Absyn.exp
-       | forexp          of Absyn.exp
-       | arrayexp        of Absyn.exp
-       | letexp          of Absyn.exp
-       | dec             of Absyn.dec
-       | declist         of Absyn.dec list
-       | fundec          of Absyn.fundec
-       | fundeclist      of Absyn.fundec list
-       | vardec          of Absyn.dec
-       | typedec         of {name: Absyn.symbol, ty: Absyn.ty, pos: pos}
-       | typedeclist     of {name: Absyn.symbol, ty: Absyn.ty, pos: pos} list
-       | ty              of Absyn.ty
-       | tyfield         of Absyn.field
-       | tyfieldlist     of Absyn.field list
+%nonterm program         of exp
+       | var             of var
+       | exp             of exp
+       | callexp         of exp
+       | callexplist     of exp list
+       | recordexp       of exp
+       | recordexplist   of (symbol * exp * pos) list
+       | recordexpfields of (symbol * exp * pos)
+       | seqexp          of exp
+       | seqexplist      of (exp * pos) list
+       | assignexp       of exp
+       | ifthenelseexp   of exp
+       | ifthenexp       of exp
+       | whileexp        of exp
+       | forexp          of exp
+       | arrayexp        of exp
+       | letexp          of exp
+       | dec             of dec
+       | declist         of dec list
+       | fundec          of fundec
+       | fundeclist      of fundec list
+       | vardec          of dec
+       | typedec         of {name: symbol, ty: ty, pos: pos}
+       | typedeclist     of {name: symbol, ty: ty, pos: pos} list
+       | ty              of ty
+       | tyfield         of field
+       | tyfieldlist     of field list
 
 
 
@@ -78,34 +80,34 @@
 
 program : exp (exp)
 
-var: ID                    (Absyn.SimpleVar(Symbol.symbol(ID), IDleft))
-   | var DOT ID            (Absyn.FieldVar(var, Symbol.symbol(ID), varleft))
-   | var LBRACK exp RBRACK (Absyn.SubscriptVar(var, exp, varleft))
+var: ID                    (SimpleVar(Symbol.symbol(ID), IDleft))
+   | var DOT ID            (FieldVar(var, Symbol.symbol(ID), varleft))
+   | var LBRACK exp RBRACK (SubscriptVar(var, exp, varleft))
 
-exp: var                    (Absyn.VarExp(var))
-   | NIL                    (Absyn.NilExp)
-   | INT                    (Absyn.IntExp(INT))
-   | MINUS exp %prec UMINUS (Absyn.OpExp { left=Absyn.IntExp(0), oper=Absyn.MinusOp, right=exp, pos=MINUSleft })
-   | STRING                 (Absyn.StringExp(STRING, STRINGleft))
+exp: var                    (VarExp(var))
+   | NIL                    (NilExp)
+   | INT                    (IntExp(INT))
+   | MINUS exp %prec UMINUS (OpExp { left=IntExp(0), oper=MinusOp, right=exp, pos=MINUSleft })
+   | STRING                 (StringExp(STRING, STRINGleft))
    | callexp                (callexp)
-   | exp PLUS exp           (Absyn.OpExp { left=exp1, oper=Absyn.PlusOp, right=exp2, pos=exp1left })
-   | exp MINUS exp          (Absyn.OpExp { left=exp1, oper=Absyn.MinusOp, right=exp2, pos=exp1left })
-   | exp TIMES exp          (Absyn.OpExp { left=exp1, oper=Absyn.TimesOp, right=exp2, pos=exp1left })
-   | exp DIVIDE exp         (Absyn.OpExp { left=exp1, oper=Absyn.DivideOp, right=exp2, pos=exp1left })
-   | exp AND exp            (Absyn.IfExp { test=exp1,
+   | exp PLUS exp           (OpExp { left=exp1, oper=PlusOp, right=exp2, pos=exp1left })
+   | exp MINUS exp          (OpExp { left=exp1, oper=MinusOp, right=exp2, pos=exp1left })
+   | exp TIMES exp          (OpExp { left=exp1, oper=TimesOp, right=exp2, pos=exp1left })
+   | exp DIVIDE exp         (OpExp { left=exp1, oper=DivideOp, right=exp2, pos=exp1left })
+   | exp AND exp            (IfExp { test=exp1,
                                            then'=exp2,
-                                           else'=Option.SOME(Absyn.IntExp(0)),
+                                           else'=Option.SOME(IntExp(0)),
                                            pos=exp1left })
-   | exp OR exp             (Absyn.IfExp { test=exp1,
-                                           then'=Absyn.IntExp(1),
+   | exp OR exp             (IfExp { test=exp1,
+                                           then'=IntExp(1),
                                            else'=Option.SOME(exp2),
                                            pos=exp1left })
-   | exp EQ exp             (Absyn.OpExp { left=exp1, oper=Absyn.EqOp, right=exp2, pos=exp1left })
-   | exp NEQ exp            (Absyn.OpExp { left=exp1, oper=Absyn.NeqOp, right=exp2, pos=exp1left })
-   | exp LT exp             (Absyn.OpExp { left=exp1, oper=Absyn.LtOp, right=exp2, pos=exp1left })
-   | exp LE exp             (Absyn.OpExp { left=exp1, oper=Absyn.LeOp, right=exp2, pos=exp1left })
-   | exp GT exp             (Absyn.OpExp { left=exp1, oper=Absyn.GtOp, right=exp2, pos=exp1left })
-   | exp GE exp             (Absyn.OpExp { left=exp1, oper=Absyn.GeOp, right=exp2, pos=exp1left })
+   | exp EQ exp             (OpExp { left=exp1, oper=EqOp, right=exp2, pos=exp1left })
+   | exp NEQ exp            (OpExp { left=exp1, oper=NeqOp, right=exp2, pos=exp1left })
+   | exp LT exp             (OpExp { left=exp1, oper=LtOp, right=exp2, pos=exp1left })
+   | exp LE exp             (OpExp { left=exp1, oper=LeOp, right=exp2, pos=exp1left })
+   | exp GT exp             (OpExp { left=exp1, oper=GtOp, right=exp2, pos=exp1left })
+   | exp GE exp             (OpExp { left=exp1, oper=GeOp, right=exp2, pos=exp1left })
    | recordexp              (recordexp)
    | seqexp                 (seqexp)
    | assignexp              (assignexp)
@@ -113,12 +115,12 @@ exp: var                    (Absyn.VarExp(var))
    | ifthenexp              (ifthenexp)
    | whileexp               (whileexp)
    | forexp                 (forexp)
-   | BREAK                  (Absyn.BreakExp(BREAKleft))
+   | BREAK                  (BreakExp(BREAKleft))
    | arrayexp               (arrayexp)
    | letexp                 (letexp)
 
 
-callexp: ID LPAREN callexplist RPAREN    (Absyn.CallExp { func=Symbol.symbol(ID),
+callexp: ID LPAREN callexplist RPAREN    (CallExp { func=Symbol.symbol(ID),
                                                           args=List.rev(callexplist),
                                                           pos=IDleft })
 
@@ -127,7 +129,7 @@ callexplist: callexplist COMMA exp    (exp :: callexplist)
            |                          ([])
 
 
-recordexp: ID LBRACE recordexplist RBRACE    (Absyn.RecordExp { fields=List.rev(recordexplist),
+recordexp: ID LBRACE recordexplist RBRACE    (RecordExp { fields=List.rev(recordexplist),
                                                                 typ=Symbol.symbol(ID),
                                                                 pos=IDleft })
 
@@ -138,36 +140,36 @@ recordexplist: recordexplist COMMA recordexpfields    (recordexpfields :: record
 recordexpfields: ID EQ exp    ((Symbol.symbol(ID), exp, IDleft))
 
 
-seqexp: LPAREN seqexplist RPAREN    (Absyn.SeqExp(List.rev(seqexplist)))
+seqexp: LPAREN seqexplist RPAREN    (SeqExp(List.rev(seqexplist)))
 
 seqexplist: seqexplist SEMICOLON exp    ((exp, expleft) :: seqexplist)
           | exp                         ([(exp, expleft)])
           |                             ([])
 
 
-assignexp: var ASSIGN exp    (Absyn.AssignExp { var=var,
+assignexp: var ASSIGN exp    (AssignExp { var=var,
                                                 exp=exp,
                                                 pos=varleft })
 
 
-ifthenelseexp: IF exp THEN exp ELSE exp    (Absyn.IfExp { test=exp1,
+ifthenelseexp: IF exp THEN exp ELSE exp    (IfExp { test=exp1,
                                                           then'=exp2,
                                                           else'=Option.SOME(exp3),
                                                           pos=IFleft })
 
 
-ifthenexp: IF exp THEN exp    (Absyn.IfExp { test=exp1,
+ifthenexp: IF exp THEN exp    (IfExp { test=exp1,
                                              then'=exp2,
                                              else'=Option.NONE,
                                              pos=IFleft })
 
 
-whileexp: WHILE exp DO exp    (Absyn.WhileExp { test=exp1,
+whileexp: WHILE exp DO exp    (WhileExp { test=exp1,
                                                 body=exp2,
                                                 pos=WHILEleft })
 
 
-forexp: FOR ID ASSIGN exp TO exp DO exp    (Absyn.ForExp { var=Symbol.symbol(ID),
+forexp: FOR ID ASSIGN exp TO exp DO exp    (ForExp { var=Symbol.symbol(ID),
                                                            escape=ref true,
                                                            lo=exp1,
                                                            hi=exp2,
@@ -175,20 +177,20 @@ forexp: FOR ID ASSIGN exp TO exp DO exp    (Absyn.ForExp { var=Symbol.symbol(ID)
                                                            pos=FORleft })
 
 
-arrayexp: ID LBRACK exp RBRACK OF exp (Absyn.ArrayExp { typ=Symbol.symbol(ID),
+arrayexp: ID LBRACK exp RBRACK OF exp (ArrayExp { typ=Symbol.symbol(ID),
                                                         size=exp1,
                                                         init=exp2,
                                                         pos=IDleft })
 
 
-letexp: LET declist IN exp END (Absyn.LetExp { decs=List.rev declist,
+letexp: LET declist IN exp END (LetExp { decs=List.rev declist,
                                                body=exp,
                                                pos=LETleft })
 
 
-dec: fundeclist     (Absyn.FunctionDec(fundeclist))
+dec: fundeclist     (FunctionDec(fundeclist))
    | vardec         (vardec)
-   | typedeclist    (Absyn.TypeDec(typedeclist))
+   | typedeclist    (TypeDec(typedeclist))
 
 declist: declist dec    (dec :: declist)
        | dec            ([dec])
@@ -209,12 +211,12 @@ fundeclist: fundeclist fundec    (fundec :: fundeclist)
           | fundec               ([fundec])
 
 
-vardec: VAR ID ASSIGN exp            (Absyn.VarDec { name=Symbol.symbol(ID),
+vardec: VAR ID ASSIGN exp            (VarDec { name=Symbol.symbol(ID),
                                                      escape=ref true,
                                                      typ=Option.NONE,
                                                      init=exp,
                                                      pos=VARleft })
-     | VAR ID COLON ID ASSIGN exp    (Absyn.VarDec { name=Symbol.symbol(ID1),
+     | VAR ID COLON ID ASSIGN exp    (VarDec { name=Symbol.symbol(ID1),
                                                      escape=ref true,
                                                      typ=Option.SOME(Symbol.symbol(ID2), ID2left),
                                                      init=exp,
@@ -229,9 +231,9 @@ typedeclist: typedeclist typedec    (typedec :: typedeclist)
            | typedec                ([typedec])
 
 
-ty: ID                           (Absyn.NameTy (Symbol.symbol(ID), IDleft))
-  | LBRACE tyfieldlist RBRACE    (Absyn.RecordTy tyfieldlist)
-  | ARRAY OF ID                  (Absyn.ArrayTy (Symbol.symbol(ID), ARRAYleft))
+ty: ID                           (NameTy (Symbol.symbol(ID), IDleft))
+  | LBRACE tyfieldlist RBRACE    (RecordTy tyfieldlist)
+  | ARRAY OF ID                  (ArrayTy (Symbol.symbol(ID), ARRAYleft))
 
 
 tyfield: ID COLON ID    ({ name=Symbol.symbol(ID1),
