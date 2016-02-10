@@ -18,12 +18,11 @@
        | seqexplist of (Absyn.exp * pos) list
        | negation of Absyn.exp
        | callexp of Absyn.exp
-       | callexplist of Absyn.exp
+       | callexplist of Absyn.exp list
        | arraycreateexp of Absyn.exp
        | recordcreateexp of Absyn.exp
-       | recordcreatelist of Absyn.exp
-       | recordcreatelistexp of Absyn.exp
-       | fieldcreate of Absyn.exp
+       | recordcreatelistexp of (Absyn.symbol * Absyn.exp * pos) list
+       | fieldcreate of (Absyn.symbol * Absyn.exp * pos)
        | assignmentexp of Absyn.exp
        | lvalue of Absyn.var
        | ifthenelseexp of Absyn.exp
@@ -84,9 +83,9 @@ exp: lvalue          (Absyn.VarExp(lvalue))
    | STRING          (Absyn.StringExp(STRING, STRINGleft))
    | seqexp          (seqexp)
    | negation        (negation)
-   | callexp         (Absyn.NilExp)
+   | callexp         (callexp)
    | arraycreateexp  (arraycreateexp)
-   | recordcreateexp (Absyn.NilExp)
+   | recordcreateexp (recordcreateexp)
    | assignmentexp   (assignmentexp)
 
    | exp PLUS exp   (Absyn.OpExp { left=exp1, oper=Absyn.PlusOp, right=exp2, pos=exp1left })
@@ -105,7 +104,7 @@ exp: lvalue          (Absyn.VarExp(lvalue))
    | ifthenelseexp (ifthenelseexp)
    | ifthenexp     (ifthenexp)
    | whileexp      (whileexp)
-   | forexp        (Absyn.NilExp)
+   | forexp        (forexp)
    | BREAK         (Absyn.BreakExp(BREAKleft))
    | letexp        (Absyn.NilExp)
 
@@ -116,23 +115,20 @@ seqexp: LPAREN seqexplist RPAREN (Absyn.SeqExp(List.rev(seqexplist)))
 seqexplist: seqexplist SEMICOLON exp ((exp, expleft)::seqexplist)
     | exp                            ([(exp, expleft)])
 
-callexp: ID LPAREN callexplist RPAREN (Absyn.NilExp)
-       | ID LPAREN RPAREN             (Absyn.NilExp)
+callexp: ID LPAREN callexplist RPAREN (Absyn.CallExp { func=Symbol.symbol(ID), args=List.rev(callexplist), pos=IDleft})
 
-callexplist: callexplist COMMA exp (Absyn.NilExp)
-    | exp                          (Absyn.NilExp)
+callexplist: callexplist COMMA exp (exp :: callexplist)
+    | exp                          ([exp])
+    |                              ([])
 
 arraycreateexp: ID LBRACK exp RBRACK OF exp (Absyn.ArrayExp { typ=Symbol.symbol(ID), size=exp1, init=exp2, pos=IDleft })
 
-recordcreateexp: ID LBRACE recordcreatelistexp RBRACE (Absyn.NilExp)
+recordcreateexp: ID LBRACE recordcreatelistexp RBRACE (Absyn.RecordExp { fields=List.rev(recordcreatelistexp), typ=Symbol.symbol(ID), pos=IDleft })
 
-recordcreatelistexp: recordcreatelist (Absyn.NilExp)
-    |                                 (Absyn.NilExp)
+recordcreatelistexp: recordcreatelistexp COMMA fieldcreate (fieldcreate :: recordcreatelistexp)
+    | fieldcreate                                    ([fieldcreate])
 
-fieldcreate: ID EQ exp (Absyn.NilExp)
-
-recordcreatelist: recordcreatelist COMMA fieldcreate (Absyn.NilExp)
-    | fieldcreate                                    (Absyn.NilExp)
+fieldcreate: ID EQ exp ((Symbol.symbol(ID), exp, IDleft))
 
 assignmentexp: lvalue ASSIGN exp (Absyn.AssignExp { var=lvalue, exp=exp, pos=lvalueleft })
 
@@ -146,7 +142,7 @@ ifthenexp: IF exp THEN exp (Absyn.IfExp { test=exp1, then'=exp2, else'=Option.NO
 
 whileexp: WHILE exp DO exp (Absyn.WhileExp { test=exp1, body=exp2, pos=WHILEleft })
 
-forexp: FOR ID ASSIGN exp TO exp DO exp (Absyn.NilExp)
+forexp: FOR ID ASSIGN exp TO exp DO exp (Absyn.ForExp { var=Symbol.symbol(ID), escape=ref false, lo=exp1, hi=exp2, body=exp3, pos=FORleft })
 
 letexp: LET decs IN seqexplist END (Absyn.NilExp)
 
