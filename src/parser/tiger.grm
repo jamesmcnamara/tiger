@@ -19,6 +19,7 @@ open Absyn;
 %nonterm program         of exp
        | var             of var
        | exp             of exp
+       | explist         of (exp * pos) list
        | opexp           of exp
        | callexp         of exp
        | callexplist     of exp list
@@ -97,6 +98,11 @@ exp: var                       (VarExp(var))
    | arrayexp                  (arrayexp)
    | letexp                    (letexp)
 
+explist: explist SEMICOLON exp    ((exp, explistleft) :: explist)
+       | exp                      ([(exp, expleft)])
+       |                          ([])
+
+
 opexp: exp PLUS exp      (OpExp { left=exp1,oper=PlusOp,   right=exp2,pos=exp1left })
      | exp MINUS exp     (OpExp { left=exp1,oper=MinusOp,  right=exp2,pos=exp1left })
      | exp TIMES exp     (OpExp { left=exp1,oper=TimesOp,  right=exp2,pos=exp1left })
@@ -174,9 +180,9 @@ arrayexp: ID LBRACK exp RBRACK OF exp (ArrayExp { typ=Symbol.symbol(ID),
                                                   pos=IDleft })
 
 
-letexp: LET declist IN exp END (LetExp { decs=List.rev declist,
-                                         body=exp,
-                                         pos=LETleft })
+letexp: LET declist IN explist END (LetExp { decs=List.rev declist,
+                                             body=SeqExp(List.rev(explist)),
+                                             pos=LETleft })
 
 
 dec: fundeclist     (FunctionDec(List.rev(fundeclist)))
