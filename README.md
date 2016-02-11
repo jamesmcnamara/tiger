@@ -55,16 +55,21 @@ strings to reserved keywords and seen ids.
 
 ## Parser
 
-We encountered a few s/r conflicts with our grammar. The first two were due to
-an ambiguity with our type and function declarations. The parser was unsure
-whether or not it should read(shift) a new declaration or reduce after each one.
-The desired action was to greedily read all of the declarations and then reduce.
-By adding a precedence to each declaration list, we achieved our desired outcome.
-Although we fixed one conflict, another arose regarding left brackets and ids.
-This was easily fixed as we want our parser to shift when it sees a left bracket
-after an id rather than reduce.
+We encountered a few shift/reduce conflicts with our grammar. The first two
+were due to an ambiguity with our type and function declarations. The parser
+was unsure whether or not it should read(shift) a new declaration or reduce
+after each one. The desired action was to greedily read all of the declarations
+and then reduce. By adding a precedence to each declaration list, we achieved
+our desired outcome. Although we fixed one conflict, another arose regarding
+left brackets and ids. This was easily fixed as we want our parser to shift
+when it sees a left bracket after an id rather than reduce.
 
 The next major s/r conflict was the dangling else problem. If we read the
 statement `if 1 then if 2 then 3 else 4`, we want it to be equivalent to
 `(if 1 then (if 2 then 3 else 4))`. This was solved by setting the precedence
-of else to be higher than if making it bind to the nearest if.
+of else to be higher than if making it bind to the nearest if. For descriptions
+set of each precedence levels see `parser/tiger.grm`.
+
+It's worth noting that things like `a := b := c` will parse into an AST, which
+is technically correct, in the grammar. However, the semantics of a valueless
+expression will deny this kind of expression at a later phase of the compiler.

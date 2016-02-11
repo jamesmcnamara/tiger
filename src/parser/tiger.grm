@@ -53,13 +53,15 @@ open Absyn;
    so it does not interfere with the tokens type and function themselves *)
 %nonassoc DEC
 %nonassoc TYPE FUNCTION
+(* Left brackets bind tighter than IDs so they always get shifted to. *)
 %nonassoc ID
 %nonassoc LBRACK
-
-(* Handles the dangling else problem *)
+(* Handles the dangling else problem, and makes loops bind looser than
+   most operations. *)
 %nonassoc THEN
 %nonassoc ELSE DO
-(* An assignment is a valueless expression *)
+(* An assignment is a valueless expression, and array creation can't chain,
+   and these operations bind weaker than general arithmetic. *)
 %nonassoc ASSIGN OF
 (* The comparison operations are non-associative *)
 %left OR AND
