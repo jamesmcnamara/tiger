@@ -35,3 +35,8 @@ By adding a precedence to each declaration list, we achieved our desired outcome
 Although we fixed one conflict, another arose regarding left brackets and ids.
 This was easily fixed as we want our parser to shift when it sees a left bracket
 after an id rather than reduce.
+
+The next major s/r conflict was the dangling else problem. If we read the
+statement `if 1 then if 2 then 3 else 4`, we want it to be equivalent to
+`(if 1 then (if 2 then 3 else 4))`. This was solved by setting the precedence
+of else to be higher than if making it bind to the nearest if.
