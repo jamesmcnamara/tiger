@@ -1,4 +1,4 @@
-structure Newline :> NEWLINE =
+structure Newline =
 struct
     val lines = ref [0]
 

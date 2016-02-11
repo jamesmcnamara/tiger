@@ -4,3 +4,7 @@
 tiger/
 
 !sources.cm
+
+*.grm.desc
+*.grm.sml
+*.grm.sig

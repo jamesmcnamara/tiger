@@ -1,0 +1,36 @@
+let
+  type firstType = array of int
+  type recordType = {}
+  type person = {name : string}
+  type person2 = {name : string, age : int}
+  var someInt := 1
+  var longFormInt : int := 1
+  function printFive() = print(chr(5))
+  function five() : int = 5
+  function addFive(num : int) : int = num + 5
+in
+  (nil;
+   123;
+   -123;
+   foo();
+   bar(i);
+   concat(chr(1+2), chr(2-2));
+   "hello";
+   intArray[1+1] of 1+10;
+   myFirstTestRecord{};
+   mySecondTestRecord{name="derp"};
+   myThirdTestRecord{name="derp",age=1};
+   someVar := 1;
+   someRecord.name := "derp";
+   someField[1] := "lvalue";
+   someList[0].someField[1] := "complex lvalue";
+   if 1=1 then 1 else 2;
+   if "a"="b" then "c";
+   if 1=1 then if 2=2 then 2 else 3;
+   if 1=1 then if 2=2 then 2 else 3 else 4;
+   if 1=1 then if 2=2 then 3 + 3 else 4 + 4;
+   while 1=1 do bar();
+   for i := 0 to 10 do foo();
+   while 1=1 do break;
+   (1+2+3))
+end

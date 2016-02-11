@@ -1,4 +1,4 @@
-structure SrcString :> SRC_STRING = struct
+functor SrcStringFun(Token : Tiger_TOKENS) = struct
     type yypos = int
     exception StringNotClosed of yypos
 
@@ -56,5 +56,5 @@ structure SrcString :> SRC_STRING = struct
 
     fun emit (yypos) =
         (buildingString := false;
-         Token.string (!innerString) (!startPos, yypos))
+         Token.STRING(!innerString, !startPos, yypos))
 end
