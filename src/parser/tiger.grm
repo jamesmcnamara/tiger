@@ -52,8 +52,7 @@ open Absyn;
 (* This is used as the type and function declaration precedence
    so it does not interfere with the tokens type and function themselves *)
 %nonassoc DEC
-%nonassoc TYPE
-%nonassoc FUNCTION
+%nonassoc TYPE FUNCTION
 %nonassoc ID
 %nonassoc LBRACK
 
