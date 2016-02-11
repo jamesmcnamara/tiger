@@ -18,6 +18,7 @@ open Absyn;
 
 %nonterm program         of exp
        | var             of var
+       | vartail         of var -> var
        | exp             of exp
        | explist         of (exp * pos) list
        | opexp           of exp
@@ -88,10 +89,11 @@ open Absyn;
 
 program : exp (exp)
 
-var: ID                       (SimpleVar(Symbol.symbol(ID), IDleft))
-   | var DOT ID               (FieldVar(var, Symbol.symbol(ID), varleft))
-   | var LBRACK exp RBRACK    (SubscriptVar(var, exp, varleft))
-   | ID LBRACK exp RBRACK     (SubscriptVar(SimpleVar(Symbol.symbol(ID),IDleft), exp, IDleft))
+var : ID vartail              (vartail(SimpleVar(Symbol.symbol(ID), IDleft)))
+
+vartail: DOT ID vartail             (fn tail => FieldVar(vartail tail, Symbol.symbol(ID), IDleft))
+       | LBRACK exp RBRACK vartail  (fn tail => SubscriptVar(vartail tail, exp, LBRACKleft))    
+       |                            (fn tail => tail)
 
 exp: var                       (VarExp(var))
    | NIL                       (NilExp)

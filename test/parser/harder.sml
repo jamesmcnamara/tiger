@@ -32,7 +32,7 @@ Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/harder/three.tig"
         val expected = VarExp(SubscriptVar(SimpleVar(Symbol.symbol("a"),1),
                                            IntExp(3),
-                                           1))
+                                           2))
     in
         Test.assertEqIO(expected, actual, astPrint)
     end

@@ -112,7 +112,7 @@ Test.test(fn () =>
  Test.test(fn () =>
     let val actual = Parse.parse "fixtures/parser/simple/eleven.tig"
         val expected = AssignExp {
-            var=FieldVar(SimpleVar(Symbol.symbol("myRecord"),1),Symbol.symbol("someField"),1),
+            var=FieldVar(SimpleVar(Symbol.symbol("myRecord"),1),Symbol.symbol("someField"),10),
             exp=StringExp("hello",23),
             pos=1
         }
