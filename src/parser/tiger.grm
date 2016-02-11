@@ -58,7 +58,7 @@ open Absyn;
 (* An assignment is a valueless expression *)
 %nonassoc ASSIGN
 (* The comparison operations are non-associative *)
-%nonassoc OR AND
+%left OR AND
 %nonassoc EQ NEQ LE LT GT GE
 (* This follows from common mathematics *)
 %left PLUS MINUS
