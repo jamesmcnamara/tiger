@@ -60,8 +60,7 @@ open Absyn;
 %nonassoc THEN
 %nonassoc ELSE DO
 (* An assignment is a valueless expression *)
-%nonassoc ASSIGN
-%nonassoc OF
+%nonassoc ASSIGN OF
 (* The comparison operations are non-associative *)
 %left OR AND
 %nonassoc EQ NEQ LE LT GT GE
@@ -70,7 +69,6 @@ open Absyn;
 %left TIMES DIVIDE
 (* Unary minus binds the tightest of all. *)
 %left UMINUS
-
 
 %pos int
 %verbose
@@ -91,7 +89,7 @@ program : exp (exp)
 var: ID                       (SimpleVar(Symbol.symbol(ID), IDleft))
    | var DOT ID               (FieldVar(var, Symbol.symbol(ID), varleft))
    | var LBRACK exp RBRACK    (SubscriptVar(var, exp, varleft))
-   | ID LBRACK exp RBRACK    (SubscriptVar(SimpleVar(Symbol.symbol(ID),IDleft), exp, IDleft))
+   | ID LBRACK exp RBRACK     (SubscriptVar(SimpleVar(Symbol.symbol(ID),IDleft), exp, IDleft))
 
 exp: var                       (VarExp(var))
    | NIL                       (NilExp)
