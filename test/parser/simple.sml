@@ -26,7 +26,7 @@ Test.test(fn () =>
  );
  Test.test(fn () =>
      let val actual = Parse.parse "fixtures/parser/simple/four.tig"
-         val expected = NegExp(IntExp(123), 1)
+         val expected = OpExp {left=IntExp(0), oper=MinusOp, right=IntExp(123), pos=1}
      in
           Test.assertEqIO(expected, actual, astPrint)
      end
@@ -47,16 +47,16 @@ Test.test(fn () =>
                 right=IntExp(1),
                 pos=2
             },2),
-            (OpExp {
-                left=IntExp(1),
-                oper=AndOp,
-                right=IntExp(1),
+            (IfExp {
+                test=IntExp(1),
+                then'=IntExp(1),
+                else'=Option.SOME(IntExp(0)),
                 pos=8
             },8),
-            (OpExp {
-                left=IntExp(1),
-                oper=OrOp,
-                right=IntExp(1),
+            (IfExp {
+                test=IntExp(1),
+                then'=IntExp(1),
+                else'=Option.SOME(IntExp(1)),
                 pos=14
             },14)
         ])
