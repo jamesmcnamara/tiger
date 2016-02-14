@@ -19,3 +19,6 @@ src/parser/absyn.sml
 src/parser/prabsyn.sml
 src/parser/symbol.sml
 src/parser/table.sml
+
+src/semant/semant.sml
+src/semant/types.sml
