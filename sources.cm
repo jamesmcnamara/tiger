@@ -7,18 +7,18 @@ $/ml-yacc-lib.cm
 src/errormsg.sml
 src/test.sml
 
-src/lexer/tiger.lex
-src/lexer/src_comment.sml
-src/lexer/src_string.sml
-src/lexer/src_id.sml
-src/lexer/newline.sml
+src/syntax/tiger.lex
+src/syntax/src_comment.sml
+src/syntax/src_string.sml
+src/syntax/src_id.sml
+src/syntax/newline.sml
 
-src/parser/tiger.grm
-src/parser/parse.sml
-src/parser/absyn.sml
-src/parser/prabsyn.sml
-src/parser/symbol.sml
-src/parser/table.sml
+src/syntax/tiger.grm
+src/syntax/parse.sml
+src/syntax/absyn.sml
+src/syntax/prabsyn.sml
+src/syntax/symbol.sml
+src/syntax/table.sml
 
 src/semant/semant.sml
 src/semant/types.sml
