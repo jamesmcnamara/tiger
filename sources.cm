@@ -5,22 +5,17 @@ $/smlnj-lib.cm
 $/ml-yacc-lib.cm
 
 src/errormsg.sml
-
-src/test.sig
 src/test.sml
 
-
+src/lexer/tiger.lex
 src/lexer/src_comment.sml
 src/lexer/src_string.sml
 src/lexer/src_id.sml
 src/lexer/newline.sml
-src/lexer/tiger.lex
-src/lexer/lexer.sml
 
-src/parser/absyn.sml
+src/parser/tiger.grm
 src/parser/parse.sml
+src/parser/absyn.sml
 src/parser/prabsyn.sml
 src/parser/symbol.sml
-src/parser/table.sig
 src/parser/table.sml
-src/parser/tiger.grm
