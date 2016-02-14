@@ -4,6 +4,7 @@ $/basis.cm
 $/smlnj-lib.cm
 $/ml-yacc-lib.cm
 
+src/main.sml
 src/errormsg.sml
 src/test.sml
 
