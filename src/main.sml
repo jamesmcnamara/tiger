@@ -1,6 +1,7 @@
 signature MAIN =
 sig
-    val compile : string -> unit
+    (* TODO: Should we return a unit type for now? *)
+    val compile : string -> Semant.expty
 end
 
 structure Main : MAIN =

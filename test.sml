@@ -11,6 +11,8 @@ use "test/parser/simple.sml";
 use "test/parser/smoke.sml";
 use "test/parser/harder.sml";
 
+use "test/semant/simple.sml";
+
 Test.printStats();
 
 val _ = OS.Process.exit(OS.Process.success)
