@@ -24,3 +24,4 @@ src/syntax/table.sml
 src/semant/semant.sml
 src/semant/types.sml
 src/semant/env.sml
+src/semant/translate.sml
