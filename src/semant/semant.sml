@@ -43,8 +43,14 @@ fun transExp(tenv, venv, exp) =
       | trexp(A.StringExp(s, p)) =
         { exp=(), ty=Types.STRING }
       | trexp(A.CallExp { func, args, pos }) =
-        (* TODO *)
-        { exp=(), ty=Types.UNIT }
+        (case Symbol.look(venv, func) of
+             Option.SOME(Env.FunEntry { formals, result }) =>
+             ((ListPair.map (fn (a, f) => unify(#ty(trexp(a)), f, 1)) (args, formals));
+              { exp=(), ty=result })
+           | Option.SOME(_) =>
+             raise NotImplemented
+           | Option.NONE =>
+             raise NotImplemented)
       | trexp(A.OpExp{ left,oper,right,pos }) =
         (unify(Types.INT, #ty(trexp(left)), pos);
          unify(Types.INT, #ty(trexp(right)), pos);
@@ -53,7 +59,9 @@ fun transExp(tenv, venv, exp) =
         (* TODO *)
         { exp=(), ty=Types.UNIT }
       | trexp(A.SeqExp l) =
-        trseqexp(l)
+        let val exptys = (map (fn (e, p) => trexp e) l) in
+            { exp=(), ty=(#ty(List.last(exptys))) }
+        end
       | trexp(A.AssignExp { var=v, exp=e, pos }) =
         { exp=(), ty=Types.UNIT }
       | trexp(A.IfExp{test,then',else',pos}) =
@@ -79,10 +87,6 @@ fun transExp(tenv, venv, exp) =
       | trexp(A.ArrayExp { typ, size, init, pos }) =
         (* TODO *)
         { exp=(), ty=Types.UNIT }
-      and trseqexp l =
-        let val exptys = (map (fn (e, p) => trexp e) l) in
-            { exp=(), ty=(#ty(List.last(exptys))) }
-        end
   in
       trexp(exp)
   end
@@ -95,6 +99,6 @@ fun transTy(tenv,A.NameTy(s,p)) = Types.UNIT
   | transTy(tenv,A.RecordTy l) = Types.UNIT
   | transTy(tenv,A.ArrayTy(s,p)) = Types.UNIT
 
-fun transProg ast = transExp(Env.base_tenv,Env.base_venv,ast)
+fun transProg ast = transExp(Env.base_tenv, Env.base_venv, ast)
 
 end

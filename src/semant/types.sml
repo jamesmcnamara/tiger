@@ -8,6 +8,6 @@ datatype ty = RECORD of (Symbol.symbol * ty) list * unique
             | INT
             | STRING
             | ARRAY of ty * unique
-	    | NAME of Symbol.symbol * ty option ref
+	| NAME of Symbol.symbol * ty option ref
 
 end

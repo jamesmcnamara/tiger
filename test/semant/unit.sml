@@ -48,3 +48,18 @@ Test.test(
        in
            Test.assert(expected = actual)
        end);
+
+Test.test(
+    "semant simple - call good",
+    fn () =>
+       let val actual = Main.compile "fixtures/semant/call_good.tig"
+           val expected = { exp=(), ty=Types.STRING }
+       in
+           Test.assert(expected = actual)
+       end);
+
+Test.test(
+    "semant simple - call bad",
+    fn () =>
+       (Main.compile "fixtures/semant/call_bad.tig"; Test.assert(false))
+       handle Semant.TypeError(_,_,_) => Test.assert(true));
