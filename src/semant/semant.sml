@@ -6,10 +6,7 @@ signature SEMANT = sig
     type expty
 
     val transProg : Absyn.exp -> expty
-    val transVar : tenv * venv * Absyn.var -> expty
     val transExp : tenv * venv * Absyn.exp -> expty
-    val transDec : tenv * venv * Absyn.dec -> {tenv: tenv, venv: venv}
-    val transTy : tenv * Absyn.ty -> Types.ty
 end
 
 structure A = Absyn
@@ -28,41 +25,9 @@ fun unify(ty1, ty2, pos) =
   else
       raise TypeError(ty1, ty2, pos)
 
-fun transVar(tenv, venv, var) =
-  let fun trvar(A.SimpleVar(s, p)) =
-          {exp=(), ty=Types.UNIT}
-
-        | trvar(A.FieldVar(v, s, p)) =
-          {exp=(), ty=Types.UNIT}
-
-        | trvar(A.SubscriptVar(v, e, p)) =
-          {exp=(), ty=Types.UNIT}
-  in
-      trvar(var)
-  end
-
-fun transDec(tenv, venv, dec) =
-  let fun trdec(A.FunctionDec(l)) =
-          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
-
-        | trdec(A.VarDec { name, escape, typ, init, pos }) =
-          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
-
-        | trdec(A.TypeDec(l)) =
-          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
-  in
-      trdec(dec)
-  end
-
-fun transDecs(tenv, venv, decs) =
-  let val trans = (map (fn d => transDec(tenv, venv, d)) decs)
-  in
-    { tenv=tenv, venv=venv }  (* TODO: obviously wrong. *)
-  end
-
 fun transExp(tenv, venv, exp) =
   let fun trexp(A.VarExp(v)) =
-          transVar(tenv, venv, v)
+          trvar(v)
 
         | trexp(A.NilExp) =
           { exp=(), ty=Types.NIL }
@@ -110,7 +75,7 @@ fun transExp(tenv, venv, exp) =
           end
 
         | trexp(A.AssignExp { var=v, exp=e, pos }) =
-          let val lhs = transVar(tenv, venv, v)
+          let val lhs = trvar(v)
               val rhs = trexp(e)
           in
               unify(#ty(lhs), #ty(rhs), pos);  (* Strong updates? *)
@@ -148,7 +113,7 @@ fun transExp(tenv, venv, exp) =
           { exp=(), ty=Types.UNIT }
 
         | trexp(A.LetExp { decs, body, pos }) =
-          let val { tenv=tenv', venv=venv' } = transDecs(tenv, venv, decs)
+          let val { tenv=tenv', venv=venv' } = trdecs(decs)
               val body = transExp(tenv', venv', body)
           in
             body
@@ -158,12 +123,29 @@ fun transExp(tenv, venv, exp) =
           (case Symbol.look(tenv, typ) of
                 Option.SOME(ty) => { exp=(), ty=Types.ARRAY(ty, ref ()) }
               | Option.NONE => raise NotImplemented)  (* Unbound type *)
-  in
-      trexp(exp)
-  end
 
-fun transTy(tenv, typ) =
-  let fun trtype(A.NameTy(s, p)) =
+      and trvar(A.SimpleVar(s, p)) =
+          {exp=(), ty=Types.UNIT}
+
+        | trvar(A.FieldVar(v, s, p)) =
+          {exp=(), ty=Types.UNIT}
+
+        | trvar(A.SubscriptVar(v, e, p)) =
+          {exp=(), ty=Types.UNIT}
+
+      and trdec(A.FunctionDec(l)) =
+          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
+
+        | trdec(A.VarDec { name, escape, typ, init, pos }) =
+          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
+
+        | trdec(A.TypeDec(l)) =
+          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
+
+      and trdecs(decs) =
+        { tenv=tenv, venv=venv }
+
+      and trtype(A.NameTy(s, p)) =
           Types.UNIT
 
         | trtype(A.RecordTy(l)) =
@@ -172,9 +154,9 @@ fun transTy(tenv, typ) =
         | trtype(A.ArrayTy(s, p)) =
           Types.UNIT
   in
-      trtype(typ)
+      trexp(exp)
   end
 
-  fun transProg ast = transExp(Env.base_tenv, Env.base_venv, ast)
+fun transProg ast = transExp(Env.base_tenv, Env.base_venv, ast)
 
 end
