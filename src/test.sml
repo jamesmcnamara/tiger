@@ -1,59 +1,44 @@
 signature TEST =
 sig
-  exception Failed
-  val testsRan : int ref
-  val testsPassed : int ref
-  val test : (unit -> bool) -> bool
-  val assertEq : ''a * ''a * (''a -> string) -> bool
-  val assertEqIO : ''a * ''a * (''a -> unit) -> bool
-  val assert : bool -> bool
-  val reset : unit -> unit
-  val printStats : unit -> unit
+    (* Call this function to test something. A test fails if it throws
+     * an un-handled exception. *)
+    val test : string * (unit -> unit) -> bool
+
+    (* Report the number of failing and total tests. *)
+    val report : unit -> unit
+
+    (* Assert that the given boolean is true, this is a conveniance function for
+     * raising an exception on a false bool value. *)
+    val assert : bool -> unit
 end
 
-structure Test : TEST =
+structure Test :> TEST =
 struct
-  val testsRan = ref 0
-  val testsPassed = ref 0
+val testsRan = ref 0
+val testsPassed = ref 0
+val failingTests : string list ref = ref []
 
-  exception Failed
+exception AssertionFailed
 
-  fun test f =
-    (testsRan := !testsRan + 1;
-     (if f () then (testsPassed := !testsPassed + 1; true) else false)
-     handle _ => false)
+fun test(name, f) =
+  (testsRan := !testsRan + 1;
+   (f();
+    testsPassed := !testsPassed + 1;
+    true)
+   handle _ => (failingTests := name :: !failingTests; false))
 
-  fun assertEq(expected,actual,toString) =
-     if expected = actual
-     then true
-     else
-       let val msg = "Expected: " ^ (toString expected) ^
-                     " but got: " ^ (toString actual) ^ ".\n"
-       in
-         print(msg);
-         raise Failed
-       end
+fun assert test =
+  if test then () else raise AssertionFailed
 
-  fun assertEqIO(expected,actual,printer) =
-    if expected = actual
-    then true
-    else
-      (print "\nExpected: ";
-       printer(expected);
-       print "but got: ";
-       printer(actual);
-       print "\n";
-       raise Failed)
+fun report () =
+  (app print ["\n#### TEST STATISTICS ####\nPASSED: ",
+              Int.toString(!testsPassed),
+              "\nFAILED: ",
+              Int.toString(!testsRan - !testsPassed),
+              "\nTOTAL:  ",
+              Int.toString(!testsRan),
+              "\n#### FAILING TESTS ####\n",
+              (foldl (fn (s, a) => s ^ "\n" ^ a) "" (!failingTests)),
+              "\n"])
 
-  fun assert test =
-     if test
-     then true
-     else raise Failed
-
-  fun reset () =
-    (testsRan := 0;
-     testsPassed := 0)
-
-  fun printStats () =
-    print("\n#### TEST STATISTICS ####\nPASSED: " ^ Int.toString(!testsPassed) ^ "\nFAILED: " ^ Int.toString(!testsRan - !testsPassed) ^ "\n#### END TEST STATISTICS ####\n\n")
 end

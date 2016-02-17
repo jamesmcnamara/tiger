@@ -1,18 +1,8 @@
-Test.reset();
+ use "test/syntax/unit.sml"; 
+use "test/syntax/smoke.sml";
 
-(*use "test/newline.sml";
-use "test/src_string.sml";
-use "test/token.sml";
-use "test/lexer/comments.sml";
-use "test/lexer/strings.sml";
-use "test/lexer/smoke.sml";*)
+ use "test/semant/unit.sml";
 
-use "test/parser/simple.sml";
-use "test/parser/smoke.sml";
-use "test/parser/harder.sml";
-
-use "test/semant/simple.sml";
-
-Test.printStats();
+Test.report();
 
 val _ = OS.Process.exit(OS.Process.success)
