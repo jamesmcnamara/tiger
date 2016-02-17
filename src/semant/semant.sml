@@ -55,15 +55,23 @@ fun transExp(tenv, venv, exp) =
         (unify(Types.INT, #ty(trexp(left)), pos);
          unify(Types.INT, #ty(trexp(right)), pos);
          { exp=(), ty=Types.INT })
-      | trexp(A.RecordExp{fields,typ,pos}) =
-        (* TODO *)
-        { exp=(), ty=Types.UNIT }
+      | trexp(A.RecordExp { fields, typ, pos }) =
+        (case Symbol.look(tenv, typ) of
+              Option.SOME(ty as Types.RECORD(l, u)) =>
+              (fields;                                (* TODO: Check the fields types *)
+               { exp=(), ty=ty })
+            | Option.SOME(_) => raise NotImplemented  (* Must be record type *)
+            | Option.NONE => raise NotImplemented)    (* Undefined type *)
       | trexp(A.SeqExp l) =
         let val exptys = (map (fn (e, p) => trexp e) l) in
             { exp=(), ty=(#ty(List.last(exptys))) }
         end
       | trexp(A.AssignExp { var=v, exp=e, pos }) =
-        { exp=(), ty=Types.UNIT }
+        let val rhs = trexp(e)
+            val varty = ()  (* TODO: Check the type of the var. *)
+        in
+            { exp=(), ty=Types.UNIT }
+        end
       | trexp(A.IfExp{test,then',else',pos}) =
         (unify(#ty(trexp(test)), Types.INT, pos);
          case else' of
@@ -73,8 +81,9 @@ fun transExp(tenv, venv, exp) =
              (trexp(then');
               {exp=(), ty=Types.UNIT}))
       | trexp(A.WhileExp{ test, body, pos }) =
-        (* TODO *)
-        { exp=(), ty=Types.UNIT }
+        (unify(#ty(trexp(test)), Types.INT, pos);
+         trexp(body);  (* TODO: Is this any type? *)
+         { exp=(), ty=Types.UNIT })
       | trexp(A.ForExp { var=v, escape=b, lo, hi, body, pos }) =
         (* TODO *)
         { exp=(), ty=Types.UNIT }
@@ -85,8 +94,9 @@ fun transExp(tenv, venv, exp) =
         (* TODO *)
         { exp=(), ty=Types.UNIT }
       | trexp(A.ArrayExp { typ, size, init, pos }) =
-        (* TODO *)
-        { exp=(), ty=Types.UNIT }
+        (case Symbol.look(tenv, typ) of
+              Option.SOME(ty) => { exp=(), ty=Types.ARRAY(ty, ref ()) }
+            | Option.NONE => raise NotImplemented)  (* Unbound type *)
   in
       trexp(exp)
   end

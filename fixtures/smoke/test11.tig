@@ -1,3 +1,3 @@
 /* error hi expr is not int, and index variable erroneously assigned to.  */
-fosdasdasr $$$@#@@#(!@)&!$*(@ i:=10 to " " do
+for i:=10 to " " do 
 	i := i - 1
