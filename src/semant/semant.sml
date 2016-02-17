@@ -53,9 +53,7 @@ fun transExp(tenv, venv, exp) =
         (* TODO *)
         { exp=(), ty=Types.UNIT }
       | trexp(A.SeqExp l) =
-        let val exptys = (map (fn (e, p) => trexp e) l) in
-            { exp=(), ty=(#ty(List.last(exptys))) }
-        end
+        trseqexp(l)
       | trexp(A.AssignExp { var=v, exp=e, pos }) =
         { exp=(), ty=Types.UNIT }
       | trexp(A.IfExp{test,then',else',pos}) =
@@ -81,6 +79,10 @@ fun transExp(tenv, venv, exp) =
       | trexp(A.ArrayExp { typ, size, init, pos }) =
         (* TODO *)
         { exp=(), ty=Types.UNIT }
+      and trseqexp l =
+        let val exptys = (map (fn (e, p) => trexp e) l) in
+            { exp=(), ty=(#ty(List.last(exptys))) }
+        end
   in
       trexp(exp)
   end
