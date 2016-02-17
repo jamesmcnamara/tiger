@@ -41,6 +41,25 @@ fun transVar(tenv, venv, var) =
       trvar(var)
   end
 
+fun transDec(tenv, venv, dec) =
+  let fun trdec(A.FunctionDec(l)) =
+          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
+
+        | trdec(A.VarDec { name, escape, typ, init, pos }) =
+          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
+
+        | trdec(A.TypeDec(l)) =
+          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
+  in
+      trdec(dec)
+  end
+
+fun transDecs(tenv, venv, decs) =
+  let val trans = (map (fn d => transDec(tenv, venv, d)) decs)
+  in
+    { tenv=tenv, venv=venv }  (* TODO: obviously wrong. *)
+  end
+
 fun transExp(tenv, venv, exp) =
   let fun trexp(A.VarExp(v)) =
           transVar(tenv, venv, v)
@@ -125,12 +144,15 @@ fun transExp(tenv, venv, exp) =
           { exp=(), ty=Types.UNIT }
 
         | trexp(A.BreakExp p) =
-          (* TODO *)
+          (* TODO: Should be bottom. *)
           { exp=(), ty=Types.UNIT }
 
         | trexp(A.LetExp { decs, body, pos }) =
-          (* TODO *)
-          { exp=(), ty=Types.UNIT }
+          let val { tenv=tenv', venv=venv' } = transDecs(tenv, venv, decs)
+              val body = transExp(tenv', venv', body)
+          in
+            body
+          end
 
         | trexp(A.ArrayExp { typ, size, init, pos }) =
           (case Symbol.look(tenv, typ) of
@@ -138,19 +160,6 @@ fun transExp(tenv, venv, exp) =
               | Option.NONE => raise NotImplemented)  (* Unbound type *)
   in
       trexp(exp)
-  end
-
-fun transDec(tenv, venv, dec) =
-  let fun trdec(A.FunctionDec(l)) =
-          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
-
-        | trdec(A.VarDec { name, escape, typ, init, pos }) =
-          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
-
-        | trdec(A.TypeDec(l)) =
-          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
-  in
-      trdec(dec)
   end
 
 fun transTy(tenv, typ) =
