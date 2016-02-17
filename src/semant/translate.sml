@@ -1,4 +1,5 @@
-structure Translate =
-struct
-    type exp = unit
+structure Translate = struct
+
+type exp = unit
+
 end

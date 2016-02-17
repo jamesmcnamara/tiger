@@ -1,25 +1,25 @@
-structure SrcComment =
-struct
-    type yypos = int
+structure SrcComment = struct
 
-    exception CommentNotClosed of yypos
+type yypos = int
+exception CommentNotClosed of yypos
 
-    val comments: yypos list ref = ref []
+val comments: yypos list ref = ref []
 
-    fun reset () =
-        comments := []
+fun reset () =
+  comments := []
 
-    fun start yypos =
-        comments := yypos :: !comments
+fun start yypos =
+  comments := yypos :: !comments
 
-    fun finish yypos =
-        case !comments of
-            x::xs => comments := xs
-          | [] => ErrorMsg.error yypos ("illegal closing comment")
+fun finish yypos =
+  case !comments of
+      x::xs => comments := xs
+    | [] => ErrorMsg.error yypos ("illegal closing comment")
 
-    fun closed () =
-        null(!comments)
+fun closed () =
+  null(!comments)
 
-    fun getStartPos () =
-        hd(!comments)
+fun getStartPos () =
+  hd(!comments)
+
 end

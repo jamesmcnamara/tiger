@@ -11,28 +11,28 @@ end
 
 structure ErrorMsg :> ERRORMSG =
 struct
-  exception Error
+exception Error
 
-  val anyErrors = ref false
-  val fileName = ref ""
-  val sourceStream = ref TextIO.stdIn
+val anyErrors = ref false
+val fileName = ref ""
+val sourceStream = ref TextIO.stdIn
 
-  fun reset () =
-    (anyErrors := false;
-		 fileName := "";
-		 sourceStream := TextIO.stdIn)
+fun reset () =
+  (anyErrors := false;
+   fileName := "";
+   sourceStream := TextIO.stdIn)
 
-  fun error yypos msg =
-    let val line = Int.toString(Newline.getLine(yypos))
-        val pos = Int.toString(Newline.getPos(yypos))
-    in
+fun error yypos msg =
+  let val line = Int.toString(Newline.getLine(yypos))
+      val pos = Int.toString(Newline.getPos(yypos))
+  in
       anyErrors := true;
       (app print [!fileName, ":", line, ".", pos, ":", msg, "\n"])
-    end
+  end
 
-  fun impossible msg =
-    (app print ["Error: Compiler bug: ", msg, "\n"];
-     TextIO.flushOut TextIO.stdOut;
-     raise Error)
+fun impossible msg =
+  (app print ["Error: Compiler bug: ", msg, "\n"];
+   TextIO.flushOut TextIO.stdOut;
+   raise Error)
 
 end
