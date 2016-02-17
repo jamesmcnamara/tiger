@@ -33,31 +33,54 @@ fun transVar(tenv,venv,A.SimpleVar(s,p)) = {exp=(), ty=Types.UNIT}
   | transVar(tenv,venv,A.SubscriptVar(v,e,p)) = {exp=(), ty=Types.UNIT}
 
 fun transExp(tenv, venv, exp) =
-  let fun trexp(A.VarExp(v)) = transVar(tenv, venv, v)
-        | trexp(A.NilExp) = {exp=(), ty=Types.NIL}
-        | trexp(A.IntExp(i)) = {exp=(), ty=Types.INT}
-        | trexp(A.StringExp(s, p)) = {exp=(), ty=Types.STRING}
-        | trexp(A.CallExp{func, args, pos}) = {exp=(), ty=Types.UNIT}
-        | trexp(A.OpExp{left,oper,right,pos}) =
-          (unify(Types.INT, #ty(trexp(left)), pos);
-           unify(Types.INT, #ty(trexp(right)), pos);
-           {exp=(), ty=Types.INT})
-        | trexp(A.RecordExp{fields,typ,pos}) = {exp=(), ty=Types.UNIT}
-        | trexp(A.SeqExp l) = {exp=(), ty=Types.UNIT}
-        | trexp(A.AssignExp{var=v,exp=e,pos}) = {exp=(), ty=Types.UNIT}
-        | trexp(A.IfExp{test,then',else',pos}) =
-          (unify(#ty(trexp(test)), Types.INT, pos);
-           case else' of
-               Option.SOME(e) =>
-               {exp=(), ty=unify(#ty(trexp(then')), #ty(trexp(e)), pos)}
-             | Option.NONE =>
-               (trexp(then');
-                {exp=(), ty=Types.UNIT}))
-        | trexp(A.WhileExp{test,body,pos}) = {exp=(), ty=Types.UNIT}
-        | trexp(A.ForExp{var=v,escape=b,lo,hi,body,pos}) = {exp=(), ty=Types.UNIT}
-        | trexp(A.BreakExp p) = {exp=(), ty=Types.UNIT}
-        | trexp(A.LetExp{decs,body,pos}) = {exp=(), ty=Types.UNIT}
-        | trexp(A.ArrayExp{typ,size,init,pos}) = {exp=(), ty=Types.UNIT}
+  let fun
+      trexp(A.VarExp(v)) =
+        transVar(tenv, venv, v)
+      | trexp(A.NilExp) =
+        { exp=(), ty=Types.NIL }
+      | trexp(A.IntExp(i)) =
+        { exp=(), ty=Types.INT }
+      | trexp(A.StringExp(s, p)) =
+        { exp=(), ty=Types.STRING }
+      | trexp(A.CallExp { func, args, pos }) =
+        (* TODO *)
+        { exp=(), ty=Types.UNIT }
+      | trexp(A.OpExp{ left,oper,right,pos }) =
+        (unify(Types.INT, #ty(trexp(left)), pos);
+         unify(Types.INT, #ty(trexp(right)), pos);
+         { exp=(), ty=Types.INT })
+      | trexp(A.RecordExp{fields,typ,pos}) =
+        (* TODO *)
+        { exp=(), ty=Types.UNIT }
+      | trexp(A.SeqExp l) =
+        let val exptys = (map (fn (e, p) => trexp e) l) in
+            { exp=(), ty=(#ty(List.last(exptys))) }
+        end
+      | trexp(A.AssignExp { var=v, exp=e, pos }) =
+        { exp=(), ty=Types.UNIT }
+      | trexp(A.IfExp{test,then',else',pos}) =
+        (unify(#ty(trexp(test)), Types.INT, pos);
+         case else' of
+             Option.SOME(e) =>
+             {exp=(), ty=unify(#ty(trexp(then')), #ty(trexp(e)), pos)}
+           | Option.NONE =>
+             (trexp(then');
+              {exp=(), ty=Types.UNIT}))
+      | trexp(A.WhileExp{ test, body, pos }) =
+        (* TODO *)
+        { exp=(), ty=Types.UNIT }
+      | trexp(A.ForExp { var=v, escape=b, lo, hi, body, pos }) =
+        (* TODO *)
+        { exp=(), ty=Types.UNIT }
+      | trexp(A.BreakExp p) =
+        (* TODO *)
+        { exp=(), ty=Types.UNIT }
+      | trexp(A.LetExp { decs, body, pos }) =
+        (* TODO *)
+        { exp=(), ty=Types.UNIT }
+      | trexp(A.ArrayExp { typ, size, init, pos }) =
+        (* TODO *)
+        { exp=(), ty=Types.UNIT }
   in
       trexp(exp)
   end

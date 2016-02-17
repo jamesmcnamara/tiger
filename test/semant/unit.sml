@@ -39,3 +39,12 @@ Test.test(
     fn () =>
        (Main.compile "fixtures/semant/five.tig"; Test.assert(false))
        handle Semant.TypeError(_,_,_) => Test.assert(true));
+
+Test.test(
+    "semant simple six",
+    fn () =>
+       let val actual = Main.compile "fixtures/semant/six.tig"
+           val expected = { exp=(), ty=Types.STRING }
+       in
+           Test.assert(expected = actual)
+       end);
