@@ -56,9 +56,13 @@ fun transExp(tenv, venv, exp) =
 
         | trexp(A.CallExp { func, args, pos }) =
           (case Symbol.look(venv, func) of
-               Option.SOME(Env.FunEntry { formals, result }) =>
-               ((ListPair.map (fn (a, f) => unify(#ty(trexp(a)), f, 1)) (args, formals));
-                { exp=(), ty=result })
+                Option.SOME(Env.FunEntry { formals, result }) =>
+                let fun unifier(actual, expected) =
+                        unify(#ty(trexp(actual)), expected, pos)
+                    val pairs = (ListPair.map unifier (args, formals))
+                in
+                  { exp=(), ty=result }
+                end
              | Option.SOME(_) =>
                raise NotImplemented
              | Option.NONE =>
@@ -70,7 +74,7 @@ fun transExp(tenv, venv, exp) =
           in
             unify(Types.INT, #ty(left), pos);
             unify(Types.INT, #ty(right), pos);
-            { exp=(), ty=Types.INT })
+            { exp=(), ty=Types.INT }
           end
 
         | trexp(A.RecordExp { fields, typ, pos }) =
