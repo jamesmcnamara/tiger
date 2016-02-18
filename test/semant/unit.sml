@@ -69,3 +69,27 @@ Test.test(
    fn () =>
       (Main.compile "fixtures/semant/record_bad.tig"; Test.assert(false))
       handle Semant.TypeDoesNotExist(_) => Test.assert(true));
+
+Test.test(
+ "semant simple - name dec bad",
+ fn () =>
+    (Main.compile "fixtures/semant/name_bad.tig"; Test.assert(false))
+    handle Semant.TypeDoesNotExist(_) => Test.assert(true));
+
+Test.test(
+    "semant simple - name dec good",
+    fn () =>
+      let val actual = Main.compile "fixtures/semant/name_good.tig"
+          val expected = { exp=(), ty=Types.UNIT }
+      in
+          Test.assert(expected = actual)
+      end);
+
+Test.test(
+    "semant simple - reord dec good",
+    fn () =>
+    let val actual = Main.compile "fixtures/semant/record_dec_good.tig"
+        val expected = { exp=(), ty=Types.UNIT }
+    in
+        Test.assert(expected = actual)
+    end);

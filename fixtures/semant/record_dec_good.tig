@@ -1,0 +1,5 @@
+let
+    type a = {name : string}
+in
+    ()
+end

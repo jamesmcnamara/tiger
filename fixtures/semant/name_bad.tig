@@ -1,0 +1,5 @@
+let
+    type a = b
+in
+    (a)
+end

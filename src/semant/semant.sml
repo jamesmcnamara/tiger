@@ -13,7 +13,7 @@ signature SEMANT = sig
     val transTy : tenv * Absyn.ty -> Types.ty
 
     val checkRecordType : Types.ty list * Types.ty list * int -> bool
-
+    val createSymbols : Absyn.field list * tenv -> (Symbol.symbol * Types.ty) list
 end
 
 structure A = Absyn
@@ -38,9 +38,35 @@ fun checkRecordType(fieldType::fieldTypes, recordType::recordTypes, pos) =
     | checkRecordType(nil,nil,pos) = true
     | checkRecordType _ = false
 
+fun createSymbols ({name=s,escape=e,typ=t,pos=p}::fields,tenv) =
+      (case Symbol.look(tenv,t) of
+          SOME(type') => (t,type')::createSymbols(fields,tenv)
+        | NONE => raise TypeDoesNotExist(t))
+    | createSymbols (nil,tenv) = nil
+
 fun transVar(tenv,venv,A.SimpleVar(s,p)) = {exp=(), ty=Types.UNIT}
   | transVar(tenv,venv,A.FieldVar(v,s,p)) = {exp=(), ty=Types.UNIT}
   | transVar(tenv,venv,A.SubscriptVar(v,e,p)) = {exp=(), ty=Types.UNIT}
+
+fun transTy(tenv,A.NameTy(s,p)) =
+      (* BUG: Does not allow for mutually recursive type defintions. See assignment for details *)
+      (case Symbol.look(tenv,s) of
+            SOME(t) => t
+          | NONE => raise TypeDoesNotExist(s))
+    | transTy(tenv,A.RecordTy l) = Types.RECORD(List.rev(createSymbols(l,tenv)), ref ())
+    | transTy(tenv,A.ArrayTy(s,p)) =
+        (case Symbol.look(tenv,s) of
+              SOME(t) => Types.ARRAY(t, ref ())
+            | NONE => raise TypeDoesNotExist(s))
+
+fun transTys(tenv,{name=s,ty=ty,pos=p}::decs) =
+      let val t = transTy(tenv,ty)
+      in
+        transTys(Symbol.enter(tenv,s,t),decs)
+      end
+    | transTys(tenv,nil) = tenv
+
+
 
 fun transExp(tenv, venv, exp) =
   let fun
@@ -77,7 +103,7 @@ fun transExp(tenv, venv, exp) =
         )
       | trexp(A.SeqExp l) =
         let val exptys = (map (fn (e, p) => trexp e) l) in
-            { exp=(), ty=(#ty(List.last(exptys))) }
+            { exp=(), ty=(#ty(List.last(exptys))) } (* BUG -- cant take last of an empty. Occurs when the body of a LetExp is () *)
         end
       | trexp(A.AssignExp { var=v, exp=e, pos }) =
         { exp=(), ty=Types.UNIT }
@@ -99,8 +125,14 @@ fun transExp(tenv, venv, exp) =
         (* TODO *)
         { exp=(), ty=Types.UNIT }
       | trexp(A.LetExp { decs, body, pos }) =
-        (* TODO *)
-        { exp=(), ty=Types.UNIT }
+        let fun transDecs(ltenv,lvenv,dec::rest) =
+              (case transDec(ltenv,lvenv,dec) of
+                {tenv=newtenv,venv=newvenv} => transDecs(newtenv,newvenv,rest))
+            | transDecs(ltenv,lvenv,nil) =  {tenv=ltenv,venv=lvenv}
+            val {tenv=newtenv, venv=newvenv} = transDecs(tenv,venv,decs)
+        in
+            transExp(newtenv, newvenv, body)
+        end
       | trexp(A.ArrayExp { typ, size, init, pos }) =
         (* TODO *)
         { exp=(), ty=Types.UNIT }
@@ -108,14 +140,17 @@ fun transExp(tenv, venv, exp) =
       trexp(exp)
   end
 
-fun transDec(tenv,venv,A.FunctionDec l) = {tenv=tenv, venv=venv}
-  | transDec(tenv,venv,A.VarDec{name,escape,typ,init,pos}) = {tenv=tenv, venv=venv}
-  | transDec(tenv,venv,A.TypeDec l) = {tenv=tenv, venv=venv}
-
-fun transTy(tenv,A.NameTy(s,p)) = Types.UNIT
-  | transTy(tenv,A.RecordTy l) = Types.UNIT
-  | transTy(tenv,A.ArrayTy(s,p)) = Types.UNIT
+and transDec(tenv,venv,A.FunctionDec l) = {tenv=tenv, venv=venv}
+    | transDec(tenv,venv,A.VarDec{name,escape,typ,init,pos}) =
+        (case typ of
+              SOME(t) => {tenv=tenv, venv=venv}
+            | NONE => {tenv=tenv,venv=Symbol.enter(venv,name,Env.VarEntry({ty=(#ty(transExp(tenv, venv, init)))}))})
+    | transDec(tenv,venv,A.TypeDec l) = {tenv=transTys(tenv,l), venv=venv}
 
 fun transProg ast = transExp(Env.base_tenv, Env.base_venv, ast)
+
+
+
+
 
 end
