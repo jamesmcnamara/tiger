@@ -1,5 +1,6 @@
 signature SEMANT = sig
     exception TypeError of Types.ty * Types.ty * int
+    exception TypeDoesNotExist of Symbol.symbol
 
     type tenv
     type venv
@@ -7,6 +8,9 @@ signature SEMANT = sig
 
     val transProg : Absyn.exp -> expty
     val transExp : tenv * venv * Absyn.exp -> expty
+
+    val checkRecordType : Types.ty list * Types.ty list * int -> bool
+    val createSymbols : Absyn.field list * tenv -> (Symbol.symbol * Types.ty) list
 end
 
 structure A = Absyn
@@ -14,6 +18,7 @@ structure Semant : SEMANT = struct
 
 exception TypeError of Types.ty * Types.ty * int
 exception NotImplemented
+exception TypeDoesNotExist of Symbol.symbol
 
 type tenv = Types.ty Symbol.table
 type venv = Env.enventry Symbol.table
@@ -24,6 +29,17 @@ fun unify(ty1, ty2, pos) =
       ty1
   else
       raise TypeError(ty1, ty2, pos)
+
+fun checkRecordType(fieldType::fieldTypes, recordType::recordTypes, pos) =
+    (unify(fieldType,recordType,pos); checkRecordType(fieldTypes, recordTypes, pos))
+    | checkRecordType(nil,nil,pos) = true
+    | checkRecordType _ = false
+
+fun createSymbols ({name=s,escape=e,typ=t,pos=p}::fields,tenv) =
+      (case Symbol.look(tenv,t) of
+          SOME(type') => (t,type')::createSymbols(fields,tenv)
+        | NONE => raise TypeDoesNotExist(t))
+    | createSymbols (nil,tenv) = nil
 
 fun transExp(tenv, venv, exp) =
   let fun trexp(A.VarExp(v)) =
@@ -64,13 +80,19 @@ fun transExp(tenv, venv, exp) =
         | trexp(A.RecordExp { fields, typ, pos }) =
           (case Symbol.look(tenv, typ) of
                 Option.SOME(ty as Types.RECORD(l, u)) =>
-                (fields;                                (* TODO: Check the fields types *)
-                 { exp=(), ty=ty })
+                let fun unifier(actual, expected) =
+                        unify(#ty(trexp(actual)), expected, pos)
+                    val actual = map(fn (s, e, p) => (e)) fields
+                    val expected = map(fn (s, t) => t) l
+                    val pairs = (ListPair.map unifier (actual, expected))
+                in
+                  { exp=(), ty=ty }
+                end
               | Option.SOME(_) => raise NotImplemented  (* Must be record type *)
               | Option.NONE => raise NotImplemented)    (* Undefined type *)
 
         | trexp(A.SeqExp l) =
-          let val exptys = (map (fn (e, p) => trexp e) l) in
+          let val exptys = (map (fn (e, p) => trexp e) l) in (* FIXME: cant take last of an empty. Occurs when the body of a LetExp is () *)
               { exp=(), ty=(#ty(List.last(exptys))) }
           end
 
@@ -134,25 +156,29 @@ fun transExp(tenv, venv, exp) =
           {exp=(), ty=Types.UNIT}
 
       and trdec(A.FunctionDec(l)) =
-          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
+          { tenv=tenv, venv=venv }  (* TODO *)
 
-        | trdec(A.VarDec { name, escape, typ, init, pos }) =
-          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
+        | trdec(A.VarDec{ name, escape, typ, init, pos}) =
+          (case typ of
+               SOME(t) => { tenv=tenv, venv=venv }
+             | NONE => { tenv=tenv, venv=Symbol.enter(venv, name, Env.VarEntry({ ty=(#ty(transExp(tenv, venv, init))) })) })
 
-        | trdec(A.TypeDec(l)) =
-          { tenv=tenv, venv=venv }  (* TODO: This is obviously wrong. *)
+        | trdec(A.TypeDec(l)) = { tenv=tenv, venv=venv }  (* TODO *)
 
       and trdecs(decs) =
         { tenv=tenv, venv=venv }
 
+      (* BUG: Does not allow for mutually recursive type defintions. See assignment for details *)
       and trtype(A.NameTy(s, p)) =
-          Types.UNIT
-
-        | trtype(A.RecordTy(l)) =
-          Types.UNIT
-
+          (case Symbol.look(tenv, s) of
+               SOME(t) => t
+             | NONE => raise TypeDoesNotExist(s))
+        | trtype(A.RecordTy l) =
+          Types.RECORD(List.rev(createSymbols(l, tenv)), ref ())
         | trtype(A.ArrayTy(s, p)) =
-          Types.UNIT
+              (case Symbol.look(tenv,s) of
+                   SOME(t) => Types.ARRAY(t, ref ())
+                 | NONE => raise TypeDoesNotExist(s))
   in
       trexp(exp)
   end
