@@ -1,5 +1,6 @@
 signature SEMANT = sig
     exception TypeError of Types.ty * Types.ty * int
+    exception TypeDoesNotExist of Symbol.symbol
 
     type tenv
     type venv
@@ -10,6 +11,9 @@ signature SEMANT = sig
     val transExp : tenv * venv * Absyn.exp -> expty
     val transDec : tenv * venv * Absyn.dec -> {tenv: tenv, venv: venv}
     val transTy : tenv * Absyn.ty -> Types.ty
+
+    val checkRecordType : Types.ty list * Types.ty list * int -> bool
+
 end
 
 structure A = Absyn
@@ -17,6 +21,7 @@ structure Semant : SEMANT = struct
 
 exception TypeError of Types.ty * Types.ty * int
 exception NotImplemented
+exception TypeDoesNotExist of Symbol.symbol
 
 type tenv = Types.ty Symbol.table
 type venv = Env.enventry Symbol.table
@@ -27,6 +32,11 @@ fun unify(ty1, ty2, pos) =
       ty1
   else
       raise TypeError(ty1, ty2, pos)
+
+fun checkRecordType(fieldType::fieldTypes, recordType::recordTypes, pos) =
+    (unify(fieldType,recordType,pos); checkRecordType(fieldTypes, recordTypes, pos))
+    | checkRecordType(nil,nil,pos) = true
+    | checkRecordType _ = false
 
 fun transVar(tenv,venv,A.SimpleVar(s,p)) = {exp=(), ty=Types.UNIT}
   | transVar(tenv,venv,A.FieldVar(v,s,p)) = {exp=(), ty=Types.UNIT}
@@ -55,9 +65,16 @@ fun transExp(tenv, venv, exp) =
         (unify(Types.INT, #ty(trexp(left)), pos);
          unify(Types.INT, #ty(trexp(right)), pos);
          { exp=(), ty=Types.INT })
-      | trexp(A.RecordExp{fields,typ,pos}) =
-        (* TODO *)
-        { exp=(), ty=Types.UNIT }
+      | trexp(A.RecordExp{fields, typ, pos}) =
+        (case Symbol.look(tenv, typ) of
+              Option.SOME(Types.RECORD(a,b)) =>
+                let val fieldTypes = map(fn (s, e, p) => (#ty(trexp(e)))) fields
+                    val recordTypes = map(fn (s, t) => t) a
+                 in
+                    (checkRecordType(fieldTypes,recordTypes,pos); { exp=(), ty=Types.RECORD(a,b) })
+                 end
+            | _ => raise TypeDoesNotExist(typ)
+        )
       | trexp(A.SeqExp l) =
         let val exptys = (map (fn (e, p) => trexp e) l) in
             { exp=(), ty=(#ty(List.last(exptys))) }

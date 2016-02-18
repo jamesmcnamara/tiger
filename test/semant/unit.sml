@@ -63,3 +63,9 @@ Test.test(
     fn () =>
        (Main.compile "fixtures/semant/call_bad.tig"; Test.assert(false))
        handle Semant.TypeError(_,_,_) => Test.assert(true));
+
+Test.test(
+   "semant simple - record bad",
+   fn () =>
+      (Main.compile "fixtures/semant/record_bad.tig"; Test.assert(false))
+      handle Semant.TypeDoesNotExist(_) => Test.assert(true));
