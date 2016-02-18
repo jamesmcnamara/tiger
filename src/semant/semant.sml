@@ -66,8 +66,6 @@ fun transTys(tenv,{name=s,ty=ty,pos=p}::decs) =
       end
     | transTys(tenv,nil) = tenv
 
-
-
 fun transExp(tenv, venv, exp) =
   let fun
       trexp(A.VarExp(v)) =
@@ -148,9 +146,5 @@ and transDec(tenv,venv,A.FunctionDec l) = {tenv=tenv, venv=venv}
     | transDec(tenv,venv,A.TypeDec l) = {tenv=transTys(tenv,l), venv=venv}
 
 fun transProg ast = transExp(Env.base_tenv, Env.base_venv, ast)
-
-
-
-
 
 end
