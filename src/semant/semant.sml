@@ -163,7 +163,8 @@ fun transExp(tenv, venv, exp) =
                SOME(t) => { tenv=tenv, venv=venv }
              | NONE => { tenv=tenv, venv=Symbol.enter(venv, name, Env.VarEntry({ ty=(#ty(transExp(tenv, venv, init))) })) })
 
-        | trdec(A.TypeDec(l)) = { tenv=tenv, venv=venv }  (* TODO *)
+        | trdec(A.TypeDec(l)) =
+          { tenv=trtypes(tenv, l), venv=venv }
 
       and trdecs(decs) =
         { tenv=tenv, venv=venv }
@@ -179,6 +180,12 @@ fun transExp(tenv, venv, exp) =
               (case Symbol.look(tenv,s) of
                    SOME(t) => Types.ARRAY(t, ref ())
                  | NONE => raise TypeDoesNotExist(s))
+
+      and trtypes(tenv', { name=s, ty=ty, pos=p } :: decs) =
+          let val t = trtype(ty) in
+              trtypes(Symbol.enter(tenv', s, t), decs)
+            end
+        | trtypes(tenv', nil) = tenv'
   in
       trexp(exp)
   end
