@@ -59,7 +59,7 @@ fun transExp(tenv, venv, exp) =
                 Option.SOME(Env.FunEntry { formals, result }) =>
                 let fun unifier(actual, expected) =
                         unify(#ty(trexp(actual)), expected, pos)
-                    val pairs = (ListPair.map unifier (args, formals))
+                    val pairs = (ListPair.map unifier (args, formals))  (* TODO: expected actual of different sizes. *)
                 in
                   { exp=(), ty=result }
                 end
@@ -84,7 +84,7 @@ fun transExp(tenv, venv, exp) =
                         unify(#ty(trexp(actual)), expected, pos)
                     val actual = map(fn (s, e, p) => (e)) fields
                     val expected = map(fn (s, t) => t) l
-                    val pairs = (ListPair.map unifier (actual, expected))
+                    val pairs = (ListPair.map unifier (actual, expected))  (* TODO: expected actual of different sizes. *)
                 in
                   { exp=(), ty=ty }
                 end
@@ -92,8 +92,8 @@ fun transExp(tenv, venv, exp) =
               | Option.NONE => raise NotImplemented)    (* Undefined type *)
 
         | trexp(A.SeqExp l) =
-          let val exptys = (map (fn (e, p) => trexp e) l) in (* FIXME: cant take last of an empty. Occurs when the body of a LetExp is () *)
-              { exp=(), ty=(#ty(List.last(exptys))) }
+          let val exptys = Types.UNIT :: (map (fn (e, p) => #ty(trexp(e))) l) in
+              { exp=(), ty=(List.last(exptys)) }
           end
 
         | trexp(A.AssignExp { var=v, exp=e, pos }) =
@@ -147,7 +147,13 @@ fun transExp(tenv, venv, exp) =
               | Option.NONE => raise NotImplemented)  (* Unbound type *)
 
       and trvar(A.SimpleVar(s, p)) =
-          {exp=(), ty=Types.UNIT}
+          (case Symbol.look(venv, s) of
+                Option.SOME(Env.VarEntry({ ty=ty })) =>
+                { exp=(), ty=ty }
+              | Option.SOME(Env.FunEntry(_)) =>
+                raise NotImplemented
+              | Option.NONE =>
+                raise NotImplemented)
 
         | trvar(A.FieldVar(v, s, p)) =
           {exp=(), ty=Types.UNIT}
