@@ -135,7 +135,7 @@ fun transExp(tenv, venv, exp) =
           { exp=(), ty=Types.UNIT }
 
         | trexp(A.LetExp { decs, body, pos }) =
-          let val { tenv=tenv', venv=venv' } = trdecs(decs)
+          let val { tenv=tenv', venv=venv' } = trdecs(tenv, venv, decs)
               val body = transExp(tenv', venv', body)
           in
             body
@@ -161,19 +161,22 @@ fun transExp(tenv, venv, exp) =
         | trvar(A.SubscriptVar(v, e, p)) =
           {exp=(), ty=Types.UNIT}
 
-      and trdec(A.FunctionDec(l)) =
+      and trdec(tenv, venv, A.FunctionDec(l)) =
           { tenv=tenv, venv=venv }  (* TODO *)
 
-        | trdec(A.VarDec{ name, escape, typ, init, pos}) =
+        | trdec(tenv, venv, A.VarDec{ name, escape, typ, init, pos}) =
           (case typ of
                SOME(t) => { tenv=tenv, venv=venv }
              | NONE => { tenv=tenv, venv=Symbol.enter(venv, name, Env.VarEntry({ ty=(#ty(transExp(tenv, venv, init))) })) })
 
-        | trdec(A.TypeDec(l)) =
+        | trdec(tenv, venv, A.TypeDec(l)) =
           { tenv=trtypes(tenv, l), venv=venv }
 
-      and trdecs(decs) =
-        { tenv=tenv, venv=venv }
+      and trdecs(tenv, venv, dec::rest) =
+          let val { tenv=tenv', venv=venv' } = trdec(tenv, venv, dec) in
+            trdecs(tenv', venv', rest)
+          end
+        | trdecs(tenv, venv, nil) = { tenv=tenv, venv=venv }
 
       (* BUG: Does not allow for mutually recursive type defintions. See assignment for details *)
       and trtype(A.NameTy(s, p)) =
