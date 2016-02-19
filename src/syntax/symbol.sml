@@ -7,9 +7,10 @@ sig
     val empty : 'a table
     val enter : 'a table * symbol * 'a -> 'a table
     val look  : 'a table * symbol -> 'a option
+    val size  : 'a table -> int
 end
 
-structure Symbol :> SYMBOL = struct
+structure Symbol : SYMBOL = struct
 
 type symbol = string * int
 
@@ -39,5 +40,6 @@ type 'a table= 'a Table.table
 val empty = Table.empty
 val enter = Table.enter
 val look = Table.look
+val size = Table.size
 
 end
