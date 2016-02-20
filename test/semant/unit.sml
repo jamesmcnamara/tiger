@@ -93,3 +93,12 @@ Test.test(
     in
         Test.assert(expected = actual)
     end);
+
+Test.test(
+    "semant simple - name types",
+    fn () =>
+    let val actual = Main.compile "fixtures/semant/name_types.tig"
+        val expected = { exp=(), ty=Types.UNIT }
+    in
+        Test.assert(expected = actual)
+    end);
