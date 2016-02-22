@@ -1,6 +1,7 @@
 signature SEMANT = sig
     exception TypeError of Types.ty * Types.ty * int
     exception TypeDoesNotExist of Symbol.symbol
+    exception ArgumentLengthError of int * int * int
 
     type tenv
     type venv
@@ -18,6 +19,7 @@ structure Semant : SEMANT = struct
 exception TypeError of Types.ty * Types.ty * int
 exception NotImplemented
 exception TypeDoesNotExist of Symbol.symbol
+exception ArgumentLengthError of int * int * int
 
 type tenv = Types.ty Symbol.table
 type venv = Env.enventry Symbol.table
@@ -75,9 +77,14 @@ fun transExp(tenv, venv, exp) =
                 Option.SOME(Env.FunEntry { formals, result }) =>
                 let fun unifier(actual, expected) =
                         unify(tenv, #ty(trexp(actual)), expected, pos)
-                    val pairs = (ListPair.map unifier (args, formals))  (* TODO: expected actual of different sizes. *)
+                    val args_len = List.length(args)
+                    val formals_len = List.length(formals)
                 in
-                  { exp=(), ty=result }
+                  if args_len <> formals_len then
+                    raise ArgumentLengthError(formals_len, args_len, pos)
+                  else
+                    (ListPair.map unifier (args, formals));
+                    { exp=(), ty=result }
                 end
              | Option.SOME(_) =>
                raise NotImplemented

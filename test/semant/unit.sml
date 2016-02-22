@@ -120,3 +120,9 @@ Test.test(
     in
         Test.assert(expected = actual)
     end);
+
+Test.test(
+   "semant simple - call bad args",
+   fn () =>
+      (Main.compile "fixtures/semant/call_bad_args.tig"; Test.assert(false))
+      handle Semant.ArgumentLengthError(_) => Test.assert(true));
