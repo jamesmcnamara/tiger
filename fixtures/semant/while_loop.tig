@@ -1,0 +1,5 @@
+let val a := 1
+in
+    while a
+        do(a:=0)
+end
