@@ -102,3 +102,21 @@ Test.test(
     in
         Test.assert(expected = actual)
     end);
+
+Test.test(
+    "semant simple - for loop",
+    fn () =>
+    let val actual = Main.compile "fixtures/semant/for_loop.tig"
+        val expected = { exp=(), ty=Types.UNIT }
+    in
+        Test.assert(expected = actual)
+    end);
+
+Test.test(
+    "semant simple - while loop",
+    fn () =>
+    let val actual = Main.compile "fixtures/semant/while_loop.tig"
+        val expected = { exp=(), ty=Types.UNIT }
+    in
+        Test.assert(expected = actual)
+    end);

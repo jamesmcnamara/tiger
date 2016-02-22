@@ -24,8 +24,8 @@ type venv = Env.enventry Symbol.table
 type expty = {exp: Translate.exp, ty: Types.ty}
 
 fun createSymbols (fields,tenv) =
-    let 
-      fun aux ({name=s,escape=e,typ=t,pos=p}) = 
+    let
+      fun aux ({name=s,escape=e,typ=t,pos=p}) =
         (case Symbol.look(tenv,t) of
           SOME(type') => (t,type')
         | NONE => (t,Types.NAME(t, ref Option.NONE)))
@@ -37,11 +37,11 @@ fun actual_type(tenv, ty) =
     let
       fun maybeResolveName(s, Option.SOME(t)) =
           actual_type(tenv, t)
-        | maybeResolveName(s, Option.NONE) = 
+        | maybeResolveName(s, Option.NONE) =
           (case Symbol.look(tenv, s) of
                Option.SOME(t) => actual_type(tenv, t)
              | Option.NONE => ty)
-    in 
+    in
       (case ty of
             Types.NAME(s, r) => maybeResolveName(s, !r)
           | _ => ty)
@@ -104,8 +104,8 @@ fun transExp(tenv, venv, exp) =
                 in
                   { exp=(), ty=ty }
                 end
-              | Option.SOME(_) => raise NotImplemented  (* Must be record type *)
-              | Option.NONE => raise NotImplemented)    (* Undefined type *)
+              | Option.SOME(_) => raise NotImplemented  (* Must be record type => we need an appropriate error msg *)
+              | Option.NONE => raise TypeDoesNotExist(typ))    (* Undefined type *)
 
         | trexp(A.SeqExp l) =
           let val exptys = Types.UNIT :: (map (fn (e, p) => #ty(trexp(e))) l) in
@@ -143,8 +143,17 @@ fun transExp(tenv, venv, exp) =
           end
 
         | trexp(A.ForExp { var=v, escape=b, lo, hi, body, pos }) =
-          (* TODO *)
-          { exp=(), ty=Types.UNIT }
+          let val venv' = Symbol.enter(venv, v, Env.VarEntry { ty=Types.INT })
+              val lo' = trexp(lo)
+              val hi' = trexp(hi)
+              val body' = transExp(tenv, venv', body)
+          in
+              (* TODO: Unify body type? => We can make a decision here(and `while` and `if-then`), but we need to document it *)
+              unify(tenv, #ty(lo'), Types.INT, pos);
+              unify(tenv, #ty(hi'), Types.INT, pos);
+              unify(tenv, #ty(body'), Types.UNIT, pos);
+              { exp=(), ty=Types.UNIT }
+          end
 
         | trexp(A.BreakExp p) =
           (* TODO: Should be bottom. *)
@@ -188,7 +197,7 @@ fun transExp(tenv, venv, exp) =
         | trdec(A.TypeDec(l), {tenv=tenv, venv=venv}) =
           { tenv=trtypes(tenv, l), venv=venv }
 
-      and trdecs(tenv, venv, decs) = 
+      and trdecs(tenv, venv, decs) =
         foldl trdec {tenv=tenv, venv=venv} decs
 
       (* BUG: Does not allow for mutually recursive type defintions. See assignment for details *)
@@ -206,9 +215,9 @@ fun transExp(tenv, venv, exp) =
 
       and trtypes(tenv, decs) =
         let
-          fun aux ({ name=s, ty=ty, pos=p }, tenv) = 
-            let 
-              val newType = trtype(tenv, ty) 
+          fun aux ({ name=s, ty=ty, pos=p }, tenv) =
+            let
+              val newType = trtype(tenv, ty)
             in
               Symbol.enter(tenv, s, newType)
             end
