@@ -74,7 +74,7 @@ Test.test(
  "semant simple - name dec bad",
  fn () =>
     (Main.compile "fixtures/semant/name_bad.tig"; Test.assert(false))
-    handle Semant.TypeDoesNotExist(_) => Test.assert(true));
+    handle Semant.UndefinedId(_) => Test.assert(true));
 
 Test.test(
     "semant simple - name dec good",
