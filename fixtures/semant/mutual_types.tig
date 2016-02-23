@@ -1,0 +1,9 @@
+let
+    type tree = { key: int, children: treelist }
+    type treelist = { head: tree, tail: treelist }
+
+    var tree1 := tree { key=1, children=nil }
+    /*var tree2 := tree { key=1, children={ head={ key=2, children=nil }}}*/
+in
+    tree1
+end

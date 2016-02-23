@@ -1,0 +1,7 @@
+let
+    var a := 1
+    function foo(x: int, pred: int) : int = if pred then x + a else bar(x, 1)
+    function bar(x: int, pred: int) : int = if pred then x + 5 else foo(x, 1)
+in
+    foo(1, 0)
+end

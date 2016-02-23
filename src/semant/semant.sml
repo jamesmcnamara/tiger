@@ -204,7 +204,39 @@ fun transExp(tenv, venv, exp) =
           {exp=(), ty=Types.UNIT}
 
       and trdec(A.FunctionDec(l), {tenv=tenv, venv=venv}) =
-          { tenv=tenv, venv=venv }  (* TODO *)
+          let fun insert({ name, params, result, body, pos }, venv') =
+                let val resultType = (case result of
+                                        SOME(s, p) => (case Symbol.look(tenv, s) of
+                                                        SOME(t) => t
+                                                      | NONE => raise TypeDoesNotExist(s))
+                                      | NONE => Types.UNIT)
+                    val formals = (map (fn { name, escape, typ, pos } =>
+                                          (case Symbol.look(tenv, typ) of
+                                              SOME(t) => t
+                                            | NONE => raise TypeDoesNotExist(typ)))
+                                        params)
+                    val entry = Env.FunEntry { formals=formals, result=resultType }
+                in
+                  Symbol.enter(venv', name, entry)
+                end
+              val venv' = (foldr insert venv l)
+              fun unifier { name, params, result, body, pos } =
+                  let fun insert({ name, escape, typ, pos }, venv'') =
+                      (case Symbol.look(tenv, typ) of
+                          SOME(t) => Symbol.enter(venv'', name, Env.VarEntry { ty=t })
+                        | NONE => raise TypeDoesNotExist(typ))
+                      val venv'' = (foldr insert venv' params)
+                  in
+                      case Symbol.look(venv', name) of
+                          SOME(Env.FunEntry({ formals, result }))
+                            => unify(tenv, result, (#ty(transExp(tenv, venv'', body))), pos)
+                        | SOME _ => raise FunctionIsNotValueError(name, pos)
+                        | NONE => raise UndefinedId(name, pos)
+                  end
+          in
+            (map unifier l);
+            { tenv=tenv, venv=venv' }  (* TODO *)
+          end
 
         | trdec(A.VarDec{ name, escape, typ, init, pos}, {tenv=tenv, venv=venv}) =
           let val actual_ty = #ty(transExp(tenv, venv, init))

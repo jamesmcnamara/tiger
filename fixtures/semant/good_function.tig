@@ -1,0 +1,7 @@
+let
+    function foo(x: int) : int = x + 1
+    function bar(s: string) = print(s)
+in
+    (bar("hi");
+     foo(1))
+end

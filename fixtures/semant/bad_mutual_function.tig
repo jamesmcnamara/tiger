@@ -1,0 +1,6 @@
+let
+    function foo(x: string) : int = bar(x)
+    function bar(s: string) : string = s
+in
+    foo("hi")
+end
