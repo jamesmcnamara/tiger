@@ -58,6 +58,7 @@ fun actual_type(tenv, ty) =
     in
       (case ty of
             Types.NAME(s, r) => maybeResolveName(s, !r)
+          | Types.ARRAY(t, u) => actual_type(tenv, t)
           | _ => ty)
     end
 
@@ -196,12 +197,13 @@ fun transExp(tenv, venv, exp) =
           end
 
         | trexp(A.ArrayExp { typ, size, init, pos }) =
+          (print(Symbol.name(typ) ^ "\n\n");
           (case Symbol.look(tenv, typ) of
                 Option.SOME(ty) =>
                 (unify(tenv, Types.INT, #ty(trexp(size)), pos);
                  unify(tenv, ty, #ty(trexp(init)), pos);
                  { exp=(), ty=Types.ARRAY(ty, ref ()) })
-              | Option.NONE => raise TypeDoesNotExist(typ))
+              | Option.NONE => raise TypeDoesNotExist(typ)))
 
       and trvar(A.SimpleVar(s, p)) =
           (case Symbol.look(venv, s) of
@@ -221,9 +223,9 @@ fun transExp(tenv, venv, exp) =
             | t => raise NotRecordError(t, p))
 
         | trvar(A.SubscriptVar(v, e, p)) =
-          (case #ty(trvar(v)) of
-              Types.ARRAY(t, u) => { exp=(), ty=t }
-            | t => raise NotArrayError(t, p))
+          (case #ty(trexp(e)) of
+              Types.INT => trvar(v)
+            | t => raise TypeError(Types.INT, t, p))
 
       and trdec(A.FunctionDec(l), {tenv=tenv, venv=venv}) =
           let fun insert({ name, params, result, body, pos }, venv') =

@@ -1,0 +1,6 @@
+let
+    type intarray = array of string
+    var arr := intarray [4] of "s"
+in
+    arr[0]
+end
