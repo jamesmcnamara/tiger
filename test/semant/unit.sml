@@ -232,3 +232,18 @@ Test.test(
    in
       Test.assert(expected = actual)
    end);
+
+Test.test(
+   "semant simple - equality good",
+   fn () =>
+   let val actual = Main.compile "fixtures/semant/equality_good.tig"
+      val expected = { exp=(), ty=Types.INT }
+   in
+      Test.assert(expected = actual)
+   end);
+
+Test.test(
+   "semant simple - equality bad",
+   fn () =>
+      (Main.compile "fixtures/semant/equality_bad.tig"; Test.assert(false))
+      handle Semant.TypeError(_) => Test.assert(true));
