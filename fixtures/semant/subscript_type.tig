@@ -1,0 +1,6 @@
+let
+    type intarray = array of int
+    var arr := intarray [4] of 1
+in
+    ()
+end

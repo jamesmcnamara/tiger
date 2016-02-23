@@ -3,7 +3,9 @@ let
     type treelist = { head: tree, tail: treelist }
 
     var tree1 := tree { key=1, children=nil }
-    /*var tree2 := tree { key=1, children={ head={ key=2, children=nil }}}*/
+    var tree2 := tree { key=1, children={ head={ key=2, children=nil }}}
+
+    function key(t: tree) : int = t.key
 in
-    tree1
+    key(tree2)
 end

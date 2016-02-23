@@ -1,0 +1,6 @@
+let
+    type rec = { a: int }
+    function foo(r: rec) : int = r.a
+in
+    foo(rec { a=1 })
+end

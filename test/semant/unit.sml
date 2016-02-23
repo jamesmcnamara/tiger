@@ -196,3 +196,21 @@ Test.test(
    fn () =>
       (Main.compile "fixtures/semant/bad_mutual_function.tig"; Test.assert(false))
       handle Semant.TypeError(_) => Test.assert(true));
+
+Test.test(
+   "semant simple - mutual types",
+   fn () =>
+   let val actual = Main.compile "fixtures/semant/mutual_types.tig"
+      val expected = { exp=(), ty=Types.INT }
+   in
+      Test.assert(expected = actual)
+   end);
+
+Test.test(
+   "semant simple - field var type",
+   fn () =>
+   let val actual = Main.compile "fixtures/semant/field_var_type.tig"
+      val expected = { exp=(), ty=Types.INT }
+   in
+      Test.assert(expected = actual)
+   end);

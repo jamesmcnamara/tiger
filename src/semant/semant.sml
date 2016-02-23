@@ -5,6 +5,9 @@ signature SEMANT = sig
     exception RecordFieldNameError of Symbol.symbol * Symbol.symbol * int
     exception FunctionIsNotValueError of Symbol.symbol * int
     exception UndefinedId of Symbol.symbol * int
+    exception NotRecordError of Types.ty * int
+    exception FieldNotFound of Types.ty * Symbol.symbol * int
+    exception NotArrayError of Types.ty * int
 
     type tenv
     type venv
@@ -26,6 +29,9 @@ exception ArityError of int * int * int
 exception RecordFieldNameError of Symbol.symbol * Symbol.symbol * int
 exception FunctionIsNotValueError of Symbol.symbol * int
 exception UndefinedId of Symbol.symbol * int
+exception NotRecordError of Types.ty * int
+exception FieldNotFound of Types.ty * Symbol.symbol * int
+exception NotArrayError of Types.ty * int
 
 type tenv = Types.ty Symbol.table
 type venv = Env.enventry Symbol.table
@@ -55,15 +61,22 @@ fun actual_type(tenv, ty) =
           | _ => ty)
     end
 
-fun unify(tenv, ty1, ty2, pos) =
-  let val ty1 = actual_type(tenv, ty1)
-      val ty2 = actual_type(tenv, ty2)
-  in
+fun unify_actual(tenv, Types.BOTTOM, t, pos) = t
+  | unify_actual(tenv, t, Types.BOTTOM, pos) = t
+  | unify_actual(tenv, Types.NIL, Types.RECORD(l, u), pos) = Types.RECORD(l,u)
+  | unify_actual(tenv, Types.RECORD(l, u), Types.NIL, pos) = Types.RECORD(l,u)
+  | unify_actual(tenv, ty1, ty2, pos) =
       if (ty1 = ty2) then
           ty1
       else
           raise TypeError(ty1, ty2, pos)
-  end
+
+fun unify(tenv, ty1, ty2, pos) =
+    let val ty1 = actual_type(tenv, ty1)
+        val ty2 = actual_type(tenv, ty2)
+    in
+        unify_actual(tenv, ty1, ty2, pos)
+    end
 
 fun transExp(tenv, venv, exp) =
   let fun trexp(A.VarExp(v)) =
@@ -173,8 +186,7 @@ fun transExp(tenv, venv, exp) =
           end
 
         | trexp(A.BreakExp p) =
-          (* TODO: Should be bottom. *)
-          { exp=(), ty=Types.UNIT }
+          { exp=(), ty=Types.BOTTOM }
 
         | trexp(A.LetExp { decs, body, pos }) =
           let val { tenv=tenv', venv=venv' } = trdecs(tenv, venv, decs)
@@ -185,7 +197,10 @@ fun transExp(tenv, venv, exp) =
 
         | trexp(A.ArrayExp { typ, size, init, pos }) =
           (case Symbol.look(tenv, typ) of
-                Option.SOME(ty) => { exp=(), ty=Types.ARRAY(ty, ref ()) }
+                Option.SOME(ty) =>
+                (unify(tenv, Types.INT, #ty(trexp(size)), pos);
+                 unify(tenv, ty, #ty(trexp(init)), pos);
+                 { exp=(), ty=Types.ARRAY(ty, ref ()) })
               | Option.NONE => raise TypeDoesNotExist(typ))
 
       and trvar(A.SimpleVar(s, p)) =
@@ -197,11 +212,18 @@ fun transExp(tenv, venv, exp) =
               | Option.NONE =>
                 raise UndefinedId(s, p))
 
-        | trvar(A.FieldVar(v, s, p)) =
-          {exp=(), ty=Types.UNIT}
+        | trvar(A.FieldVar(v, s1, p)) =
+          (case #ty(trvar(v)) of
+              t as Types.RECORD(l, u) =>
+              (case (List.find (fn (s2, t) => s1 = s2) l) of
+                   SOME(s, t) => { exp=(), ty=t }
+                 | NONE => raise FieldNotFound(t, s1, p))
+            | t => raise NotRecordError(t, p))
 
         | trvar(A.SubscriptVar(v, e, p)) =
-          {exp=(), ty=Types.UNIT}
+          (case #ty(trvar(v)) of
+              Types.ARRAY(t, u) => { exp=(), ty=t }
+            | t => raise NotArrayError(t, p))
 
       and trdec(A.FunctionDec(l), {tenv=tenv, venv=venv}) =
           let fun insert({ name, params, result, body, pos }, venv') =
@@ -235,7 +257,7 @@ fun transExp(tenv, venv, exp) =
                   end
           in
             (map unifier l);
-            { tenv=tenv, venv=venv' }  (* TODO *)
+            { tenv=tenv, venv=venv' }
           end
 
         | trdec(A.VarDec{ name, escape, typ, init, pos}, {tenv=tenv, venv=venv}) =
@@ -259,7 +281,6 @@ fun transExp(tenv, venv, exp) =
       and trdecs(tenv, venv, decs) =
         foldl trdec {tenv=tenv, venv=venv} decs
 
-      (* BUG: Does not allow for mutually recursive type defintions. See assignment for details *)
       and trtype(tenv, A.NameTy(rhs, p)) =
           (case Symbol.look(tenv, rhs) of
                SOME(t) => actual_type(tenv, t)
