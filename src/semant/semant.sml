@@ -3,6 +3,8 @@ signature SEMANT = sig
     exception TypeDoesNotExist of Symbol.symbol
     exception ArityError of int * int * int
     exception RecordFieldNameError of Symbol.symbol * Symbol.symbol * int
+    exception FunctionIsNotValueError of Symbol.symbol * int
+    exception UndefinedId of Symbol.symbol * int
 
     type tenv
     type venv
@@ -22,6 +24,8 @@ exception NotImplemented
 exception TypeDoesNotExist of Symbol.symbol
 exception ArityError of int * int * int
 exception RecordFieldNameError of Symbol.symbol * Symbol.symbol * int
+exception FunctionIsNotValueError of Symbol.symbol * int
+exception UndefinedId of Symbol.symbol * int
 
 type tenv = Types.ty Symbol.table
 type venv = Env.enventry Symbol.table
@@ -89,9 +93,9 @@ fun transExp(tenv, venv, exp) =
                     { exp=(), ty=result }
                 end
              | Option.SOME(_) =>
-               raise NotImplemented
+               raise FunctionIsNotValueError(func, pos)
              | Option.NONE =>
-               raise NotImplemented)
+               raise UndefinedId(func, pos))
 
         | trexp(A.OpExp{ left, oper, right, pos }) =
           let val left = trexp(left)
@@ -119,8 +123,8 @@ fun transExp(tenv, venv, exp) =
                     (ListPair.map unifier (fields, l));
                     { exp=(), ty=ty }
                 end
-              | Option.SOME(_) => raise NotImplemented  (* Must be record type => we need an appropriate error msg *)
-              | Option.NONE => raise TypeDoesNotExist(typ))    (* Undefined type *)
+              | Option.SOME(_) => raise NotImplemented  (* TODO: Must be record type => we need an appropriate error msg. Might need to unify with the type the record expects. *)
+              | Option.NONE => raise TypeDoesNotExist(typ))
 
         | trexp(A.SeqExp l) =
           let val exptys = Types.UNIT :: (map (fn (e, p) => #ty(trexp(e))) l) in
@@ -131,7 +135,7 @@ fun transExp(tenv, venv, exp) =
           let val lhs = trvar(v)
               val rhs = trexp(e)
           in
-              unify(tenv, #ty(lhs), #ty(rhs), pos);  (* Strong updates? *)
+              unify(tenv, #ty(lhs), #ty(rhs), pos);
               { exp=(), ty=Types.UNIT }
           end
 
@@ -189,9 +193,9 @@ fun transExp(tenv, venv, exp) =
                 Option.SOME(Env.VarEntry({ ty=ty })) =>
                 { exp=(), ty=actual_type(tenv, ty) }
               | Option.SOME(Env.FunEntry(_)) =>
-                raise NotImplemented
+                raise FunctionIsNotValueError(s, p)
               | Option.NONE =>
-                raise NotImplemented)
+                raise UndefinedId(s, p))
 
         | trvar(A.FieldVar(v, s, p)) =
           {exp=(), ty=Types.UNIT}
