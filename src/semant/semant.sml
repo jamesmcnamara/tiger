@@ -144,8 +144,7 @@ fun transExp(tenv, venv, exp) =
                  Option.SOME(e) =>
                  { exp=(), ty=unify(tenv, #ty(then'), #ty(trexp(e)), pos)}
                | Option.NONE =>
-                  (* TODO: Unify type of then? *)
-                  { exp=(), ty=Types.UNIT }
+                  { exp=(), ty=unify(tenv, #ty(then'), Types.UNIT, pos) }
           end
 
         | trexp(A.WhileExp { test, body, pos }) =

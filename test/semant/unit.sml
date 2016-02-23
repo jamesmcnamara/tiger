@@ -138,3 +138,12 @@ Test.test(
    fn () =>
       (Main.compile "fixtures/semant/bad_record_field_name.tig"; Test.assert(false))
       handle Semant.RecordFieldNameError(_) => Test.assert(true));
+
+Test.test(
+    "semant simple - if then",
+    fn () =>
+    let val actual = Main.compile "fixtures/semant/if_then.tig"
+        val expected = { exp=(), ty=Types.UNIT }
+    in
+        Test.assert(expected = actual)
+    end);
