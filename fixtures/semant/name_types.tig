@@ -1,7 +1,7 @@
 let
     type a = b
     type b = int
-    type rec = { a: a, b: b }
+    type rec = { a: int, b: int }
     var r := rec { a=1, b=2 }
 in
     ()

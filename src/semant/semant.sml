@@ -1,7 +1,8 @@
 signature SEMANT = sig
     exception TypeError of Types.ty * Types.ty * int
     exception TypeDoesNotExist of Symbol.symbol
-    exception ArgumentLengthError of int * int * int
+    exception ArityError of int * int * int
+    exception RecordFieldNameError of Symbol.symbol * Symbol.symbol * int
 
     type tenv
     type venv
@@ -19,7 +20,8 @@ structure Semant : SEMANT = struct
 exception TypeError of Types.ty * Types.ty * int
 exception NotImplemented
 exception TypeDoesNotExist of Symbol.symbol
-exception ArgumentLengthError of int * int * int
+exception ArityError of int * int * int
+exception RecordFieldNameError of Symbol.symbol * Symbol.symbol * int
 
 type tenv = Types.ty Symbol.table
 type venv = Env.enventry Symbol.table
@@ -28,9 +30,9 @@ type expty = {exp: Translate.exp, ty: Types.ty}
 fun createSymbols (fields,tenv) =
     let
       fun aux ({name=s,escape=e,typ=t,pos=p}) =
-        (case Symbol.look(tenv,t) of
-          SOME(type') => (t,type')
-        | NONE => (t,Types.NAME(t, ref Option.NONE)))
+         (case Symbol.look(tenv,t) of
+          SOME(type') => (s,type')
+        | NONE => (s,Types.NAME(t, ref Option.NONE)))
     in
       List.map aux fields
     end
@@ -81,7 +83,7 @@ fun transExp(tenv, venv, exp) =
                     val formals_len = List.length(formals)
                 in
                   if args_len <> formals_len then
-                    raise ArgumentLengthError(formals_len, args_len, pos)
+                    raise ArityError(formals_len, args_len, pos)
                   else
                     (ListPair.map unifier (args, formals));
                     { exp=(), ty=result }
@@ -103,13 +105,19 @@ fun transExp(tenv, venv, exp) =
         | trexp(A.RecordExp { fields, typ, pos }) =
           (case Symbol.look(tenv, typ) of
                 Option.SOME(ty as Types.RECORD(l, u)) =>
-                let fun unifier(actual, expected) =
-                        unify(tenv, #ty(trexp(actual)), expected, pos)
-                    val actual = map(fn (s, e, p) => (e)) fields
-                    val expected = map(fn (s, t) => t) l
-                    val pairs = (ListPair.map unifier (actual, expected))  (* TODO: expected actual of different sizes, orders. *)
+                let fun unifier((s1, e1, p), (s2, t2)) =
+                        if Symbol.name(s1) = Symbol.name(s2) then
+                          unify(tenv, #ty(trexp(e1)), t2, pos)
+                        else
+                          raise RecordFieldNameError(s2, s1, p)
+                    val actual_len = List.length(fields)
+                    val expected_len = List.length(l)
                 in
-                  { exp=(), ty=ty }
+                  if actual_len <> expected_len then
+                    raise ArityError(expected_len, actual_len, pos)
+                  else
+                    (ListPair.map unifier (fields, l));
+                    { exp=(), ty=ty }
                 end
               | Option.SOME(_) => raise NotImplemented  (* Must be record type => we need an appropriate error msg *)
               | Option.NONE => raise TypeDoesNotExist(typ))    (* Undefined type *)
@@ -213,7 +221,7 @@ fun transExp(tenv, venv, exp) =
                SOME(t) => actual_type(tenv, t)
              | NONE => Types.NAME(rhs, ref (Option.NONE)))
         | trtype(tenv, A.RecordTy(l)) =
-          Types.RECORD(List.rev(createSymbols(l, tenv)), ref ())
+          Types.RECORD(createSymbols(l, tenv), ref ())
 
         | trtype(tenv, A.ArrayTy(s, p)) =
               (case Symbol.look(tenv, s) of

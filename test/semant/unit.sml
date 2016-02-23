@@ -125,4 +125,16 @@ Test.test(
    "semant simple - call bad args",
    fn () =>
       (Main.compile "fixtures/semant/call_bad_args.tig"; Test.assert(false))
-      handle Semant.ArgumentLengthError(_) => Test.assert(true));
+      handle Semant.ArityError(_) => Test.assert(true));
+
+Test.test(
+   "semant simple - bad record length",
+   fn () =>
+      (Main.compile "fixtures/semant/record_bad_length.tig"; Test.assert(false))
+      handle Semant.ArityError(_) => Test.assert(true));
+
+Test.test(
+   "semant simple - bad record field name",
+   fn () =>
+      (Main.compile "fixtures/semant/bad_record_field_name.tig"; Test.assert(false))
+      handle Semant.RecordFieldNameError(_) => Test.assert(true));

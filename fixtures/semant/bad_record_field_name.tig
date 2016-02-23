@@ -1,0 +1,6 @@
+let
+    type foo = { a: int }
+    var bar := foo { b=1 }
+in
+    1
+end
