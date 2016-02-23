@@ -74,7 +74,7 @@ Test.test(
  "semant simple - name dec bad",
  fn () =>
     (Main.compile "fixtures/semant/name_bad.tig"; Test.assert(false))
-    handle Semant.TypeDoesNotExist(_) => Test.assert(true));
+    handle Semant.UndefinedId(_) => Test.assert(true));
 
 Test.test(
     "semant simple - name dec good",
@@ -214,3 +214,36 @@ Test.test(
    in
       Test.assert(expected = actual)
    end);
+
+Test.test(
+   "semant simple - subscript int",
+   fn () =>
+   let val actual = Main.compile "fixtures/semant/subscript_type_int.tig"
+      val expected = { exp=(), ty=Types.INT }
+   in
+      Test.assert(expected = actual)
+   end);
+
+Test.test(
+   "semant simple - subscript string",
+   fn () =>
+   let val actual = Main.compile "fixtures/semant/subscript_type_string.tig"
+      val expected = { exp=(), ty=Types.STRING }
+   in
+      Test.assert(expected = actual)
+   end);
+
+Test.test(
+   "semant simple - equality good",
+   fn () =>
+   let val actual = Main.compile "fixtures/semant/equality_good.tig"
+      val expected = { exp=(), ty=Types.INT }
+   in
+      Test.assert(expected = actual)
+   end);
+
+Test.test(
+   "semant simple - equality bad",
+   fn () =>
+      (Main.compile "fixtures/semant/equality_bad.tig"; Test.assert(false))
+      handle Semant.TypeError(_) => Test.assert(true));

@@ -8,6 +8,7 @@ signature SEMANT = sig
     exception NotRecordError of Types.ty * int
     exception FieldNotFound of Types.ty * Symbol.symbol * int
     exception NotArrayError of Types.ty * int
+    exception OperatorError of Types.ty * int
 
     type tenv
     type venv
@@ -32,6 +33,7 @@ exception UndefinedId of Symbol.symbol * int
 exception NotRecordError of Types.ty * int
 exception FieldNotFound of Types.ty * Symbol.symbol * int
 exception NotArrayError of Types.ty * int
+exception OperatorError of Types.ty * int
 
 type tenv = Types.ty Symbol.table
 type venv = Env.enventry Symbol.table
@@ -58,6 +60,7 @@ fun actual_type(tenv, ty) =
     in
       (case ty of
             Types.NAME(s, r) => maybeResolveName(s, !r)
+          | Types.ARRAY(t, u) => actual_type(tenv, t)
           | _ => ty)
     end
 
@@ -113,10 +116,43 @@ fun transExp(tenv, venv, exp) =
         | trexp(A.OpExp{ left, oper, right, pos }) =
           let val left = trexp(left)
               val right = trexp(right)
+
+              fun checkArithOp() =
+                (unify(tenv, Types.INT, #ty(left), pos);
+                 unify(tenv, Types.INT, #ty(right), pos);
+                 { exp=(), ty=Types.INT })
+
+              fun checkComparisonOp() =
+                case #ty(left) of
+                    Types.INT => (unify(tenv, Types.INT, #ty(right), pos);
+                                  { exp=(), ty=Types.INT })
+                  | Types.STRING => (unify(tenv, Types.STRING, #ty(right), pos);
+                                  { exp=(), ty=Types.INT })
+                  | _ => raise OperatorError(#ty(left), pos)
+
+              fun checkEqualityOp() =
+                case #ty(left) of
+                    Types.INT => (unify(tenv, Types.INT, #ty(right), pos);
+                                  { exp=(), ty=Types.INT })
+                  | Types.STRING => (unify(tenv, Types.STRING, #ty(right), pos);
+                                  { exp=(), ty=Types.INT })
+                  | Types.RECORD(l, u) => (unify(tenv, Types.RECORD(l, u), #ty(right), pos);
+                                           { exp=(), ty=Types.INT})
+                  | Types.ARRAY(t, u) => (unify(tenv, Types.ARRAY(t, u), #ty(right), pos);
+                                          { exp=(), ty=Types.INT})
+                  | _ => raise OperatorError(#ty(left), pos)
           in
-            unify(tenv, Types.INT, #ty(left), pos);
-            unify(tenv, Types.INT, #ty(right), pos);
-            { exp=(), ty=Types.INT }
+            case oper of
+                A.PlusOp => checkArithOp()
+              | A.MinusOp => checkArithOp()
+              | A.DivideOp => checkArithOp()
+              | A.TimesOp => checkArithOp()
+              | A.EqOp => checkEqualityOp()
+              | A.NeqOp => checkEqualityOp()
+              | A.LtOp => checkComparisonOp()
+              | A.LeOp => checkComparisonOp()
+              | A.GtOp => checkComparisonOp()
+              | A.GeOp => checkComparisonOp()
           end
 
         | trexp(A.RecordExp { fields, typ, pos }) =
@@ -221,9 +257,9 @@ fun transExp(tenv, venv, exp) =
             | t => raise NotRecordError(t, p))
 
         | trvar(A.SubscriptVar(v, e, p)) =
-          (case #ty(trvar(v)) of
-              Types.ARRAY(t, u) => { exp=(), ty=t }
-            | t => raise NotArrayError(t, p))
+          (case #ty(trexp(e)) of
+              Types.INT => trvar(v)
+            | t => raise TypeError(Types.INT, t, p))
 
       and trdec(A.FunctionDec(l), {tenv=tenv, venv=venv}) =
           let fun insert({ name, params, result, body, pos }, venv') =
