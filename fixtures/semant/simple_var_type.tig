@@ -1,0 +1,6 @@
+let
+    type a = int
+    var a : a := 1
+in
+    a
+end

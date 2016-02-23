@@ -207,9 +207,19 @@ fun transExp(tenv, venv, exp) =
           { tenv=tenv, venv=venv }  (* TODO *)
 
         | trdec(A.VarDec{ name, escape, typ, init, pos}, {tenv=tenv, venv=venv}) =
-          (case typ of
-               SOME(t) => { tenv=tenv, venv=venv }
-             | NONE => { tenv=tenv, venv=Symbol.enter(venv, name, Env.VarEntry({ ty=(#ty(transExp(tenv, venv, init))) })) })
+          let val actual_ty = #ty(transExp(tenv, venv, init))
+              val entry = Env.VarEntry({ ty=actual_ty })
+              val venv' = Symbol.enter(venv, name, entry)
+          in
+            (case typ of
+                 SOME((s, p)) =>
+                 (case Symbol.look(tenv, s) of
+                       SOME(t) => (unify(tenv, t, actual_ty, pos);
+                                   { tenv=tenv, venv=venv' })
+                     | NONE => raise TypeDoesNotExist(s))
+               | NONE =>
+                 { tenv=tenv, venv=venv' })
+          end
 
         | trdec(A.TypeDec(l), {tenv=tenv, venv=venv}) =
           { tenv=trtypes(tenv, l), venv=venv }

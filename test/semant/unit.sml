@@ -147,3 +147,27 @@ Test.test(
     in
         Test.assert(expected = actual)
     end);
+
+Test.test(
+   "semant simple - simple var type",
+   fn () =>
+   let val actual = Main.compile "fixtures/semant/simple_var_type.tig"
+      val expected = { exp=(), ty=Types.INT }
+   in
+      Test.assert(expected = actual)
+   end);
+
+Test.test(
+   "semant simple - simpler var type",
+   fn () =>
+   let val actual = Main.compile "fixtures/semant/simpler_var_type.tig"
+      val expected = { exp=(), ty=Types.INT }
+   in
+      Test.assert(expected = actual)
+   end);
+
+Test.test(
+   "semant simple - bad var type",
+   fn () =>
+      (Main.compile "fixtures/semant/bad_var_type.tig"; Test.assert(false))
+      handle Semant.TypeError(_) => Test.assert(true));

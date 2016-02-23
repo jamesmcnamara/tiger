@@ -1,0 +1,6 @@
+let
+    type a = int
+    var a : a := "gvnwkj"
+in
+    a
+end
