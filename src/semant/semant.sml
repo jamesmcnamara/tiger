@@ -152,7 +152,7 @@ fun transExp(tenv, venv, exp) =
               val body = trexp(body)
           in
             unify(tenv, #ty(test), Types.INT, pos);
-            (* TODO: Unify body type? *)
+            unify(tenv, #ty(body), Types.UNIT, pos);
             { exp=(), ty=Types.UNIT }
           end
 
@@ -162,7 +162,6 @@ fun transExp(tenv, venv, exp) =
               val hi' = trexp(hi)
               val body' = transExp(tenv, venv', body)
           in
-              (* TODO: Unify body type? => We can make a decision here(and `while` and `if-then`), but we need to document it *)
               unify(tenv, #ty(lo'), Types.INT, pos);
               unify(tenv, #ty(hi'), Types.INT, pos);
               unify(tenv, #ty(body'), Types.UNIT, pos);
@@ -183,7 +182,7 @@ fun transExp(tenv, venv, exp) =
         | trexp(A.ArrayExp { typ, size, init, pos }) =
           (case Symbol.look(tenv, typ) of
                 Option.SOME(ty) => { exp=(), ty=Types.ARRAY(ty, ref ()) }
-              | Option.NONE => raise NotImplemented)  (* Unbound type *)
+              | Option.NONE => raise TypeDoesNotExist(typ))
 
       and trvar(A.SimpleVar(s, p)) =
           (case Symbol.look(venv, s) of
