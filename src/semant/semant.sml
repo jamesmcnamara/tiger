@@ -242,7 +242,10 @@ fun transExp(tenv, venv, exp) =
       and trvar(A.SimpleVar(s, p)) =
           (case Symbol.look(venv, s) of
                 Option.SOME(Env.VarEntry({ ty=ty })) =>
-                { exp=(), ty=actual_type(tenv, ty) }
+                  (case ty of
+                      Types.INT => { exp=(), ty=actual_type(tenv, ty) }
+                    | Types.ARRAY(l,u) => { exp=(), ty=ty }
+                    | _ => { exp=(), ty=actual_type(tenv, ty) })
               | Option.SOME(Env.FunEntry(_)) =>
                 raise FunctionIsNotValueError(s, p)
               | Option.NONE =>
@@ -258,7 +261,10 @@ fun transExp(tenv, venv, exp) =
 
         | trvar(A.SubscriptVar(v, e, p)) =
           (case #ty(trexp(e)) of
-              Types.INT => trvar(v)
+              Types.INT =>
+                (case trvar(v) of
+                    { exp=exp, ty=Types.ARRAY(t,u) } => { exp=exp, ty=actual_type(tenv, t) }
+                  | { exp=_, ty=ty} => raise NotArrayError(ty, p))
             | t => raise TypeError(Types.INT, t, p))
 
       and trdec(A.FunctionDec(l), {tenv=tenv, venv=venv}) =
