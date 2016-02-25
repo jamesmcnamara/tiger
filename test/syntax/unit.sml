@@ -107,9 +107,9 @@ Test.test(
     fn () =>
        let val actual = Parse.parse "fixtures/syntax/simple/ten.tig"
            val simpleVar = SimpleVar(Symbol.symbol("myArray"), 1)
-           val subscriptVar = SubscriptVar(simpleVar, IntExp(10), 1)
+           val subscriptVar = SubscriptVar(simpleVar, IntExp(10), 8)
            val expected = AssignExp { var=subscriptVar,
-                                      exp=IntExp(1),
+                                      exp=IntExp(0),
                                       pos=1 }
        in
            Test.assert(expected = actual)
@@ -151,63 +151,6 @@ Test.test(
            val expected = WhileExp { test=varExp,
                                      body=IntExp(1),
                                      pos=1 }
-       in
-           Test.assert(expected = actual)
-       end);
-
-Test.test(
-    "syntax simple thirteen",
-    fn () =>
-       let val actual = Parse.parse "fixtures/syntax/simple/thirteen.tig"
-           val expected = ForExp { var=Symbol.symbol("i"),
-                                   escape=ref false,
-                                   lo=IntExp(0),
-                                   hi=IntExp(10),
-                                   body=CallExp { func=Symbol.symbol("foo"),
-                                                  args=[],
-                                                  pos=21 },
-                                   pos=1 }
-       in
-           Test.assert(expected = actual)
-       end);
-
-Test.test(
-    "syntax simple fourteen",
-    fn () =>
-       let val actual = Parse.parse "fixtures/syntax/simple/fourteen.tig"
-           val expected =
-               LetExp { decs=[
-                          TypeDec [{ name=Symbol.symbol("a"),
-                                     ty=NameTy(Symbol.symbol("int"),14),
-                                     pos=5 }],
-                          TypeDec [{ name=Symbol.symbol("arrayType"),
-                                     ty=ArrayTy(Symbol.symbol("int"),19),
-                                     pos=5 }],
-                          TypeDec [{ name=Symbol.symbol("recordType"),
-                                     ty=RecordTy
-                                            [{ name=Symbol.symbol("field"),
-                                               escape=ref false,
-                                               typ=Symbol.symbol("int"),
-                                               pos=24 }],
-                                     pos=5 }],
-                          VarDec { name=Symbol.symbol("i"),
-                                   escape=ref false,
-                                   typ=Option.NONE,
-                                   init=IntExp(0),
-                                   pos=5 },
-                          FunctionDec [{ name=Symbol.symbol("plus5"),
-                                         params=[{ name=Symbol.symbol("num"),
-                                                   escape=ref false,
-                                                   typ=Symbol.symbol("int"),
-                                                   pos=20 }],
-                                         result=Option.SOME(Symbol.symbol("int"),30),
-                                         body=OpExp { left=VarExp(SimpleVar(Symbol.symbol("num"),9)),
-                                                      oper=PlusOp,
-                                                      right=IntExp(5),
-                                                      pos=13 },
-                                         pos=5 }]],
-                        body=IntExp(1),
-                        pos=1 }
        in
            Test.assert(expected = actual)
        end);
@@ -274,7 +217,7 @@ Test.test(
            val expected = AssignExp { pos=1,
                                       var=SubscriptVar(SimpleVar(Symbol.symbol("a"),1),
                                                        IntExp(3),
-                                                       1),
+                                                       2),
                                       exp=ArrayExp { pos=9,
                                                      typ=Symbol.symbol("b"),
                                                      size=IntExp(1),
