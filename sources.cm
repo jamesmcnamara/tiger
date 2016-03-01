@@ -25,3 +25,7 @@ src/semant/semant.sml
 src/semant/types.sml
 src/semant/env.sml
 src/semant/translate.sml
+src/semant/frame.sig
+src/semant/findescape.sml
+src/semant/temp.sig
+src/semant/temp.sml
