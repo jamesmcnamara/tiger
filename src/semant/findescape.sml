@@ -73,7 +73,7 @@ struct
             Absyn.FunctionDec(fundecs) => (traverseFuns(fundecs,env); env)
           | Absyn.VarDec({name,escape,typ,init,pos}) =>
             traverseDecs(Symbol.enter(env,name,(d,escape)),d,decs)
-          | Absyn.TypeDec(_) => traverseDecs(env,d,decs)
+          | Absyn.TypeDec(_) => traverseDecs(env,d,decs) (* TODO: what do we do with escape here? *)
       end
 
   fun findEscape(prog: Absyn.exp) : unit = traverseExp(Symbol.empty,0,prog)
