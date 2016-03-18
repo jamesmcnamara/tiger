@@ -1,4 +1,4 @@
-structure MipsFrame :> FRAME =
+structure MipsFrame : FRAME =
 struct
 
   datatype access = InFrame of int | InReg of Temp.temp
@@ -27,3 +27,5 @@ struct
       end
     | allocLocal _ false = InReg(Temp.newtemp())
 end
+
+structure Frame : FRAME = MipsFrame
