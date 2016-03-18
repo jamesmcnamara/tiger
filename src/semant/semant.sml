@@ -15,7 +15,7 @@ signature SEMANT = sig
     type expty
 
     val transProg : Absyn.exp -> expty
-    val transExp : tenv * venv * Absyn.exp -> expty
+    val transExp : tenv * venv * Absyn.exp * Translate.level -> expty
 
     val createSymbols : Absyn.field list * tenv -> (Symbol.symbol * Types.ty) list
 end
@@ -81,7 +81,7 @@ fun unify(tenv, ty1, ty2, pos) =
         unify_actual(tenv, ty1, ty2, pos)
     end
 
-fun transExp(tenv, venv, exp) =
+fun transExp(tenv, venv, exp, level) =
   let fun
           (* Varibale expressions.
            ***********************)
@@ -257,10 +257,10 @@ fun transExp(tenv, venv, exp) =
            ******************)
         | trexp(A.ForExp { var=v, escape=b, lo, hi, body, pos }) =
           let
-            val venv' = Symbol.enter(venv, v, Env.VarEntry { ty=Types.INT })
+            val venv' = Symbol.enter(venv, v, Env.VarEntry { ty=Types.INT, access=(Translate.allocLocal level (!b)) })
             val lo' = trexp(lo)
             val hi' = trexp(hi)
-            val body' = transExp(tenv, venv', body)
+            val body' = transExp(tenv, venv', body, level)
           in
             unify(tenv, #ty(lo'), Types.INT, pos);
             unify(tenv, #ty(hi'), Types.INT, pos);
@@ -277,9 +277,9 @@ fun transExp(tenv, venv, exp) =
            ******************)
         | trexp(A.LetExp { decs, body, pos }) =
           let
-            val { tenv=tenv', venv=venv' } = trdecs(tenv, venv, decs)
+            val { tenv=tenv', venv=venv' } = trdecs(tenv, venv, decs, level)
           in
-            transExp(tenv', venv', body)
+            transExp(tenv', venv', body, level)
           end
 
           (* Array expressions.
@@ -298,7 +298,7 @@ fun transExp(tenv, venv, exp) =
            *******************)
           trvar(A.SimpleVar(s, p)) =
           (case Symbol.look(venv, s) of
-            Option.SOME(Env.VarEntry({ ty=ty })) =>
+            Option.SOME(Env.VarEntry({ ty=ty, access=access })) => (* TODO: What do we do with access here? *)
             (case ty of
               Types.ARRAY(l, u) =>
               { exp=(), ty=ty }
@@ -369,14 +369,14 @@ fun transExp(tenv, venv, exp) =
                 fun insert({ name, escape, typ, pos }, venv'') =
                   (case Symbol.look(tenv, typ) of
                     SOME(t) =>
-                    Symbol.enter(venv'', name, Env.VarEntry { ty=t })
+                    Symbol.enter(venv'', name, Env.VarEntry { ty=t, access=(Translate.allocLocal level (!escape)) })
                   | NONE =>
                     raise TypeDoesNotExist(typ))
                 val venv'' = (foldr insert venv' params)
               in
                 (case Symbol.look(venv', name) of
                   SOME(Env.FunEntry({ formals, result })) =>
-                  unify(tenv, result, (#ty(transExp(tenv, venv'', body))), pos)
+                  unify(tenv, result, (#ty(transExp(tenv, venv'', body, level))), pos)
                 | SOME _ =>
                   raise FunctionIsNotValueError(name, pos)
                 | NONE =>
@@ -392,8 +392,8 @@ fun transExp(tenv, venv, exp) =
         | trdec(A.VarDec { name, escape, typ, init, pos },
                 { tenv=tenv, venv=venv }) =
           let
-            val actual_ty = #ty(transExp(tenv, venv, init))
-            val entry = Env.VarEntry({ ty=actual_ty })
+            val actual_ty = #ty(transExp(tenv, venv, init, level))
+            val entry = Env.VarEntry { ty=actual_ty, access=(Translate.allocLocal level (!escape)) }
             val venv' = Symbol.enter(venv, name, entry)
           in
             (case typ of
@@ -414,7 +414,7 @@ fun transExp(tenv, venv, exp) =
 
       (* Helper functions. *)
 
-      and trdecs(tenv, venv, decs) =
+      and trdecs(tenv, venv, decs, level) =
         (foldl trdec {tenv=tenv, venv=venv} decs)
 
       and trtype(tenv, A.NameTy(rhs, p)) =
@@ -444,6 +444,6 @@ fun transExp(tenv, venv, exp) =
       trexp(exp)
   end
 
-fun transProg ast = transExp(Env.base_tenv, Env.base_venv, ast)
+fun transProg ast = transExp(Env.base_tenv, Env.base_venv, ast, Translate.outermost)
 
 end
