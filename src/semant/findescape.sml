@@ -60,7 +60,8 @@ struct
     | traverseDecs(env,d,dec::decs) =
       let fun addToEnv([],env') = env'
             | addToEnv({name,escape,typ,pos}::params,env') =
-              addToEnv(params,Symbol.enter(env',name,(d+1,escape)))
+              (escape := false;
+              addToEnv(params,Symbol.enter(env',name,(d+1,escape))))
           fun traverseFuns([],env') = env'
             | traverseFuns({name,params,result,body,pos}::funs,env') =
               let val new_env = (traverseFuns(funs,addToEnv(params,env')))
@@ -72,7 +73,8 @@ struct
         case dec of
             Absyn.FunctionDec(fundecs) => (traverseFuns(fundecs,env); env)
           | Absyn.VarDec({name,escape,typ,init,pos}) =>
-            traverseDecs(Symbol.enter(env,name,(d,escape)),d,decs)
+            (escape := false;
+            traverseDecs(Symbol.enter(env,name,(d,escape)),d,decs))
           | Absyn.TypeDec(_) => traverseDecs(env,d,decs) (* TODO: what do we do with escape here? *)
       end
 

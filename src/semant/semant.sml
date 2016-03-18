@@ -108,7 +108,7 @@ fun transExp(tenv, venv, exp, level) =
         | trexp(A.CallExp { func, args, pos }) =
           (case Symbol.look(venv, func) of
             (* The call was on a symbol defined as a function. *)
-            Option.SOME(Env.FunEntry { formals, result }) =>
+            Option.SOME(Env.FunEntry { formals, result, level, label }) =>
               let
                 fun unifier(actual, expected) =
                     unify(tenv, #ty(trexp(actual)), expected, pos)
@@ -359,7 +359,7 @@ fun transExp(tenv, venv, exp, level) =
                       raise TypeDoesNotExist(typ)))
                     params)
                 val entry =
-                  Env.FunEntry { formals=formals, result=resultType }
+                  Env.FunEntry { formals=formals, result=resultType, level=level, label=Temp.newlabel() }
               in
                 Symbol.enter(venv', name, entry)
               end
@@ -375,7 +375,7 @@ fun transExp(tenv, venv, exp, level) =
                 val venv'' = (foldr insert venv' params)
               in
                 (case Symbol.look(venv', name) of
-                  SOME(Env.FunEntry({ formals, result })) =>
+                  SOME(Env.FunEntry({ formals, result, level, label })) =>
                   unify(tenv, result, (#ty(transExp(tenv, venv'', body, level))), pos)
                 | SOME _ =>
                   raise FunctionIsNotValueError(name, pos)
@@ -444,6 +444,10 @@ fun transExp(tenv, venv, exp, level) =
       trexp(exp)
   end
 
-fun transProg ast = transExp(Env.base_tenv, Env.base_venv, ast, Translate.outermost)
+fun transProg ast =
+  let val newLevel = Translate.newLevel({parent=Translate.outermost, name=Temp.newlabel(), formals=[]})
+  in
+    transExp(Env.base_tenv, Env.base_venv, ast, newLevel)
+  end
 
 end
