@@ -30,3 +30,5 @@ src/semant/mipsframe.sml
 src/semant/findescape.sml
 src/semant/temp.sig
 src/semant/temp.sml
+src/semant/tree.sml
+src/semant/printtree.sml

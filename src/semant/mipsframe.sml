@@ -26,6 +26,9 @@ struct
          access)
       end
     | allocLocal _ false = InReg(Temp.newtemp())
+
+  fun externalCall(s,args) = Tree.CALL(Tree.NAME(Temp.namedlabel(s)), args)
+
 end
 
 structure Frame : FRAME = MipsFrame

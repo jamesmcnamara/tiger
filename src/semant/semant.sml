@@ -137,25 +137,25 @@ fun transExp(tenv, venv, exp, level) =
             fun trarithop() =
               (unify(tenv, Types.INT, #ty(left), pos);
                unify(tenv, Types.INT, #ty(right), pos);
-               { exp=(), ty=Types.INT })
+               { exp=Translate.arithop(oper, #exp left, #exp right), ty=Types.INT })
             fun trcmpop() =
               (case #ty(left) of
                 Types.INT =>
                 (unify(tenv, Types.INT, #ty(right), pos);
-                 { exp=(), ty=Types.INT })
+                 { exp=Translate.arithop(oper,#exp left,#exp right), ty=Types.INT })
               | Types.STRING =>
                 (unify(tenv, Types.STRING, #ty(right), pos);
-                 { exp=(), ty=Types.INT })
+                 { exp=Translate.stringop(oper,#exp left,#exp right), ty=Types.INT })
               | _ =>
                 raise OperatorError(#ty(left), pos))
             fun treqop() =
               (case #ty(left) of
                 Types.INT =>
                 (unify(tenv, Types.INT, #ty(right), pos);
-                 { exp=(), ty=Types.INT })
+                 { exp=Translate.arithop(oper,#exp left,#exp right), ty=Types.INT })
               | Types.STRING =>
                 (unify(tenv, Types.STRING, #ty(right), pos);
-                 { exp=(), ty=Types.INT })
+                 { exp=Translate.stringop(oper,#exp left,#exp right), ty=Types.INT })
               | Types.RECORD(l, u) =>
                 (unify(tenv, Types.RECORD(l, u), #ty(right), pos);
                  { exp=(), ty=Types.INT})
