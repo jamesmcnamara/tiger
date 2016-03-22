@@ -2,7 +2,11 @@ signature TRANSLATE =
 sig
   type level
   type access
-  type exp
+
+  datatype exp = Ex of Tree.exp
+               | Nx of Tree.stm
+               | Cx of Temp.label * Temp.label -> Tree.stm
+               | Dx
 
   exception TypeCheckFailed
 
@@ -40,6 +44,7 @@ structure Translate : TRANSLATE = struct
   datatype exp = Ex of Tree.exp
                | Nx of Tree.stm
                | Cx of Temp.label * Temp.label -> Tree.stm
+               | Dx
 
   fun newLevel {parent, name, formals} =
   let

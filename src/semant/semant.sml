@@ -91,17 +91,17 @@ fun transExp(tenv, venv, exp, level) =
           (* `nil` expressions.
            ********************)
         | trexp(A.NilExp) =
-          { exp=(), ty=Types.NIL }
+          { exp=Translate.Dx, ty=Types.NIL }
 
           (* Integer expressions.
            **********************)
         | trexp(A.IntExp(i)) =
-          { exp=(), ty=Types.INT }
+          { exp=Translate.Dx, ty=Types.INT }
 
           (* String expressions.
            *********************)
         | trexp(A.StringExp(s, p)) =
-          { exp=(), ty=Types.STRING }
+          { exp=Translate.Dx, ty=Types.STRING }
 
           (* Call expressions.
            *******************)
@@ -119,7 +119,7 @@ fun transExp(tenv, venv, exp, level) =
                   raise ArityError(formals_len, args_len, pos)
                 else
                   (ListPair.map unifier (args, formals));
-                  { exp=(), ty=result }
+                  { exp=Translate.Dx, ty=result }
               end
             (* The call was on a symbol defined as a variable. *)
           | Option.SOME(_) =>
@@ -158,10 +158,10 @@ fun transExp(tenv, venv, exp, level) =
                  { exp=Translate.stringop(oper,#exp left,#exp right), ty=Types.INT })
               | Types.RECORD(l, u) =>
                 (unify(tenv, Types.RECORD(l, u), #ty(right), pos);
-                 { exp=(), ty=Types.INT})
+                 { exp=Translate.Dx, ty=Types.INT})
               | Types.ARRAY(t, u) =>
                 (unify(tenv, Types.ARRAY(t, u), #ty(right), pos);
-                 { exp=(), ty=Types.INT})
+                 { exp=Translate.Dx, ty=Types.INT})
               | _ =>
                 raise OperatorError(#ty(left), pos))
           in
@@ -198,7 +198,7 @@ fun transExp(tenv, venv, exp, level) =
                   (* NOTE: Mapping the fields in order is valid because Tiger
                    * records are ordered. *)
                   (ListPair.map unifier (fields, expected_fields));
-                  { exp=(), ty=ty }
+                  { exp=Translate.Dx, ty=ty }
               end
             | Option.SOME(_) =>
               (* TODO: Must be record type. We need an appropriate error msg. *)
@@ -212,7 +212,7 @@ fun transExp(tenv, venv, exp, level) =
           let
             val exptys = Types.UNIT::(map (fn (e, p) => #ty(trexp(e))) l)
           in
-              { exp=(), ty=(List.last(exptys)) }
+              { exp=Translate.Dx, ty=(List.last(exptys)) }
           end
 
           (* Sequence expressions.
@@ -223,7 +223,7 @@ fun transExp(tenv, venv, exp, level) =
             val rhs = trexp(e)
           in
             unify(tenv, #ty(lhs), #ty(rhs), pos);
-            { exp=(), ty=Types.UNIT }
+            { exp=Translate.Dx, ty=Types.UNIT }
           end
 
           (* If expressions.
@@ -236,9 +236,9 @@ fun transExp(tenv, venv, exp, level) =
             unify(tenv, #ty(test), Types.INT, pos);
             (case else' of
               Option.SOME(e) =>
-              { exp=(), ty=unify(tenv, #ty(then'), #ty(trexp(e)), pos)}
+              { exp=Translate.Dx, ty=unify(tenv, #ty(then'), #ty(trexp(e)), pos)}
             | Option.NONE =>
-              { exp=(), ty=unify(tenv, #ty(then'), Types.UNIT, pos) })
+              { exp=Translate.Dx, ty=unify(tenv, #ty(then'), Types.UNIT, pos) })
           end
 
           (* While expressions.
@@ -250,7 +250,7 @@ fun transExp(tenv, venv, exp, level) =
           in
             unify(tenv, #ty(test), Types.INT, pos);
             unify(tenv, #ty(body), Types.UNIT, pos);
-            { exp=(), ty=Types.UNIT }
+            { exp=Translate.Dx, ty=Types.UNIT }
           end
 
           (* For expressions.
@@ -265,13 +265,13 @@ fun transExp(tenv, venv, exp, level) =
             unify(tenv, #ty(lo'), Types.INT, pos);
             unify(tenv, #ty(hi'), Types.INT, pos);
             unify(tenv, #ty(body'), Types.UNIT, pos);
-            { exp=(), ty=Types.UNIT }
+            { exp=Translate.Dx, ty=Types.UNIT }
           end
 
           (* Break expression.
            *******************)
         | trexp(A.BreakExp p) =
-          { exp=(), ty=Types.BOTTOM }
+          { exp=Translate.Dx, ty=Types.BOTTOM }
 
           (* Let expressions.
            ******************)
@@ -289,7 +289,7 @@ fun transExp(tenv, venv, exp, level) =
             Option.SOME(ty) =>
             (unify(tenv, Types.INT, #ty(trexp(size)), pos);
              unify(tenv, ty, #ty(trexp(init)), pos);
-             { exp=(), ty=Types.ARRAY(ty, ref ()) })
+             { exp=Translate.Dx, ty=Types.ARRAY(ty, ref ()) })
           | Option.NONE =>
             raise TypeDoesNotExist(typ))
 
@@ -301,9 +301,9 @@ fun transExp(tenv, venv, exp, level) =
             Option.SOME(Env.VarEntry({ ty=ty, access=access })) => (* TODO: What do we do with access here? *)
             (case ty of
               Types.ARRAY(l, u) =>
-              { exp=(), ty=ty }
+              { exp=Translate.Dx, ty=ty }
             | _ =>
-              { exp=(), ty=actual_type(tenv, ty) })
+              { exp=Translate.Dx, ty=actual_type(tenv, ty) })
           | Option.SOME(Env.FunEntry(_)) =>
             raise FunctionIsNotValueError(s, p)
           | Option.NONE =>
@@ -316,7 +316,7 @@ fun transExp(tenv, venv, exp, level) =
             t as Types.RECORD(l, u) =>
             (case (List.find (fn (s2, t) => s1 = s2) l) of
               SOME(s, t) =>
-              { exp=(), ty=t }
+              { exp=Translate.Dx, ty=t }
             | NONE =>
               raise FieldNotFound(t, s1, p))
           | t =>
