@@ -4,6 +4,9 @@ struct
   datatype access = InFrame of int | InReg of Temp.temp
   type frame = {name: Temp.label, formals: access list, offset: int ref}
 
+  datatype frag = PROC of {body: Tree.stm, frame: frame}
+                | STRING of Temp.label * string
+
   val wordSize = 4
 
   fun getAccess(formal, (formals,offset)) =

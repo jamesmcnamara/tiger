@@ -11,7 +11,8 @@ sig
   (*val FP: Temp.temp
   val wordSize: int
   val exp: access -> Tree.exp -> Tree.exp
-
+  *)
+  (* TODO: These are needed *)
   datatype frag = PROC of {body: Tree.stm, frame: frame}
-                | STRING of Temp.label * string*)(* TODO: These are needed *)
+                | STRING of Temp.label * string
 end

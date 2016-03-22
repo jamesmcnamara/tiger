@@ -29,6 +29,7 @@ sig
   *) (* TODO: Implement these... *)
   val arithop: Absyn.oper * exp * exp -> exp
   val stringop: Absyn.oper * exp * exp -> exp
+  val string: string -> exp
 end
 
 structure Translate : TRANSLATE = struct
@@ -45,6 +46,8 @@ structure Translate : TRANSLATE = struct
                | Nx of Tree.stm
                | Cx of Temp.label * Temp.label -> Tree.stm
                | Dx
+
+  val frags = ref [] : Frame.frag list ref
 
   fun newLevel {parent, name, formals} =
   let
@@ -109,5 +112,10 @@ structure Translate : TRANSLATE = struct
   fun stringop(Absyn.EqOp,left,right) = Ex(Frame.externalCall("stringEqual", [unEx(left),unEx(right)]))
     | stringop(Absyn.NeqOp,left,right) = Ex(Frame.externalCall("stringNotEqual", [unEx(left),unEx(right)]))
 
-
+  fun string(s) =
+    let val label = Temp.newlabel()
+    in
+      (frags := Frame.STRING(label,s)::(!frags);
+       Ex(Tree.NAME(label)))
+    end
 end

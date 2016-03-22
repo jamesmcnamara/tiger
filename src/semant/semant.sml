@@ -102,7 +102,7 @@ fun transExp(tenv, venv, exp, level) =
           (* String expressions.
            *********************)
         | trexp(A.StringExp(s, p)) =
-          { exp=Translate.Dx, ty=Types.STRING }
+          { exp=Translate.string(s), ty=Types.STRING }
 
           (* Call expressions.
            *******************)
