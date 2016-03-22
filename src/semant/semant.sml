@@ -211,12 +211,14 @@ fun transExp(tenv, venv, exp, level, join) =
            ***********************)
         | trexp(A.SeqExp l) =
           let
-            val exptys = Types.UNIT::(map (fn (e, p) => #ty(trexp(e))) l)
+            val trans = (map (fn (e, p) => trexp(e)) l)
+            val exptys = Types.UNIT::(map (fn (e) => #ty(e)) trans)
+            val exps: = (map (fn (e) => #exp(e)) trans)
           in
-              { exp=Translate.Dx, ty=(List.last(exptys)) }
+              { exp=Translate.sequence(exps), ty=(List.last(exptys)) }
           end
 
-          (* Sequence expressions.
+          (* Assign expressions.
            ***********************)
         | trexp(A.AssignExp { var=v, exp=e, pos }) =
           let

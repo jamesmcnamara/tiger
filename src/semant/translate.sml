@@ -36,6 +36,7 @@ sig
   val while': exp * exp * Temp.label -> exp
   val for': exp * exp * exp * Temp.label -> exp
   val break': Temp.label option -> exp
+  val sequence: exp list -> exp
 end
 
 structure Translate : TRANSLATE = struct
@@ -189,4 +190,6 @@ structure Translate : TRANSLATE = struct
       | SOME(j) => Nx(Tree.EXP(Tree.ESEQ(seq([T.JUMP(T.NAME(j), [j])]),
                                          T.CONST(0))))
 
+  fun sequence(l: exp list) =
+    Ex(Tree.ESEQ(l))
 end
