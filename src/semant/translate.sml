@@ -31,6 +31,7 @@ sig
   val stringop: Absyn.oper * exp * exp -> exp
   val string: string -> exp
   val ifthenelse: exp * exp * exp -> exp
+  val ifthen: exp * exp -> exp
 end
 
 structure Translate : TRANSLATE = struct
@@ -136,4 +137,17 @@ structure Translate : TRANSLATE = struct
         ]), T.TEMP(r)))
     end
 
+  fun ifthen(e1,e2) =
+    let val t = Temp.newlabel()
+        val f = Temp.newlabel()
+        val join = Temp.newlabel()
+    in
+      Nx(Tree.EXP(Tree.ESEQ(seq([T.CJUMP(T.EQ, unEx(e1), T.CONST(1), t, f),
+                                 T.LABEL(t),
+                                 unNx(e2),
+                                 T.JUMP(T.NAME(join), [join]),
+                                 T.LABEL(f),
+                                 T.LABEL(join)]),
+                               T.CONST(0))))
+    end
 end

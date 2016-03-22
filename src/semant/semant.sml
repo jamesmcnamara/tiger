@@ -243,7 +243,7 @@ fun transExp(tenv, venv, exp, level, break) =
                     ty=unify(tenv, #ty(then'), #ty(e'), pos)}
                 end
             | Option.NONE =>
-              { exp=Translate.Dx, ty=unify(tenv, #ty(then'), Types.UNIT, pos) })
+              { exp=Translate.ifthen(#exp (test),#exp (then')), ty=unify(tenv, #ty(then'), Types.UNIT, pos) })
           end
 
           (* While expressions.
