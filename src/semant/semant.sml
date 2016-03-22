@@ -92,7 +92,7 @@ fun transExp(tenv, venv, exp, level) =
           (* `nil` expressions.
            ********************)
         | trexp(A.NilExp) =
-          { exp=Translate.Dx, ty=Types.NIL }
+          { exp=Translate.Ex(T.CONST(0)), ty=Types.NIL }
 
           (* Integer expressions.
            **********************)
