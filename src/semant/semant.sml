@@ -21,6 +21,7 @@ signature SEMANT = sig
 end
 
 structure A = Absyn
+structure T = Tree
 structure Semant : SEMANT = struct
 
 exception TypeError of Types.ty * Types.ty * int
@@ -96,7 +97,7 @@ fun transExp(tenv, venv, exp, level) =
           (* Integer expressions.
            **********************)
         | trexp(A.IntExp(i)) =
-          { exp=Translate.Dx, ty=Types.INT }
+          { exp=Translate.Ex(T.CONST(i)), ty=Types.INT }
 
           (* String expressions.
            *********************)
