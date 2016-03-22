@@ -15,7 +15,7 @@ signature SEMANT = sig
     type expty
 
     val transProg : Absyn.exp -> expty
-    val transExp : tenv * venv * Absyn.exp * Translate.level -> expty
+    val transExp : tenv * venv * Absyn.exp * Translate.level * Temp.label -> expty
 
     val createSymbols : Absyn.field list * tenv -> (Symbol.symbol * Types.ty) list
 end
@@ -82,7 +82,7 @@ fun unify(tenv, ty1, ty2, pos) =
         unify_actual(tenv, ty1, ty2, pos)
     end
 
-fun transExp(tenv, venv, exp, level) =
+fun transExp(tenv, venv, exp, level, break) =
   let fun
           (* Varibale expressions.
            ***********************)
@@ -261,7 +261,8 @@ fun transExp(tenv, venv, exp, level) =
             val venv' = Symbol.enter(venv, v, Env.VarEntry { ty=Types.INT, access=(Translate.allocLocal level (!b)) })
             val lo' = trexp(lo)
             val hi' = trexp(hi)
-            val body' = transExp(tenv, venv', body, level)
+            (* TODO: `break` should be the label for this for loop. *)
+            val body' = transExp(tenv, venv', body, level, break)
           in
             unify(tenv, #ty(lo'), Types.INT, pos);
             unify(tenv, #ty(hi'), Types.INT, pos);
@@ -280,7 +281,7 @@ fun transExp(tenv, venv, exp, level) =
           let
             val { tenv=tenv', venv=venv' } = trdecs(tenv, venv, decs, level)
           in
-            transExp(tenv', venv', body, level)
+            transExp(tenv', venv', body, level, break)
           end
 
           (* Array expressions.
@@ -377,7 +378,7 @@ fun transExp(tenv, venv, exp, level) =
               in
                 (case Symbol.look(venv', name) of
                   SOME(Env.FunEntry({ formals, result, level, label })) =>
-                  unify(tenv, result, (#ty(transExp(tenv, venv'', body, level))), pos)
+                  unify(tenv, result, (#ty(transExp(tenv, venv'', body, level, break))), pos)
                 | SOME _ =>
                   raise FunctionIsNotValueError(name, pos)
                 | NONE =>
@@ -393,7 +394,7 @@ fun transExp(tenv, venv, exp, level) =
         | trdec(A.VarDec { name, escape, typ, init, pos },
                 { tenv=tenv, venv=venv }) =
           let
-            val actual_ty = #ty(transExp(tenv, venv, init, level))
+            val actual_ty = #ty(transExp(tenv, venv, init, level, break))
             val entry = Env.VarEntry { ty=actual_ty, access=(Translate.allocLocal level (!escape)) }
             val venv' = Symbol.enter(venv, name, entry)
           in
@@ -448,7 +449,10 @@ fun transExp(tenv, venv, exp, level) =
 fun transProg ast =
   let val newLevel = Translate.newLevel({parent=Translate.outermost, name=Temp.newlabel(), formals=[]})
   in
-    transExp(Env.base_tenv, Env.base_venv, ast, newLevel)
+    (* TODO: `break` should be the top level function?
+     * Also how the fuck does this type check... 1 is clearly not of
+     * type Temp.label. *)
+    transExp(Env.base_tenv, Env.base_venv, ast, newLevel, 1)
   end
 
 end
