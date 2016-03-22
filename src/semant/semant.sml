@@ -237,7 +237,11 @@ fun transExp(tenv, venv, exp, level, break) =
             unify(tenv, #ty(test), Types.INT, pos);
             (case else' of
               Option.SOME(e) =>
-              { exp=Translate.Dx, ty=unify(tenv, #ty(then'), #ty(trexp(e)), pos)}
+                let val e' = trexp(e)
+                in
+                  { exp=Translate.ifthenelse(#exp (test),#exp (then'),#exp (e')),
+                    ty=unify(tenv, #ty(then'), #ty(e'), pos)}
+                end
             | Option.NONE =>
               { exp=Translate.Dx, ty=unify(tenv, #ty(then'), Types.UNIT, pos) })
           end

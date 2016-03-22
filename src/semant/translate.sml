@@ -30,6 +30,7 @@ sig
   val arithop: Absyn.oper * exp * exp -> exp
   val stringop: Absyn.oper * exp * exp -> exp
   val string: string -> exp
+  val ifthenelse: exp * exp * exp -> exp
 end
 
 structure Translate : TRANSLATE = struct
@@ -118,4 +119,21 @@ structure Translate : TRANSLATE = struct
       (frags := Frame.STRING(label,s)::(!frags);
        Ex(Tree.NAME(label)))
     end
+
+  fun ifthenelse(e1,e2,e3) =
+    let val t = Temp.newlabel()
+        val f = Temp.newlabel()
+        val join = Temp.newlabel()
+        val r = Temp.newtemp()
+    in
+      Ex(Tree.ESEQ(seq([T.CJUMP(T.EQ, unEx(e1), T.CONST(1), t, f),
+                        T.LABEL(t),
+                        T.MOVE(T.TEMP(r), unEx(e2)),
+                        T.JUMP(T.NAME(join), [join]),
+                        T.LABEL(f),
+                        T.MOVE(T.TEMP(r), unEx(e3)),
+                        T.LABEL(join)
+        ]), T.TEMP(r)))
+    end
+
 end
