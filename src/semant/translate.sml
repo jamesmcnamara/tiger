@@ -32,6 +32,8 @@ sig
   val string: string -> exp
   val ifthenelse: exp * exp * exp -> exp
   val ifthen: exp * exp -> exp
+  val while': exp * exp -> exp
+  val for': exp * exp * exp -> exp
 end
 
 structure Translate : TRANSLATE = struct
@@ -148,6 +150,36 @@ structure Translate : TRANSLATE = struct
                                  T.JUMP(T.NAME(join), [join]),
                                  T.LABEL(f),
                                  T.LABEL(join)]),
-                               T.CONST(0))))
+                            T.CONST(0))))
     end
+
+  fun while'(c,b) =
+    let val test = Temp.newlabel()
+        val done = Temp.newlabel()
+        val body = Temp.newlabel()
+    in
+      Nx(Tree.EXP(Tree.ESEQ(seq([T.LABEL(test),
+                                 T.CJUMP(T.NE, unEx(c), T.CONST(1), done, body),
+                                 T.LABEL(body),
+                                 unNx(b),
+                                 T.JUMP(T.NAME(test), [test]),
+                                 T.LABEL(done)]),
+                            T.CONST(0))))
+    end
+
+  fun for'(lo,hi,body) =
+    let val loR = T.TEMP(Temp.newtemp())
+        val hiR = T.TEMP(Temp.newtemp())
+        val start = Temp.newlabel()
+        val join = Temp.newlabel()
+    in
+      Nx(Tree.EXP(Tree.ESEQ(seq([T.CJUMP(T.LT, loR, hiR, start, join),
+                                 T.LABEL(start),
+                                 unNx(body),
+                                 T.MOVE(T.MEM(loR), T.BINOP(T.PLUS, T.MEM(loR), T.CONST(1))),
+                                 T.CJUMP(T.LT, loR, hiR, start, join),
+                                 T.LABEL(join)]),
+                            T.CONST(0))))
+    end
+
 end

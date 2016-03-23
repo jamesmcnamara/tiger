@@ -255,7 +255,7 @@ fun transExp(tenv, venv, exp, level, break) =
           in
             unify(tenv, #ty(test), Types.INT, pos);
             unify(tenv, #ty(body), Types.UNIT, pos);
-            { exp=Translate.Dx, ty=Types.UNIT }
+            { exp=Translate.while'(#exp (test),#exp (body)), ty=Types.UNIT }
           end
 
           (* For expressions.
@@ -271,7 +271,7 @@ fun transExp(tenv, venv, exp, level, break) =
             unify(tenv, #ty(lo'), Types.INT, pos);
             unify(tenv, #ty(hi'), Types.INT, pos);
             unify(tenv, #ty(body'), Types.UNIT, pos);
-            { exp=Translate.Dx, ty=Types.UNIT }
+            { exp=Translate.for'(#exp (lo'),#exp (hi'),#exp (body')), ty=Types.UNIT }
           end
 
           (* Break expression.
