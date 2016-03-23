@@ -9,6 +9,7 @@ sig
                | Dx
 
   exception TypeCheckFailed
+  exception InvalidBreak
 
   val outermost : level
   val newLevel : {parent: level, name: Temp.label,
@@ -32,8 +33,9 @@ sig
   val string: string -> exp
   val ifthenelse: exp * exp * exp -> exp
   val ifthen: exp * exp -> exp
-  val while': exp * exp -> exp
-  val for': exp * exp * exp -> exp
+  val while': exp * exp * Temp.label -> exp
+  val for': exp * exp * exp * Temp.label -> exp
+  val break': Temp.label option -> exp
 end
 
 structure Translate : TRANSLATE = struct
@@ -42,6 +44,7 @@ structure Translate : TRANSLATE = struct
   exception OutermostError
   exception TypeCheckFailed
   exception BadType
+  exception InvalidBreak
 
   structure Frame = MipsFrame
   structure T = Tree
@@ -153,25 +156,23 @@ structure Translate : TRANSLATE = struct
                             T.CONST(0))))
     end
 
-  fun while'(c,b) =
+  fun while'(c,b,join) =
     let val test = Temp.newlabel()
-        val done = Temp.newlabel()
         val body = Temp.newlabel()
     in
       Nx(Tree.EXP(Tree.ESEQ(seq([T.LABEL(test),
-                                 T.CJUMP(T.NE, unEx(c), T.CONST(1), done, body),
+                                 T.CJUMP(T.NE, unEx(c), T.CONST(1), join, body),
                                  T.LABEL(body),
                                  unNx(b),
                                  T.JUMP(T.NAME(test), [test]),
-                                 T.LABEL(done)]),
+                                 T.LABEL(join)]),
                             T.CONST(0))))
     end
 
-  fun for'(lo,hi,body) =
+  fun for'(lo,hi,body,join) =
     let val loR = T.TEMP(Temp.newtemp())
         val hiR = T.TEMP(Temp.newtemp())
         val start = Temp.newlabel()
-        val join = Temp.newlabel()
     in
       Nx(Tree.EXP(Tree.ESEQ(seq([T.CJUMP(T.LT, loR, hiR, start, join),
                                  T.LABEL(start),
@@ -181,5 +182,11 @@ structure Translate : TRANSLATE = struct
                                  T.LABEL(join)]),
                             T.CONST(0))))
     end
+
+  fun break' join =
+    case join of
+        NONE => raise InvalidBreak
+      | SOME(j) => Nx(Tree.EXP(Tree.ESEQ(seq([T.JUMP(T.NAME(j), [j])]),
+                                         T.CONST(0))))
 
 end
