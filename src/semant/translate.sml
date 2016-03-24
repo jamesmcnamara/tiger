@@ -38,6 +38,7 @@ sig
   val for': exp * exp * exp * Temp.label -> exp
   val break': Temp.label option -> exp
   val sequence: exp list -> exp
+  val array: exp * exp -> exp
 
   val simpleVar: level * access -> exp
 
@@ -201,6 +202,26 @@ structure Translate : TRANSLATE = struct
                                          T.CONST(0))))
 
   fun sequence l = Ex(eseq(l))
+
+  fun array(s,i) =
+    let val join = Temp.newlabel()
+        val size = T.TEMP(Temp.newtemp())
+        val init = T.TEMP(Temp.newtemp())
+        val ret = T.TEMP(Temp.newtemp())
+        val alloc = T.BINOP(T.MUL, T.CONST(Frame.wordSize), size)
+        (*val body = Nx(T.MOVE(T.MEM(T.BINOP(T.PLUS,
+                                           ret,
+                                           T.BINOP(T.MUL,
+                                                   ))),
+                             init))*)
+        val body = Nx(T.MOVE(ret, init))
+    in
+      Ex(T.ESEQ(seq[T.MOVE(size, unEx(s)),
+                    T.MOVE(init, unEx(i)),
+                    T.MOVE(ret, Frame.externalCall("malloc", [alloc])),
+                    unNx(for'(T.CONST(0), size, body, join))],
+                ret))
+    end
 
   fun followStaticLink p =
     case p of

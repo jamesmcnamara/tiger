@@ -296,9 +296,14 @@ fun transExp(tenv, venv, exp, level, join) =
         | trexp(A.ArrayExp { typ, size, init, pos }) =
           (case Symbol.look(tenv, typ) of
             Option.SOME(ty) =>
-            (unify(tenv, Types.INT, #ty(trexp(size)), pos);
-             unify(tenv, ty, #ty(trexp(init)), pos);
-             { exp=Translate.Dx, ty=Types.ARRAY(ty, ref ()) })
+            let
+                val trans_size = trexp(size)
+                val trans_init = trexp(init)
+            in
+                unify(tenv, Types.INT, (#ty trans_size), pos);
+                unify(tenv, ty, (#ty trans_init), pos);
+                { exp=Translate.array((#exp trans_size), (#exp trans_init)), ty=Types.ARRAY(ty, ref ()) }
+            end
           | Option.NONE =>
             raise TypeDoesNotExist(typ))
 
