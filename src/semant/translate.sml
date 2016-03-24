@@ -215,5 +215,5 @@ structure Translate : TRANSLATE = struct
 
   fun simpleVar(f,a) = Ex(followStaticLink(f,a))
 
-  fun varInit(l,a,e) = e
+  fun varInit(l,a,e) = Nx(T.MOVE(unEx(simpleVar(l,a)), unEx(e)))
 end
