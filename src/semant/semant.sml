@@ -286,7 +286,7 @@ fun transExp(tenv, venv, exp, level, join) =
            ******************)
         | trexp(A.LetExp { decs, body, pos }) =
           let
-            val { tenv=tenv', venv=venv' } = trdecs(tenv, venv, decs, level)
+            val { tenv=tenv', venv=venv', inits=inits } = trdecs(tenv, venv, decs, level)
           in
             transExp(tenv', venv', body, level, join)
           end
@@ -343,7 +343,7 @@ fun transExp(tenv, venv, exp, level, join) =
       and
           (* Function declarations.
            ************************)
-          trdec(A.FunctionDec(l), {tenv=tenv, venv=venv}) =
+          trdec(A.FunctionDec(l), {tenv=tenv, venv=venv, inits=inits}) =
           let
             (* TODO: Clean up this function. *)
             fun insert({ name, params, result, body, pos }, venv') =
@@ -389,13 +389,13 @@ fun transExp(tenv, venv, exp, level, join) =
               end
           in
             (map unifier l);
-            { tenv=tenv, venv=venv' }
+            { tenv=tenv, venv=venv', inits=inits }
           end
 
           (* Varibale declarations.
            ************************)
         | trdec(A.VarDec { name, escape, typ, init, pos },
-                { tenv=tenv, venv=venv }) =
+                { tenv=tenv, venv=venv, inits=inits }) =
           let
             val actual_ty = #ty(transExp(tenv, venv, init, level, join))
             val entry = Env.VarEntry { ty=actual_ty, access=(Translate.allocLocal level (!escape)) }
@@ -406,21 +406,21 @@ fun transExp(tenv, venv, exp, level, join) =
               (case Symbol.look(tenv, s) of
                 SOME(t) =>
                 (unify(tenv, t, actual_ty, pos);
-                 { tenv=tenv, venv=venv' })
+                 { tenv=tenv, venv=venv', inits=inits (* TODO: This shouldn't be empty *) })
               | NONE => raise TypeDoesNotExist(s))
             | NONE =>
-              { tenv=tenv, venv=venv' })
+              { tenv=tenv, venv=venv', inits=inits (* TODO: This shouldn't be empty *) })
           end
 
           (* Type declarations.
            ********************)
-        | trdec(A.TypeDec(l), {tenv=tenv, venv=venv}) =
-          { tenv=trtypes(tenv, l), venv=venv }
+        | trdec(A.TypeDec(l), {tenv=tenv, venv=venv, inits=inits}) =
+          { tenv=trtypes(tenv, l), venv=venv, inits=inits }
 
       (* Helper functions. *)
 
       and trdecs(tenv, venv, decs, level) =
-        (foldl trdec {tenv=tenv, venv=venv} decs)
+        (foldl trdec {tenv=tenv, venv=venv, inits=[]} decs)
 
       and trtype(tenv, A.NameTy(rhs, p)) =
           (case Symbol.look(tenv, rhs) of
