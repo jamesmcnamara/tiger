@@ -36,6 +36,7 @@ sig
   val while': exp * exp * Temp.label -> exp
   val for': exp * exp * exp * Temp.label -> exp
   val break': Temp.label option -> exp
+  val sequence: exp list -> exp
 end
 
 structure Translate : TRANSLATE = struct
@@ -94,6 +95,10 @@ structure Translate : TRANSLATE = struct
                   T.TEMP r)
         end
     | unEx(Nx s) = T.ESEQ(s,T.CONST 0)
+
+  fun eseq [] = T.CONST(0)
+    | eseq [exp] = unEx(exp)
+    | eseq (exp::exps) = T.ESEQ(T.EXP(unEx(exp)), eseq(exps))
 
   fun unNx(Nx s) = s
     | unNx(Cx genstm) = T.EXP(unEx(Cx genstm))
@@ -189,4 +194,5 @@ structure Translate : TRANSLATE = struct
       | SOME(j) => Nx(Tree.EXP(Tree.ESEQ(seq([T.JUMP(T.NAME(j), [j])]),
                                          T.CONST(0))))
 
+  fun sequence l = Ex(eseq(l))
 end
