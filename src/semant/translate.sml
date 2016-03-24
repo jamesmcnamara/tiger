@@ -83,6 +83,10 @@ structure Translate : TRANSLATE = struct
     | seq [stm] = stm
     | seq (stm::stms) = T.SEQ(stm, seq(stms))
 
+  fun eseq [] = T.CONST(0)
+    | eseq [exp] = exp
+    | eseq (exp::exps) = T.ESEQ(T.EXP(exp), eseq(exps))
+
   fun unEx(Ex e) = e
     | unEx(Cx genstm) =
         let val r = Temp.newtemp()
@@ -190,6 +194,5 @@ structure Translate : TRANSLATE = struct
       | SOME(j) => Nx(Tree.EXP(Tree.ESEQ(seq([T.JUMP(T.NAME(j), [j])]),
                                          T.CONST(0))))
 
-  fun sequence(l: exp list) =
-    Ex(Tree.ESEQ(l))
+  fun sequence l = Ex(eseq(l))
 end

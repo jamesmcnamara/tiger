@@ -213,7 +213,7 @@ fun transExp(tenv, venv, exp, level, join) =
           let
             val trans = (map (fn (e, p) => trexp(e)) l)
             val exptys = Types.UNIT::(map (fn (e) => #ty(e)) trans)
-            val exps: = (map (fn (e) => #exp(e)) trans)
+            val exps = (map (fn (e) => #exp(e)) trans)
           in
               { exp=Translate.sequence(exps), ty=(List.last(exptys)) }
           end
