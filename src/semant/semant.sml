@@ -159,10 +159,10 @@ fun transExp(tenv, venv, exp, level, join) =
                  { exp=Translate.stringop(oper,#exp left,#exp right), ty=Types.INT })
               | Types.RECORD(l, u) =>
                 (unify(tenv, Types.RECORD(l, u), #ty(right), pos);
-                 { exp=Translate.Dx, ty=Types.INT})
+                 { exp=Translate.arithop(oper,#exp left,#exp right), ty=Types.INT})
               | Types.ARRAY(t, u) =>
                 (unify(tenv, Types.ARRAY(t, u), #ty(right), pos);
-                 { exp=Translate.Dx, ty=Types.INT})
+                 { exp=Translate.arithop(oper,#exp left,#exp right), ty=Types.INT})
               | _ =>
                 raise OperatorError(#ty(left), pos))
           in
