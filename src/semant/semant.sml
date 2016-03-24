@@ -309,10 +309,10 @@ fun transExp(tenv, venv, exp, level, join) =
           (case Symbol.look(venv, s) of
             Option.SOME(Env.VarEntry({ ty=ty, access=access })) =>
             (case ty of
-              Types.ARRAY(l, u) =>
-              { exp=Translate.simpleVar(level,access), ty=ty }
+              Types.ARRAY(l, u) => { exp=Translate.Dx, ty=ty }
+            | Types.RECORD(p,u) => { exp=Translate.Dx, ty=ty }
             | _ =>
-              { exp=Translate.Dx, ty=actual_type(tenv, ty) })
+              { exp=Translate.Translate.simpleVar(level,access), ty=actual_type(tenv, ty) })
           | Option.SOME(Env.FunEntry(_)) =>
             raise FunctionIsNotValueError(s, p)
           | Option.NONE =>
