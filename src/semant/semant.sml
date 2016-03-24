@@ -397,19 +397,21 @@ fun transExp(tenv, venv, exp, level, join) =
         | trdec(A.VarDec { name, escape, typ, init, pos },
                 { tenv=tenv, venv=venv, inits=inits }) =
           let
-            val actual_ty = #ty(transExp(tenv, venv, init, level, join))
-            val entry = Env.VarEntry { ty=actual_ty, access=(Translate.allocLocal level (!escape)) }
+            val trans = transExp(tenv, venv, init, level, join)
+            val access = Translate.allocLocal level (!escape)
+            val varinit = Translate.varInit(access, (#exp trans))
+            val entry = Env.VarEntry { ty=(#ty trans), access=access }
             val venv' = Symbol.enter(venv, name, entry)
           in
             (case typ of
               SOME((s, p)) =>
               (case Symbol.look(tenv, s) of
                 SOME(t) =>
-                (unify(tenv, t, actual_ty, pos);
-                 { tenv=tenv, venv=venv', inits=inits (* TODO: This shouldn't be empty *) })
+                (unify(tenv, t, (#ty trans), pos);
+                 { tenv=tenv, venv=venv', inits=varinit::inits })
               | NONE => raise TypeDoesNotExist(s))
             | NONE =>
-              { tenv=tenv, venv=venv', inits=inits (* TODO: This shouldn't be empty *) })
+              { tenv=tenv, venv=venv', inits=varinit::inits })
           end
 
           (* Type declarations.
