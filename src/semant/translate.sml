@@ -83,10 +83,6 @@ structure Translate : TRANSLATE = struct
     | seq [stm] = stm
     | seq (stm::stms) = T.SEQ(stm, seq(stms))
 
-  fun eseq [] = T.CONST(0)
-    | eseq [exp] = exp
-    | eseq (exp::exps) = T.ESEQ(T.EXP(exp), eseq(exps))
-
   fun unEx(Ex e) = e
     | unEx(Cx genstm) =
         let val r = Temp.newtemp()
@@ -99,6 +95,10 @@ structure Translate : TRANSLATE = struct
                   T.TEMP r)
         end
     | unEx(Nx s) = T.ESEQ(s,T.CONST 0)
+
+  fun eseq [] = T.CONST(0)
+    | eseq [exp] = unEx(exp)
+    | eseq (exp::exps) = T.ESEQ(T.EXP(unEx(exp)), eseq(exps))
 
   fun unNx(Nx s) = s
     | unNx(Cx genstm) = T.EXP(unEx(Cx genstm))
