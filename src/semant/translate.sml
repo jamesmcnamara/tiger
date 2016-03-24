@@ -10,6 +10,7 @@ sig
 
   exception TypeCheckFailed
   exception InvalidBreak
+  exception StaticLinkError
 
   val outermost : level
   val newLevel : {parent: level, name: Temp.label,
@@ -37,15 +38,19 @@ sig
   val for': exp * exp * exp * Temp.label -> exp
   val break': Temp.label option -> exp
   val sequence: exp list -> exp
+
+  val simpleVar: level * access -> exp
+
 end
 
 structure Translate : TRANSLATE = struct
-  datatype level = outermost | inner of {parent: level, frame: Frame.frame}
+  datatype level = outermost | inner of {parent: level, frame: Frame.frame, id: unit ref}
   type access = level * Frame.access
   exception OutermostError
   exception TypeCheckFailed
   exception BadType
   exception InvalidBreak
+  exception StaticLinkError
 
   structure Frame = MipsFrame
   structure T = Tree
@@ -62,22 +67,22 @@ structure Translate : TRANSLATE = struct
     val parent = outermost
     val frame = Frame.newFrame({formals=true::formals,name=name})
   in
-    inner({parent=parent, frame=frame})
+    inner({parent=parent, frame=frame, id=ref ()})
   end
 
   fun formals level =
     case level of
         outermost => []
-      | inner {parent, frame} =>
+      | inner {parent, frame, id} =>
         foldl (fn (access,acc) =>
-                  (inner({parent=parent, frame=frame}), access)::acc)
+                  (inner({parent=parent, frame=frame, id=ref ()}), access)::acc)
               []
               (Frame.formals(frame))
 
   fun allocLocal level escape =
     case level of
         outermost => raise OutermostError
-      | inner {parent, frame} => (level, Frame.allocLocal frame escape)
+      | inner {parent, frame, id} => (level, Frame.allocLocal frame escape)
 
   fun seq [] = T.EXP(T.CONST(0))
     | seq [stm] = stm
@@ -195,4 +200,18 @@ structure Translate : TRANSLATE = struct
                                          T.CONST(0))))
 
   fun sequence l = Ex(eseq(l))
+
+  fun followStaticLink p =
+    case p of
+        (inner({parent=p1,frame=f1,id=i1}),(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset))) =>
+          if i1 = i2 then T.MEM(T.BINOP(T.PLUS,
+                                        T.CONST(offset),
+                                        T.TEMP(Frame.FP)))
+                     else T.MEM(T.BINOP(T.PLUS,
+                                        T.CONST(Frame.offset(f1)),
+                                        followStaticLink(p1,(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset)))))
+      | _ => raise StaticLinkError
+
+  fun simpleVar(f,a) = Ex(followStaticLink(f,a))
+
 end

@@ -8,6 +8,7 @@ struct
                 | STRING of Temp.label * string
 
   val wordSize = 4
+  val FP = Temp.newtemp()
 
   fun getAccess(formal, (formals,offset)) =
     if formal then (InFrame(offset)::formals,offset-wordSize)
@@ -21,6 +22,7 @@ struct
 
   fun formals({name,formals,offset}) = formals
   fun name({name,formals,offset}) = name
+  fun offset({name,formals,offset}) = !offset
 
   fun allocLocal {name,formals,offset} true =
       let val access = InFrame(!offset)
