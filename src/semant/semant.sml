@@ -452,9 +452,6 @@ fun transExp(tenv, venv, exp, level, join) =
 fun transProg ast =
   let val newLevel = Translate.newLevel({parent=Translate.outermost, name=Temp.newlabel(), formals=[]})
   in
-    (* TODO: `break` should be the top level function?
-     * Also how the fuck does this type check... 1 is clearly not of
-     * type Temp.label. *)
     transExp(Env.base_tenv, Env.base_venv, ast, newLevel, NONE)
   end
 
