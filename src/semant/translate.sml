@@ -41,7 +41,7 @@ sig
 
   val simpleVar: level * access -> exp
 
-  val varInit: access * exp -> exp
+  val varInit: level * access * exp -> exp
 end
 
 structure Translate : TRANSLATE = struct
@@ -215,5 +215,5 @@ structure Translate : TRANSLATE = struct
 
   fun simpleVar(f,a) = Ex(followStaticLink(f,a))
 
-  fun varInit(a,e) = e
+  fun varInit(l,a,e) = e
 end

@@ -399,7 +399,7 @@ fun transExp(tenv, venv, exp, level, join) =
           let
             val trans = transExp(tenv, venv, init, level, join)
             val access = Translate.allocLocal level (!escape)
-            val varinit = Translate.varInit(access, (#exp trans))
+            val varinit = Translate.varInit(level, access, (#exp trans))
             val entry = Env.VarEntry { ty=(#ty trans), access=access }
             val venv' = Symbol.enter(venv, name, entry)
           in
