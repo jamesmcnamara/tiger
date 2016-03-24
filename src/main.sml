@@ -9,6 +9,7 @@ struct
 fun compile filename =
   let val exp = Parse.parse(filename)
   in
-      Semant.transProg(exp)
+      (FindEscape.findEscape(exp);
+      Semant.transProg(exp))
   end
 end

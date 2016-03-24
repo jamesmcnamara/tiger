@@ -25,3 +25,10 @@ src/semant/semant.sml
 src/semant/types.sml
 src/semant/env.sml
 src/semant/translate.sml
+src/semant/frame.sig
+src/semant/mipsframe.sml
+src/semant/findescape.sml
+src/semant/temp.sig
+src/semant/temp.sml
+src/semant/tree.sml
+src/semant/printtree.sml

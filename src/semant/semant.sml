@@ -15,12 +15,13 @@ signature SEMANT = sig
     type expty
 
     val transProg : Absyn.exp -> expty
-    val transExp : tenv * venv * Absyn.exp -> expty
+    val transExp : tenv * venv * Absyn.exp * Translate.level * Temp.label option -> expty
 
     val createSymbols : Absyn.field list * tenv -> (Symbol.symbol * Types.ty) list
 end
 
 structure A = Absyn
+structure T = Tree
 structure Semant : SEMANT = struct
 
 exception TypeError of Types.ty * Types.ty * int
@@ -81,7 +82,7 @@ fun unify(tenv, ty1, ty2, pos) =
         unify_actual(tenv, ty1, ty2, pos)
     end
 
-fun transExp(tenv, venv, exp) =
+fun transExp(tenv, venv, exp, level, join) =
   let fun
           (* Varibale expressions.
            ***********************)
@@ -91,24 +92,24 @@ fun transExp(tenv, venv, exp) =
           (* `nil` expressions.
            ********************)
         | trexp(A.NilExp) =
-          { exp=(), ty=Types.NIL }
+          { exp=Translate.Ex(T.CONST(0)), ty=Types.NIL }
 
           (* Integer expressions.
            **********************)
         | trexp(A.IntExp(i)) =
-          { exp=(), ty=Types.INT }
+          { exp=Translate.Ex(T.CONST(i)), ty=Types.INT }
 
           (* String expressions.
            *********************)
         | trexp(A.StringExp(s, p)) =
-          { exp=(), ty=Types.STRING }
+          { exp=Translate.string(s), ty=Types.STRING }
 
           (* Call expressions.
            *******************)
         | trexp(A.CallExp { func, args, pos }) =
           (case Symbol.look(venv, func) of
             (* The call was on a symbol defined as a function. *)
-            Option.SOME(Env.FunEntry { formals, result }) =>
+            Option.SOME(Env.FunEntry { formals, result, level, label }) =>
               let
                 fun unifier(actual, expected) =
                     unify(tenv, #ty(trexp(actual)), expected, pos)
@@ -119,7 +120,7 @@ fun transExp(tenv, venv, exp) =
                   raise ArityError(formals_len, args_len, pos)
                 else
                   (ListPair.map unifier (args, formals));
-                  { exp=(), ty=result }
+                  { exp=Translate.Dx, ty=result }
               end
             (* The call was on a symbol defined as a variable. *)
           | Option.SOME(_) =>
@@ -137,31 +138,31 @@ fun transExp(tenv, venv, exp) =
             fun trarithop() =
               (unify(tenv, Types.INT, #ty(left), pos);
                unify(tenv, Types.INT, #ty(right), pos);
-               { exp=(), ty=Types.INT })
+               { exp=Translate.arithop(oper, #exp left, #exp right), ty=Types.INT })
             fun trcmpop() =
               (case #ty(left) of
                 Types.INT =>
                 (unify(tenv, Types.INT, #ty(right), pos);
-                 { exp=(), ty=Types.INT })
+                 { exp=Translate.arithop(oper,#exp left,#exp right), ty=Types.INT })
               | Types.STRING =>
                 (unify(tenv, Types.STRING, #ty(right), pos);
-                 { exp=(), ty=Types.INT })
+                 { exp=Translate.stringop(oper,#exp left,#exp right), ty=Types.INT })
               | _ =>
                 raise OperatorError(#ty(left), pos))
             fun treqop() =
               (case #ty(left) of
                 Types.INT =>
                 (unify(tenv, Types.INT, #ty(right), pos);
-                 { exp=(), ty=Types.INT })
+                 { exp=Translate.arithop(oper,#exp left,#exp right), ty=Types.INT })
               | Types.STRING =>
                 (unify(tenv, Types.STRING, #ty(right), pos);
-                 { exp=(), ty=Types.INT })
+                 { exp=Translate.stringop(oper,#exp left,#exp right), ty=Types.INT })
               | Types.RECORD(l, u) =>
                 (unify(tenv, Types.RECORD(l, u), #ty(right), pos);
-                 { exp=(), ty=Types.INT})
+                 { exp=Translate.Dx, ty=Types.INT})
               | Types.ARRAY(t, u) =>
                 (unify(tenv, Types.ARRAY(t, u), #ty(right), pos);
-                 { exp=(), ty=Types.INT})
+                 { exp=Translate.Dx, ty=Types.INT})
               | _ =>
                 raise OperatorError(#ty(left), pos))
           in
@@ -198,7 +199,7 @@ fun transExp(tenv, venv, exp) =
                   (* NOTE: Mapping the fields in order is valid because Tiger
                    * records are ordered. *)
                   (ListPair.map unifier (fields, expected_fields));
-                  { exp=(), ty=ty }
+                  { exp=Translate.Dx, ty=ty }
               end
             | Option.SOME(_) =>
               (* TODO: Must be record type. We need an appropriate error msg. *)
@@ -210,12 +211,14 @@ fun transExp(tenv, venv, exp) =
            ***********************)
         | trexp(A.SeqExp l) =
           let
-            val exptys = Types.UNIT::(map (fn (e, p) => #ty(trexp(e))) l)
+            val trans = (map (fn (e, p) => trexp(e)) l)
+            val exptys = Types.UNIT::(map (fn (e) => #ty(e)) trans)
+            val exps = (map (fn (e) => #exp(e)) trans)
           in
-              { exp=(), ty=(List.last(exptys)) }
+              { exp=Translate.sequence(exps), ty=(List.last(exptys)) }
           end
 
-          (* Sequence expressions.
+          (* Assign expressions.
            ***********************)
         | trexp(A.AssignExp { var=v, exp=e, pos }) =
           let
@@ -223,7 +226,7 @@ fun transExp(tenv, venv, exp) =
             val rhs = trexp(e)
           in
             unify(tenv, #ty(lhs), #ty(rhs), pos);
-            { exp=(), ty=Types.UNIT }
+            { exp=Translate.Dx, ty=Types.UNIT }
           end
 
           (* If expressions.
@@ -236,9 +239,13 @@ fun transExp(tenv, venv, exp) =
             unify(tenv, #ty(test), Types.INT, pos);
             (case else' of
               Option.SOME(e) =>
-              { exp=(), ty=unify(tenv, #ty(then'), #ty(trexp(e)), pos)}
+                let val e' = trexp(e)
+                in
+                  { exp=Translate.ifthenelse(#exp (test),#exp (then'),#exp (e')),
+                    ty=unify(tenv, #ty(then'), #ty(e'), pos)}
+                end
             | Option.NONE =>
-              { exp=(), ty=unify(tenv, #ty(then'), Types.UNIT, pos) })
+              { exp=Translate.ifthen(#exp (test),#exp (then')), ty=unify(tenv, #ty(then'), Types.UNIT, pos) })
           end
 
           (* While expressions.
@@ -246,40 +253,42 @@ fun transExp(tenv, venv, exp) =
         | trexp(A.WhileExp { test, body, pos }) =
           let
             val test = trexp(test)
-            val body = trexp(body)
+            val join = Temp.newlabel()
+            val body' = transExp(tenv, venv, body, level, SOME join)
           in
             unify(tenv, #ty(test), Types.INT, pos);
-            unify(tenv, #ty(body), Types.UNIT, pos);
-            { exp=(), ty=Types.UNIT }
+            unify(tenv, #ty(body'), Types.UNIT, pos);
+            { exp=Translate.while'(#exp (test),#exp (body'),join), ty=Types.UNIT }
           end
 
           (* For expressions.
            ******************)
         | trexp(A.ForExp { var=v, escape=b, lo, hi, body, pos }) =
           let
-            val venv' = Symbol.enter(venv, v, Env.VarEntry { ty=Types.INT })
+            val venv' = Symbol.enter(venv, v, Env.VarEntry { ty=Types.INT, access=(Translate.allocLocal level (!b)) })
             val lo' = trexp(lo)
             val hi' = trexp(hi)
-            val body' = transExp(tenv, venv', body)
+            val join = Temp.newlabel()
+            val body' = transExp(tenv, venv', body, level, SOME join)
           in
             unify(tenv, #ty(lo'), Types.INT, pos);
             unify(tenv, #ty(hi'), Types.INT, pos);
             unify(tenv, #ty(body'), Types.UNIT, pos);
-            { exp=(), ty=Types.UNIT }
+            { exp=Translate.for'(#exp (lo'),#exp (hi'),#exp (body'),join), ty=Types.UNIT }
           end
 
           (* Break expression.
            *******************)
         | trexp(A.BreakExp p) =
-          { exp=(), ty=Types.BOTTOM }
+          { exp=Translate.break'(join), ty=Types.BOTTOM }
 
           (* Let expressions.
            ******************)
         | trexp(A.LetExp { decs, body, pos }) =
           let
-            val { tenv=tenv', venv=venv' } = trdecs(tenv, venv, decs)
+            val { tenv=tenv', venv=venv' } = trdecs(tenv, venv, decs, level)
           in
-            transExp(tenv', venv', body)
+            transExp(tenv', venv', body, level, join)
           end
 
           (* Array expressions.
@@ -289,7 +298,7 @@ fun transExp(tenv, venv, exp) =
             Option.SOME(ty) =>
             (unify(tenv, Types.INT, #ty(trexp(size)), pos);
              unify(tenv, ty, #ty(trexp(init)), pos);
-             { exp=(), ty=Types.ARRAY(ty, ref ()) })
+             { exp=Translate.Dx, ty=Types.ARRAY(ty, ref ()) })
           | Option.NONE =>
             raise TypeDoesNotExist(typ))
 
@@ -298,12 +307,8 @@ fun transExp(tenv, venv, exp) =
            *******************)
           trvar(A.SimpleVar(s, p)) =
           (case Symbol.look(venv, s) of
-            Option.SOME(Env.VarEntry({ ty=ty })) =>
-            (case ty of
-              Types.ARRAY(l, u) =>
-              { exp=(), ty=ty }
-            | _ =>
-              { exp=(), ty=actual_type(tenv, ty) })
+            Option.SOME(Env.VarEntry({ ty=ty, access=access })) =>
+              { exp=Translate.simpleVar(level,access), ty=actual_type(tenv, ty) }
           | Option.SOME(Env.FunEntry(_)) =>
             raise FunctionIsNotValueError(s, p)
           | Option.NONE =>
@@ -316,7 +321,7 @@ fun transExp(tenv, venv, exp) =
             t as Types.RECORD(l, u) =>
             (case (List.find (fn (s2, t) => s1 = s2) l) of
               SOME(s, t) =>
-              { exp=(), ty=t }
+              { exp=Translate.Dx, ty=t }
             | NONE =>
               raise FieldNotFound(t, s1, p))
           | t =>
@@ -359,7 +364,7 @@ fun transExp(tenv, venv, exp) =
                       raise TypeDoesNotExist(typ)))
                     params)
                 val entry =
-                  Env.FunEntry { formals=formals, result=resultType }
+                  Env.FunEntry { formals=formals, result=resultType, level=level, label=Temp.newlabel() }
               in
                 Symbol.enter(venv', name, entry)
               end
@@ -369,14 +374,14 @@ fun transExp(tenv, venv, exp) =
                 fun insert({ name, escape, typ, pos }, venv'') =
                   (case Symbol.look(tenv, typ) of
                     SOME(t) =>
-                    Symbol.enter(venv'', name, Env.VarEntry { ty=t })
+                    Symbol.enter(venv'', name, Env.VarEntry { ty=t, access=(Translate.allocLocal level (!escape)) })
                   | NONE =>
                     raise TypeDoesNotExist(typ))
                 val venv'' = (foldr insert venv' params)
               in
                 (case Symbol.look(venv', name) of
-                  SOME(Env.FunEntry({ formals, result })) =>
-                  unify(tenv, result, (#ty(transExp(tenv, venv'', body))), pos)
+                  SOME(Env.FunEntry({ formals, result, level, label })) =>
+                  unify(tenv, result, (#ty(transExp(tenv, venv'', body, level, join))), pos)
                 | SOME _ =>
                   raise FunctionIsNotValueError(name, pos)
                 | NONE =>
@@ -392,8 +397,8 @@ fun transExp(tenv, venv, exp) =
         | trdec(A.VarDec { name, escape, typ, init, pos },
                 { tenv=tenv, venv=venv }) =
           let
-            val actual_ty = #ty(transExp(tenv, venv, init))
-            val entry = Env.VarEntry({ ty=actual_ty })
+            val actual_ty = #ty(transExp(tenv, venv, init, level, join))
+            val entry = Env.VarEntry { ty=actual_ty, access=(Translate.allocLocal level (!escape)) }
             val venv' = Symbol.enter(venv, name, entry)
           in
             (case typ of
@@ -414,7 +419,7 @@ fun transExp(tenv, venv, exp) =
 
       (* Helper functions. *)
 
-      and trdecs(tenv, venv, decs) =
+      and trdecs(tenv, venv, decs, level) =
         (foldl trdec {tenv=tenv, venv=venv} decs)
 
       and trtype(tenv, A.NameTy(rhs, p)) =
@@ -444,6 +449,13 @@ fun transExp(tenv, venv, exp) =
       trexp(exp)
   end
 
-fun transProg ast = transExp(Env.base_tenv, Env.base_venv, ast)
+fun transProg ast =
+  let val newLevel = Translate.newLevel({parent=Translate.outermost, name=Temp.newlabel(), formals=[]})
+  in
+    (* TODO: `break` should be the top level function?
+     * Also how the fuck does this type check... 1 is clearly not of
+     * type Temp.label. *)
+    transExp(Env.base_tenv, Env.base_venv, ast, newLevel, NONE)
+  end
 
 end
