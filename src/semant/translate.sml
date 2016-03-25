@@ -39,10 +39,11 @@ sig
   val break': Temp.label option -> exp
   val sequence: exp list -> exp
   val array: exp * exp -> exp
+  val let': Tree.stm list * exp -> exp
 
   val simpleVar: level * access -> exp
 
-  val varInit: level * access * exp -> exp
+  val varInit: level * access * exp -> Tree.stm
 end
 
 structure Translate : TRANSLATE = struct
@@ -223,6 +224,9 @@ structure Translate : TRANSLATE = struct
                 ret))
     end
 
+  fun let'(inits, body) =
+    Ex(T.ESEQ(seq(inits), unEx(body)))
+
   fun followStaticLink p =
     case p of
         (inner({parent=p1,frame=f1,id=i1}),(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset))) =>
@@ -236,5 +240,5 @@ structure Translate : TRANSLATE = struct
 
   fun simpleVar(f,a) = Ex(followStaticLink(f,a))
 
-  fun varInit(l,a,e) = Nx(T.MOVE(unEx(simpleVar(l,a)), unEx(e)))
+  fun varInit(l,a,e) = T.MOVE(unEx(simpleVar(l,a)), unEx(e))
 end

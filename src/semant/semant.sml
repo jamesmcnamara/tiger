@@ -287,8 +287,9 @@ fun transExp(tenv, venv, exp, level, join) =
         | trexp(A.LetExp { decs, body, pos }) =
           let
             val { tenv=tenv', venv=venv', inits=inits } = trdecs(tenv, venv, decs, level)
+            val trans_body = transExp(tenv', venv', body, level, join)
           in
-            transExp(tenv', venv', body, level, join)
+            { exp=Translate.let'(inits, (#exp trans_body)), ty=(#ty trans_body)}
           end
 
           (* Array expressions.
