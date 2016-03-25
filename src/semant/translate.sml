@@ -40,6 +40,7 @@ sig
   val sequence: exp list -> exp
   val array: exp * exp -> exp
   val let': Tree.stm list * exp -> exp
+  val assign: exp * exp -> exp
 
   val simpleVar: level * access -> exp
 
@@ -226,6 +227,9 @@ structure Translate : TRANSLATE = struct
 
   fun let'(inits, body) =
     Ex(T.ESEQ(seq(inits), unEx(body)))
+
+  fun assign(lhs, rhs) =
+    Nx(T.MOVE(unEx(lhs), unEx(rhs)))
 
   fun followStaticLink p =
     case p of

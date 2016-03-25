@@ -226,7 +226,7 @@ fun transExp(tenv, venv, exp, level, join) =
             val rhs = trexp(e)
           in
             unify(tenv, #ty(lhs), #ty(rhs), pos);
-            { exp=Translate.Dx, ty=Types.UNIT }
+            { exp=Translate.assign((#exp lhs), (#exp rhs)), ty=Types.UNIT }
           end
 
           (* If expressions.
