@@ -35,10 +35,10 @@ sig
   val ifthenelse: exp * exp * exp -> exp
   val ifthen: exp * exp -> exp
   val while': exp * exp * Temp.label -> exp
-  val for': exp * exp * exp * Temp.label -> exp
+  val for': (level * access) * exp * exp * exp * Temp.label -> exp
   val break': Temp.label option -> exp
   val sequence: exp list -> exp
-  val array: exp * exp -> exp
+  val array: level * exp * exp -> exp
   val let': Tree.stm list * exp -> exp
   val assign: exp * exp -> exp
 
@@ -119,6 +119,18 @@ structure Translate : TRANSLATE = struct
     | unCx(Ex(T.CONST 1)) = (fn (t,f) => T.JUMP(T.NAME(f), [t]))
     | unCx(Ex e) = (fn (t,f) => T.CJUMP(T.EQ, e, T.CONST(1), t, f))
 
+  fun followStaticLink p =
+    case p of
+        (inner({parent=p1,frame=f1,id=i1}),(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset))) =>
+          if i1 = i2 then T.MEM(T.BINOP(T.PLUS,
+                                        T.CONST(offset),
+                                        T.TEMP(Frame.FP)))
+                     else T.MEM(T.BINOP(T.PLUS,
+                                        T.CONST(Frame.offset(f1)),
+                                        followStaticLink(p1,(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset)))))
+      | (_,(_,Frame.InReg(_))) => raise StaticLinkError
+      | _ => raise StaticLinkError
+
   fun arithop(Absyn.PlusOp,left,right) = Ex(T.BINOP(T.PLUS, unEx(left), unEx(right)))
     | arithop(Absyn.MinusOp,left,right) = Ex(T.BINOP(T.MINUS, unEx(left), unEx(right)))
     | arithop(Absyn.TimesOp,left,right) = Ex(T.BINOP(T.MUL, unEx(left), unEx(right)))
@@ -183,12 +195,13 @@ structure Translate : TRANSLATE = struct
                             T.CONST(0))))
     end
 
-  fun for'(lo,hi,body,join) =
-    let val loR = T.TEMP(Temp.newtemp())
+  fun for'(lo',lo,hi,body,join) =
+    let val loR = followStaticLink(lo')
         val hiR = T.TEMP(Temp.newtemp())
         val start = Temp.newlabel()
     in
-      Nx(Tree.EXP(Tree.ESEQ(seq([T.CJUMP(T.LT, loR, hiR, start, join),
+      Nx(Tree.EXP(Tree.ESEQ(seq([T.MOVE(T.MEM(loR), loR),
+                                 T.CJUMP(T.LT, loR, hiR, start, join),
                                  T.LABEL(start),
                                  unNx(body),
                                  T.MOVE(T.MEM(loR), T.BINOP(T.PLUS, T.MEM(loR), T.CONST(1))),
@@ -205,12 +218,13 @@ structure Translate : TRANSLATE = struct
 
   fun sequence l = Ex(eseq(l))
 
-  fun array(s,i) =
+  fun array(level,s,i) =
     let val join = Temp.newlabel()
         val size = T.TEMP(Temp.newtemp())
         val init = T.TEMP(Temp.newtemp())
         val ret = T.TEMP(Temp.newtemp())
         val alloc = T.BINOP(T.MUL, T.CONST(Frame.wordSize), size)
+        val access = allocLocal level false
         (*val body = Nx(T.MOVE(T.MEM(T.BINOP(T.PLUS,
                                            ret,
                                            T.BINOP(T.MUL,
@@ -221,7 +235,7 @@ structure Translate : TRANSLATE = struct
       Ex(T.ESEQ(seq[T.MOVE(size, unEx(s)),
                     T.MOVE(init, unEx(i)),
                     T.MOVE(ret, Frame.externalCall("malloc", [alloc])),
-                    unNx(for'(T.CONST(0), size, body, join))],
+                    unNx(for'((level,access),T.CONST(0), size, body, join))],
                 ret))
     end
 
@@ -230,17 +244,6 @@ structure Translate : TRANSLATE = struct
 
   fun assign(lhs, rhs) =
     Nx(T.MOVE(unEx(lhs), unEx(rhs)))
-
-  fun followStaticLink p =
-    case p of
-        (inner({parent=p1,frame=f1,id=i1}),(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset))) =>
-          if i1 = i2 then T.MEM(T.BINOP(T.PLUS,
-                                        T.CONST(offset),
-                                        T.TEMP(Frame.FP)))
-                     else T.MEM(T.BINOP(T.PLUS,
-                                        T.CONST(Frame.offset(f1)),
-                                        followStaticLink(p1,(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset)))))
-      | _ => raise StaticLinkError
 
   fun simpleVar(f,a) = Ex(followStaticLink(f,a))
 
