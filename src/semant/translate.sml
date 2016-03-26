@@ -41,6 +41,7 @@ sig
   val array: level * exp * exp -> exp
   val let': Tree.stm list * exp -> exp
   val assign: exp * exp -> exp
+  val call: Temp.label * exp list -> exp
 
   val simpleVar: level * access -> exp
   val subscriptVar: exp * exp -> exp
@@ -240,6 +241,14 @@ structure Translate : TRANSLATE = struct
 
   fun assign(lhs, rhs) =
     Nx(T.MOVE(unEx(lhs), unEx(rhs)))
+
+  fun call(fl, args) =
+    let
+      val sl = T.TEMP(Frame.FP)
+      val args' = (map unEx args)
+    in
+      Ex(T.CALL(T.NAME(fl), sl::args'))
+    end
 
   fun simpleVar(f,a) = Ex(followStaticLink(f,a))
 

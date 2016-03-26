@@ -109,18 +109,23 @@ fun transExp(tenv, venv, exp, level, join) =
         | trexp(A.CallExp { func, args, pos }) =
           (case Symbol.look(venv, func) of
             (* The call was on a symbol defined as a function. *)
-            Option.SOME(Env.FunEntry { formals, result, level, label }) =>
+            Option.SOME(Env.FunEntry { formals, result, level=level', label }) =>
               let
                 fun unifier(actual, expected) =
-                    unify(tenv, #ty(trexp(actual)), expected, pos)
+                    unify(tenv, actual, expected, pos)
+
+                val trans_args = (map trexp args)
+                val ty_args = (map #ty trans_args)
+                val exp_args = (map #exp trans_args)
+
                 val args_len = List.length(args)
                 val formals_len = List.length(formals)
               in
                 if args_len <> formals_len then
                   raise ArityError(formals_len, args_len, pos)
                 else
-                  (ListPair.map unifier (args, formals));
-                  { exp=Translate.Dx, ty=result }
+                  (ListPair.map unifier (ty_args, formals));
+                  { exp=Translate.call(label, exp_args), ty=result }
               end
             (* The call was on a symbol defined as a variable. *)
           | Option.SOME(_) =>
