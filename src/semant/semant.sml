@@ -383,7 +383,10 @@ fun transExp(tenv, venv, exp, level, join) =
                     params)
                 val entry =
                   Env.FunEntry { formals=formals, result=resultType, level=level, label=Temp.newlabel() }
+                val trans_formals = (map (fn r => !(#escape r)) params)
+                val trans_body = trexp(body)
               in
+                Translate.addFunc(name, trans_formals, (#exp trans_body));
                 Symbol.enter(venv', name, entry)
               end
             val venv' = (foldr insert venv l)

@@ -47,6 +47,7 @@ sig
   val subscriptVar: exp * exp -> exp
 
   val varInit: level * access * exp -> Tree.stm
+  val addFunc: Temp.label * bool list * exp -> unit
 end
 
 structure Translate : TRANSLATE = struct
@@ -260,4 +261,13 @@ structure Translate : TRANSLATE = struct
     end
 
   fun varInit(l,a,e) = T.MOVE(unEx(simpleVar(l,a)), unEx(e))
+
+  fun addFunc(name, formals, body) =
+    let
+      val frame = Frame.newFrame {name=name, formals=formals}
+      val accesses = (map (fn a => Frame.allocLocal frame a) formals)
+      val proc = { body=unNx(body), frame=frame }
+    in
+      frags := Frame.PROC(proc)::(!frags)
+    end
 end
