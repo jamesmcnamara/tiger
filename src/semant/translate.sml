@@ -225,11 +225,6 @@ structure Translate : TRANSLATE = struct
         val ret = T.TEMP(Temp.newtemp())
         val alloc = T.BINOP(T.MUL, T.CONST(Frame.wordSize), size)
         val access = allocLocal level false
-        (*val body = Nx(T.MOVE(T.MEM(T.BINOP(T.PLUS,
-                                           ret,
-                                           T.BINOP(T.MUL,
-                                                   ))),
-                             init))*)
         val body = Nx(T.MOVE(ret, init))
     in
       Ex(T.ESEQ(seq[T.MOVE(size, unEx(s)),
