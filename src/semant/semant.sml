@@ -337,15 +337,21 @@ fun transExp(tenv, venv, exp, level, join) =
           (* Subuscript variable `buff[i+1]`.
            **********************************)
         | trvar(A.SubscriptVar(v, e, p)) =
-          (case #ty(trexp(e)) of
-            Types.INT =>
-            (case trvar(v) of
-              { exp=exp, ty=Types.ARRAY(t,u) } =>
-              { exp=exp, ty=actual_type(tenv, t) }
-            | { exp=_, ty=ty } =>
-              raise NotArrayError(ty, p))
-          | t =>
-            raise TypeError(Types.INT, t, p))
+          let
+            val lhs = trvar(v)
+            val rhs = trexp(e)
+          in
+            (case #ty(rhs) of
+              Types.INT =>
+              (case #ty(lhs) of
+                Types.ARRAY(t,u) =>
+                { exp=Translate.subscriptVar((#exp lhs), (#exp rhs)),
+                  ty=actual_type(tenv, t) }
+              | ty =>
+                raise NotArrayError(ty, p))
+            | t =>
+              raise TypeError(Types.INT, t, p))
+          end
 
       and
           (* Function declarations.

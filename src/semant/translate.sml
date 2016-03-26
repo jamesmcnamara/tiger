@@ -43,6 +43,7 @@ sig
   val assign: exp * exp -> exp
 
   val simpleVar: level * access -> exp
+  val subscriptVar: exp * exp -> exp
 
   val varInit: level * access * exp -> Tree.stm
 end
@@ -241,6 +242,13 @@ structure Translate : TRANSLATE = struct
     Nx(T.MOVE(unEx(lhs), unEx(rhs)))
 
   fun simpleVar(f,a) = Ex(followStaticLink(f,a))
+
+  fun subscriptVar(lhs, rhs) =
+    let
+      val offset = T.BINOP(T.MUL, T.CONST(Frame.wordSize), unEx(rhs))
+    in
+      Ex(T.BINOP(T.PLUS, unEx(lhs), offset))
+    end
 
   fun varInit(l,a,e) = T.MOVE(unEx(simpleVar(l,a)), unEx(e))
 end
