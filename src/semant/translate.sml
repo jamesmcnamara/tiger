@@ -195,8 +195,8 @@ structure Translate : TRANSLATE = struct
                             T.CONST(0))))
     end
 
-  fun for'(lo',lo,hi,body,join) =
-    let val loR = followStaticLink(lo')
+  fun for'(loLoc,lo,hi,body,join) =
+    let val loR = followStaticLink(loLoc)
         val hiR = T.TEMP(Temp.newtemp())
         val start = Temp.newlabel()
     in

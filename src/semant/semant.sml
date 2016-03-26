@@ -265,8 +265,8 @@ fun transExp(tenv, venv, exp, level, join) =
            ******************)
         | trexp(A.ForExp { var=v, escape=b, lo, hi, body, pos }) =
           let
-            val loR = Translate.allocLocal level (!b)
-            val venv' = Symbol.enter(venv, v, Env.VarEntry { ty=Types.INT, access=loR })
+            val loLoc = Translate.allocLocal level (!b)
+            val venv' = Symbol.enter(venv, v, Env.VarEntry { ty=Types.INT, access=loLoc })
             val lo' = trexp(lo)
             val hi' = trexp(hi)
             val join = Temp.newlabel()
@@ -275,7 +275,7 @@ fun transExp(tenv, venv, exp, level, join) =
             unify(tenv, #ty(lo'), Types.INT, pos);
             unify(tenv, #ty(hi'), Types.INT, pos);
             unify(tenv, #ty(body'), Types.UNIT, pos);
-            { exp=Translate.for'((level,loR),#exp (lo'),#exp (hi'),#exp (body'),join), ty=Types.UNIT }
+            { exp=Translate.for'((level,loLoc),#exp (lo'),#exp (hi'),#exp (body'),join), ty=Types.UNIT }
           end
 
           (* Break expression.
