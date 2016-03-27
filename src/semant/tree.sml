@@ -35,7 +35,7 @@ struct
   type size = int
 
 datatype stm = SEQ of stm * stm
-             | LABEL of labelgt
+             | LABEL of label
              | JUMP of exp * label list
              | CJUMP of relop * exp * exp * label * label
              | MOVE of exp * exp
