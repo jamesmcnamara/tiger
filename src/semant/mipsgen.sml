@@ -63,9 +63,8 @@ struct
       | munchStm(T.MOVE(T.MEM(e), d as T.TEMP(_))) = 
           munchStm(T.MOVE(T.MEM(T.BINOP(T.PLUS, T.CONST(0), e)), d))
 
-      (* | munchStm(T.MOVE(e1, e2)) = 
-          emit(A.MOVE{assem="move `d0, `s0\n", dst: munchExp e1, src: munchExp
-          e2}) *)
+      | munchStm(T.MOVE(e1, e2)) = 
+          emit(A.MOVE{assem="move `d0, `s0\n", dst=munchExp e1, src=munchExp e2})
 
       (* Not sure about matching the name in the pattern. In the book, they
       * store the result in a temp and load it out of that, but I'm not sure
