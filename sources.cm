@@ -32,3 +32,5 @@ src/semant/temp.sig
 src/semant/temp.sml
 src/semant/tree.sml
 src/semant/printtree.sml
+src/semant/assem.sml
+src/semant/mipsgen.sml

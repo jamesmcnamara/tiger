@@ -12,10 +12,10 @@ struct
 
   (* TODO: this code assumes the MIPS instruction set from the MARS emulator.
   * The ISA for SPIM may or may not be a bit different. SPIM p. 14*)
-  fun opcode(op, immediate) = 
+  fun opcode (oper, immediate) = 
   let 
     val code = 
-      case op of 
+      case oper of 
            PLUS => "add"
          | MINUS => "sub"
          | MUL => "mul"
@@ -49,22 +49,23 @@ struct
           emit(A.OPER {assem="lw `d0, " ^ Int.toString offset ^ "(`s0`)\n",
                        dst=[t1], src=[munchExp e], jump=NONE})
 
-      | munchStm(T.MOVE(T.TEMP(_) as t, T.MEM(T.BINOP(T.PLUS, e, T.CONST(_) as offset)))) = 
+      | munchStm(T.MOVE(t as T.TEMP(_), T.MEM(T.BINOP(T.PLUS, e, offset as T.CONST(_))))) = 
           munchStm(T.MOVE(t, T.MEM(T.BINOP(T.PLUS, offset, e)))) 
 
       | munchStm(T.MOVE(T.MEM(T.BINOP(T.PLUS, T.CONST(offset), e), T.TEMP(t)))) = 
           emit(A.OPER {assem="sw `s0, " ^ Int.toString offset ^ "(`d0`)\n",
-                       dst=[munchExp e], src=[t], i
+                       dst=[munchExp e], src=[t],
                        jump=NONE})
 
-      | munchStm(T.MOVE(T.TEMP(_) as d, T.MEM(e))) = 
+      | munchStm(T.MOVE(d as T.TEMP(_), T.MEM(e))) = 
           munchStm(T.MOVE(d, T.MEM(T.BINOP(T.PLUS, T.CONST(0), e))))
 
-      | munchStm(T.MOVE(T.MEM(e), T.TEMP(_) as d)) = 
+      | munchStm(T.MOVE(T.MEM(e), d as T.TEMP(_))) = 
           munchStm(T.MOVE(T.MEM(T.BINOP(T.PLUS, T.CONST(0), e)), d))
 
-      | munchStm(T.MOVE(e1, e2)) = 
-          emit(A.MOVE{assem="move `d0, `s0\n", dst: munchExp e1, src: munchExp e2})
+      (* | munchStm(T.MOVE(e1, e2)) = 
+          emit(A.MOVE{assem="move `d0, `s0\n", dst: munchExp e1, src: munchExp
+          e2}) *)
 
       (* Not sure about matching the name in the pattern. In the book, they
       * store the result in a temp and load it out of that, but I'm not sure
@@ -77,12 +78,11 @@ struct
                        dst=calldefs, 
                        jump=SOME([lab])})
 
-    and
-    fun munchExp(T.BINOP(T.PLUS, e, T.CONST(a))) =
+    and munchExp(T.BINOP(T.PLUS, e, T.CONST(a))) =
           munchExp(T.BINOP(T.PLUS, T.CONST(a), e))
 
-      | munchExp(T.BINOP(op, e1, e2))
-          munchBinop(op, e1, e2)
+      | munchExp(T.BINOP(oper, e1, e2)) = 
+          munchBinop(oper, e1, e2)
 
       | munchExp(T.MEM(e)) = 
           result(fn temp =>
@@ -103,24 +103,23 @@ struct
                     dst=[temp], src=[],
                     jump=NONE})
 
-    and
-    fun munchBinop(op, e, T.CONST(c)) =
+    and munchBinop(oper, e, T.CONST(c)) =
           result(fn temp => 
-            A.OPER {assem=opcode(op, true) ^ " `d0, `s0, " ^ Int.toString c ^ "\n",
+            A.OPER {assem=opcode(oper, true) ^ " `d0, `s0, " ^ Int.toString c ^ "\n",
                     dst=[temp], src=[munchExp e],
                     jump=NONE})
-      | munchBinop(op, e1, e2) =
+
+      | munchBinop(oper, e1, e2) =
           result(fn temp =>
-            A.OPER {assem=opcode(op, false) ^ " `d0, `s0, `s1\n",
+            A.OPER {assem=opcode(oper, false) ^ " `d0, `s0, `s1\n",
                     dst=[temp], src=[munchExp e1, munchExp e2],
                     jump=NONE})
 
-    and 
     (* TODO: this code creates registers for all the arguments to a function
     * call (for liveness analysis) and as a side effect, loads the code
     * according to the calling conventions. At this point, it assumes infinite
     * argument registers and pushes nothing onto the stack *)
-    fun munchArgs(i, fst::rest) = 
+    and munchArgs(i, fst::rest) = 
       result(fn temp =>
         A. OPER {assem="move $a" ^ Int.toString i ^ ", `s0\n",
                  dst=[temp], src=[munchExp fst],
@@ -130,6 +129,7 @@ struct
     in
         munchStm tree;
         rev !instList
+  end
     (*
     * fun normalizeStm(T.MOVE(T.TEMP(t1), T.MEM(T.BINOP(T.PLUS, e, T.CONST(offset))))) = 
           T.MOVE(T.TEMP(t1), T.MEM(T.BINOP(T.PLUS, T.CONST(offset), normalizeExp e)))
