@@ -42,6 +42,8 @@ sig
   val let': Tree.stm list * exp -> exp
   val assign: exp * exp -> exp
   val call: Temp.label * exp list -> exp
+  val record: exp list -> exp
+  val fieldVar: exp * Symbol.symbol * (Symbol.symbol * Types.ty) list -> exp
 
   val simpleVar: level * access -> exp
   val subscriptVar: exp * exp -> exp
@@ -275,5 +277,29 @@ structure Translate : TRANSLATE = struct
       val proc = { body=unNx(body), frame=frame }
     in
       frags := Frame.PROC(proc)::(!frags)
+    end
+
+  fun record(fields) =
+    let val size = T.TEMP(Temp.newtemp())
+        val ret = T.TEMP(Temp.newtemp())
+        val alloc = T.BINOP(T.MUL, T.CONST(Frame.wordSize), size)
+        val offset = ref 0
+        fun init(e) = (offset := !offset + Frame.wordSize;
+                       T.MOVE(T.BINOP(T.PLUS,ret,T.CONST(!offset)), unEx(e)))
+        val init_values = map init fields
+        val setup = [T.MOVE(size, T.CONST(List.length(fields))),
+                     T.MOVE(ret, Frame.externalCall("malloc", [alloc]))]
+    in
+      Ex(T.ESEQ(seq(setup @ init_values), ret))
+    end
+
+  fun fieldVar(v,s,l) =
+    let fun getOffset(_,nil) = raise TypeCheckFailed
+          | getOffset(s1,(s2,t)::rest) =
+            if s1 = s2 then 0
+            else 1 + getOffset(s1,rest)
+        val offset = getOffset(s,l)
+    in
+      Ex(T.MEM(T.BINOP(T.PLUS,unEx(v),T.CONST(offset))))
     end
 end

@@ -192,6 +192,7 @@ fun transExp(tenv, venv, exp, level, join) =
               let
                 val len = List.length(fields)
                 val expected_len = List.length(expected_fields)
+                val translated_fields = map (fn(s,e,p) => #exp (trexp(e))) fields
                 fun unifier((s1, e1, p), (s2, t2)) =
                     if Symbol.name(s1) = Symbol.name(s2) then
                       unify(tenv, #ty(trexp(e1)), t2, pos)
@@ -204,7 +205,7 @@ fun transExp(tenv, venv, exp, level, join) =
                   (* NOTE: Mapping the fields in order is valid because Tiger
                    * records are ordered. *)
                   (ListPair.map unifier (fields, expected_fields));
-                  { exp=Translate.Dx, ty=ty }
+                  { exp=Translate.record(translated_fields), ty=ty }
               end
             | Option.SOME(_) =>
               (* TODO: Must be record type. We need an appropriate error msg. *)
@@ -333,7 +334,7 @@ fun transExp(tenv, venv, exp, level, join) =
             t as Types.RECORD(l, u) =>
             (case (List.find (fn (s2, t) => s1 = s2) l) of
               SOME(s, t) =>
-              { exp=Translate.Dx, ty=t }
+              { exp=Translate.fieldVar(#exp (trvar(v)),s1,l), ty=t }
             | NONE =>
               raise FieldNotFound(t, s1, p))
           | t =>
