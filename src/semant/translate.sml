@@ -300,6 +300,10 @@ structure Translate : TRANSLATE = struct
             else 1 + getOffset(s1,rest)
         val offset = getOffset(s,l)
     in
-      Ex(T.MEM(T.BINOP(T.PLUS,unEx(v),T.CONST(offset))))
+      Ex(T.MEM(T.BINOP(T.PLUS,
+                       unEx(v),
+                       T.BINOP(T.MUL,
+                               T.CONST(Frame.wordSize),
+                               T.CONST(offset)))))
     end
 end
