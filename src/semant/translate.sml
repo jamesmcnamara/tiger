@@ -126,9 +126,11 @@ structure Translate : TRANSLATE = struct
     case p of
         (inner({parent=p1,frame=f1,id=i1}),(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset))) =>
           if i1 = i2 then T.MEM(T.BINOP(T.PLUS,
+                                        (* TODO: Why are we adding the offset? *)
                                         T.CONST(offset),
                                         T.TEMP(Frame.FP)))
                      else T.MEM(T.BINOP(T.PLUS,
+                                        (* TODO: Why are we adding the offset? *)
                                         T.CONST(Frame.offset(f1)),
                                         followStaticLink(p1,(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset)))))
       | (_,(_,Frame.InReg(_))) => raise StaticLinkError
@@ -233,6 +235,7 @@ structure Translate : TRANSLATE = struct
       Ex(T.ESEQ(seq[T.MOVE(size, unEx(s)),
                     T.MOVE(init, unEx(i)),
                     T.MOVE(ret, Frame.externalCall("malloc", [alloc])),
+                    (* TODO: For loops are inclusive. *)
                     unNx(for'((level,access),T.CONST(0), size, body, join))],
                 ret))
     end
@@ -262,10 +265,13 @@ structure Translate : TRANSLATE = struct
 
   fun varInit(l,a,e) = T.MOVE(unEx(simpleVar(l,a)), unEx(e))
 
+  (* TODO: Pass level, use that to make new level as parent, with
+   * new frame. *)
   fun addFunc(name, formals, body) =
     let
       val frame = Frame.newFrame {name=name, formals=formals}
       val accesses = (map (fn a => Frame.allocLocal frame a) formals)
+      (* TODO: Move body into RV temp. *)
       val proc = { body=unNx(body), frame=frame }
     in
       frags := Frame.PROC(proc)::(!frags)

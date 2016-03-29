@@ -395,6 +395,7 @@ fun transExp(tenv, venv, exp, level, join) =
                 fun insert({ name, escape, typ, pos }, venv'') =
                   (case Symbol.look(tenv, typ) of
                     SOME(t) =>
+                    (* TODO: This allocLocal needs to be done with the translation. *)
                     Symbol.enter(venv'', name, Env.VarEntry { ty=t, access=(Translate.allocLocal level (!escape)) })
                   | NONE =>
                     raise TypeDoesNotExist(typ))
