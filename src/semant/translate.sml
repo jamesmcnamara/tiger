@@ -35,14 +35,21 @@ sig
   val ifthenelse: exp * exp * exp -> exp
   val ifthen: exp * exp -> exp
   val while': exp * exp * Temp.label -> exp
-  val for': exp * exp * exp * Temp.label -> exp
+  val for': (level * access) * exp * exp * exp * Temp.label -> exp
   val break': Temp.label option -> exp
   val sequence: exp list -> exp
-  val array: exp * exp -> exp
+  val array: level * exp * exp -> exp
+  val let': Tree.stm list * exp -> exp
+  val assign: exp * exp -> exp
+  val call: Temp.label * exp list -> exp
+  val record: exp list -> exp
+  val fieldVar: exp * Symbol.symbol * (Symbol.symbol * Types.ty) list -> exp
 
   val simpleVar: level * access -> exp
+  val subscriptVar: exp * exp -> exp
 
-  val varInit: level * access * exp -> exp
+  val varInit: level * access * exp -> Tree.stm
+  val addFunc: Temp.label * bool list * exp -> unit
 end
 
 structure Translate : TRANSLATE = struct
@@ -117,6 +124,20 @@ structure Translate : TRANSLATE = struct
     | unCx(Ex(T.CONST 1)) = (fn (t,f) => T.JUMP(T.NAME(f), [t]))
     | unCx(Ex e) = (fn (t,f) => T.CJUMP(T.EQ, e, T.CONST(1), t, f))
 
+  fun followStaticLink p =
+    case p of
+        (inner({parent=p1,frame=f1,id=i1}),(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset))) =>
+          if i1 = i2 then T.MEM(T.BINOP(T.PLUS,
+                                        (* TODO: Why are we adding the offset? *)
+                                        T.CONST(offset),
+                                        T.TEMP(Frame.FP)))
+                     else T.MEM(T.BINOP(T.PLUS,
+                                        (* TODO: Why are we adding the offset? *)
+                                        T.CONST(Frame.offset(f1)),
+                                        followStaticLink(p1,(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset)))))
+      | (_,(_,Frame.InReg(_))) => raise StaticLinkError
+      | _ => raise StaticLinkError
+
   fun arithop(Absyn.PlusOp,left,right) = Ex(T.BINOP(T.PLUS, unEx(left), unEx(right)))
     | arithop(Absyn.MinusOp,left,right) = Ex(T.BINOP(T.MINUS, unEx(left), unEx(right)))
     | arithop(Absyn.TimesOp,left,right) = Ex(T.BINOP(T.MUL, unEx(left), unEx(right)))
@@ -181,12 +202,13 @@ structure Translate : TRANSLATE = struct
                             T.CONST(0))))
     end
 
-  fun for'(lo,hi,body,join) =
-    let val loR = T.TEMP(Temp.newtemp())
+  fun for'(loLoc,lo,hi,body,join) =
+    let val loR = followStaticLink(loLoc)
         val hiR = T.TEMP(Temp.newtemp())
         val start = Temp.newlabel()
     in
-      Nx(Tree.EXP(Tree.ESEQ(seq([T.CJUMP(T.LT, loR, hiR, start, join),
+      Nx(Tree.EXP(Tree.ESEQ(seq([T.MOVE(T.MEM(loR), loR),
+                                 T.CJUMP(T.LT, loR, hiR, start, join),
                                  T.LABEL(start),
                                  unNx(body),
                                  T.MOVE(T.MEM(loR), T.BINOP(T.PLUS, T.MEM(loR), T.CONST(1))),
@@ -203,38 +225,85 @@ structure Translate : TRANSLATE = struct
 
   fun sequence l = Ex(eseq(l))
 
-  fun array(s,i) =
+  fun array(level,s,i) =
     let val join = Temp.newlabel()
         val size = T.TEMP(Temp.newtemp())
         val init = T.TEMP(Temp.newtemp())
         val ret = T.TEMP(Temp.newtemp())
         val alloc = T.BINOP(T.MUL, T.CONST(Frame.wordSize), size)
-        (*val body = Nx(T.MOVE(T.MEM(T.BINOP(T.PLUS,
-                                           ret,
-                                           T.BINOP(T.MUL,
-                                                   ))),
-                             init))*)
+        val access = allocLocal level false
         val body = Nx(T.MOVE(ret, init))
     in
       Ex(T.ESEQ(seq[T.MOVE(size, unEx(s)),
                     T.MOVE(init, unEx(i)),
                     T.MOVE(ret, Frame.externalCall("malloc", [alloc])),
-                    unNx(for'(T.CONST(0), size, body, join))],
+                    (* TODO: For loops are inclusive. *)
+                    unNx(for'((level,access),T.CONST(0), size, body, join))],
                 ret))
     end
 
-  fun followStaticLink p =
-    case p of
-        (inner({parent=p1,frame=f1,id=i1}),(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset))) =>
-          if i1 = i2 then T.MEM(T.BINOP(T.PLUS,
-                                        T.CONST(offset),
-                                        T.TEMP(Frame.FP)))
-                     else T.MEM(T.BINOP(T.PLUS,
-                                        T.CONST(Frame.offset(f1)),
-                                        followStaticLink(p1,(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset)))))
-      | _ => raise StaticLinkError
+  fun let'(inits, body) =
+    Ex(T.ESEQ(seq(inits), unEx(body)))
+
+  fun assign(lhs, rhs) =
+    Nx(T.MOVE(unEx(lhs), unEx(rhs)))
+
+  fun call(fl, args) =
+    let
+      val sl = T.TEMP(Frame.FP)
+      val args' = (map unEx args)
+    in
+      Ex(T.CALL(T.NAME(fl), sl::args'))
+    end
 
   fun simpleVar(f,a) = Ex(followStaticLink(f,a))
 
-  fun varInit(l,a,e) = Nx(T.MOVE(unEx(simpleVar(l,a)), unEx(e)))
+  fun subscriptVar(lhs, rhs) =
+    let
+      val offset = T.BINOP(T.MUL, T.CONST(Frame.wordSize), unEx(rhs))
+    in
+      Ex(T.BINOP(T.PLUS, unEx(lhs), offset))
+    end
+
+  fun varInit(l,a,e) = T.MOVE(unEx(simpleVar(l,a)), unEx(e))
+
+  (* TODO: Pass level, use that to make new level as parent, with
+   * new frame. *)
+  fun addFunc(name, formals, body) =
+    let
+      val frame = Frame.newFrame {name=name, formals=formals}
+      val accesses = (map (fn a => Frame.allocLocal frame a) formals)
+      (* TODO: Move body into RV temp. *)
+      val proc = { body=unNx(body), frame=frame }
+    in
+      frags := Frame.PROC(proc)::(!frags)
+    end
+
+  fun record(fields) =
+    let val size = T.TEMP(Temp.newtemp())
+        val ret = T.TEMP(Temp.newtemp())
+        val alloc = T.BINOP(T.MUL, T.CONST(Frame.wordSize), size)
+        val offset = ref 0
+        fun init(e) = (offset := !offset + Frame.wordSize;
+                       T.MOVE(T.BINOP(T.PLUS,ret,T.CONST(!offset)), unEx(e)))
+        val init_values = map init fields
+        val setup = [T.MOVE(size, T.CONST(List.length(fields))),
+                     T.MOVE(ret, Frame.externalCall("malloc", [alloc]))]
+    in
+      Ex(T.ESEQ(seq(setup @ init_values), ret))
+    end
+
+  fun fieldVar(v,s,l) =
+    let fun getOffset(_,nil) = raise TypeCheckFailed
+          | getOffset(s1,(s2,t)::rest) =
+            if s1 = s2 then 0
+            else 1 + getOffset(s1,rest)
+        val offset = getOffset(s,l)
+    in
+      Ex(T.MEM(T.BINOP(T.PLUS,
+                       unEx(v),
+                       T.BINOP(T.MUL,
+                               T.CONST(Frame.wordSize),
+                               T.CONST(offset)))))
+    end
 end
