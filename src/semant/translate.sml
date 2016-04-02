@@ -10,7 +10,7 @@ sig
 
   exception TypeCheckFailed
   exception InvalidBreak
-  exception StaticLinkError
+  exception UnreachableValue
 
   val outermost : level
   val newLevel : {parent: level, name: Temp.label,
@@ -55,7 +55,7 @@ structure Translate : TRANSLATE = struct
   exception TypeCheckFailed
   exception BadType
   exception InvalidBreak
-  exception StaticLinkError
+  exception UnreachableValue
 
   structure Frame = MipsFrame
   structure T = Tree
@@ -134,7 +134,7 @@ structure Translate : TRANSLATE = struct
                                         (* TODO: Why are we adding the offset? *)
                                         T.CONST(Frame.offset(f1)),
                                         followStaticLink(p1,(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset)))))
-      | _ => raise StaticLinkError
+      | _ => raise UnreachableValue
 
   fun arithop(Absyn.PlusOp,left,right) = Ex(T.BINOP(T.PLUS, unEx(left), unEx(right)))
     | arithop(Absyn.MinusOp,left,right) = Ex(T.BINOP(T.MINUS, unEx(left), unEx(right)))
