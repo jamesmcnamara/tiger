@@ -124,7 +124,8 @@ structure Translate : TRANSLATE = struct
 
   fun followStaticLink p =
     case p of
-        (inner({parent=p1,frame=f1,id=i1}),(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset))) =>
+        (_,(_,Frame.InReg(t))) => T.MEM(T.TEMP(t))
+      | (inner({parent=p1,frame=f1,id=i1}),(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset))) =>
           if i1 = i2 then T.MEM(T.BINOP(T.PLUS,
                                         (* TODO: Why are we adding the offset? *)
                                         T.CONST(offset),
@@ -133,7 +134,6 @@ structure Translate : TRANSLATE = struct
                                         (* TODO: Why are we adding the offset? *)
                                         T.CONST(Frame.offset(f1)),
                                         followStaticLink(p1,(inner({parent=p2,frame=f2,id=i2}),Frame.InFrame(offset)))))
-      | (_,(_,Frame.InReg(_))) => raise StaticLinkError
       | _ => raise StaticLinkError
 
   fun arithop(Absyn.PlusOp,left,right) = Ex(T.BINOP(T.PLUS, unEx(left), unEx(right)))
