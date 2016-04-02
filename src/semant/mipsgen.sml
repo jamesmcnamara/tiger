@@ -12,20 +12,20 @@ struct
 
   (* TODO: this code assumes the MIPS instruction set from the MARS emulator.
   * The ISA for SPIM may or may not be a bit different. SPIM p. 14*)
-  fun opcode (oper, immediate) = 
+  fun opcode (oper: T.binop, immediate) = 
   let 
     val code = 
       case oper of 
-           PLUS => "add"
-         | MINUS => "sub"
-         | MUL => "mul"
-         | DIV => "div"
-         | AND => "and"
-         | OR  => "or"
-         | LSHIFT => "shl"
-         | RSHIFT => "shr"
-         | ARSHIFT => "shra"
-         | XOR => "xor"
+           T.PLUS => "add"
+         | T.MINUS => "sub"
+         | T.MUL => "mul"
+         | T.DIV => "div"
+         | T.AND => "and"
+         | T.OR  => "or"
+         | T.LSHIFT => "shl"
+         | T.RSHIFT => "shr"
+         | T.ARSHIFT => "shra"
+         | T.XOR => "xor"
     fun suffix code = if immediate then code ^ "i" else code
   in 
     code ^ suffix code
@@ -43,7 +43,7 @@ struct
           (munchStm first; munchStm rest)
 
       | munchStm(T.LABEL(lab)) = 
-          emit(A.LABEL{assem=label ^ ":\n", lab=lab})
+          emit(A.LABEL{assem=Symbol.name lab ^ ":\n", lab=lab})
 
       | munchStm(T.MOVE(T.TEMP(t1), T.MEM(T.BINOP(T.PLUS, T.CONST(offset), e)))) = 
           emit(A.OPER {assem="lw `d0, " ^ Int.toString offset ^ "(`s0`)\n",
@@ -52,14 +52,15 @@ struct
       | munchStm(T.MOVE(t as T.TEMP(_), T.MEM(T.BINOP(T.PLUS, e, offset as T.CONST(_))))) = 
           munchStm(T.MOVE(t, T.MEM(T.BINOP(T.PLUS, offset, e)))) 
 
-      | munchStm(T.MOVE(T.MEM(T.BINOP(T.PLUS, T.CONST(offset), e), T.TEMP(t)))) = 
+      | munchStm(T.MOVE(T.MEM(T.BINOP(T.PLUS, T.CONST(offset), e)), T.TEMP(t))) = 
           emit(A.OPER {assem="sw `s0, " ^ Int.toString offset ^ "(`d0`)\n",
                        dst=[munchExp e], src=[t],
                        jump=NONE})
 
       | munchStm(T.MOVE(d as T.TEMP(_), T.MEM(e))) = 
           munchStm(T.MOVE(d, T.MEM(T.BINOP(T.PLUS, T.CONST(0), e))))
-
+      
+      (* Store instruction *)
       | munchStm(T.MOVE(T.MEM(e), d as T.TEMP(_))) = 
           munchStm(T.MOVE(T.MEM(T.BINOP(T.PLUS, T.CONST(0), e)), d))
 
@@ -74,7 +75,7 @@ struct
                        src=munchArgs(0, args), 
                        (* TODO: calldefs- a list of registers trashed by function 
                        * calls (e.g. $ra). Explanation on page 204-205 *)
-                       dst=calldefs, 
+                       dst=[], 
                        jump=SOME([lab])})
 
     and munchExp(T.BINOP(T.PLUS, e, T.CONST(a))) =
@@ -127,7 +128,7 @@ struct
 
     in
         munchStm tree;
-        rev !instList
+        rev (!instList)
   end
     (*
     * fun normalizeStm(T.MOVE(T.TEMP(t1), T.MEM(T.BINOP(T.PLUS, e, T.CONST(offset))))) = 

@@ -23,12 +23,8 @@ sig
   val unCx: exp -> (Temp.label * Temp.label -> Tree.stm)
   (*
   val procEntryExit : {level: level, body: exp} -> unit
-  val getResult : unit -> Frame.frag list
-
-
-
-  val simpleVar: access * level -> exp
   *) (* TODO: Implement these... *)
+  val getResult : unit -> Frame.frag list
   val arithop: Absyn.oper * exp * exp -> exp
   val stringop: Absyn.oper * exp * exp -> exp
   val string: string -> exp
@@ -70,6 +66,8 @@ structure Translate : TRANSLATE = struct
                | Dx
 
   val frags = ref [] : Frame.frag list ref
+
+  fun getResult () = !frags
 
   fun newLevel {parent, name, formals} =
   let
