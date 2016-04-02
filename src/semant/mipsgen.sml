@@ -99,7 +99,7 @@ struct
       (* ESEQS will be removed by canonicalization *)
       | munchExp(T.CONST(e)) = 
           result(fn temp =>
-            A.OPER {assem="addi `d0, "^ Int.toString e ^", 0\n", 
+            A.OPER {assem="li `d0, "^ Int.toString e ^"\n", 
                     dst=[temp], src=[],
                     jump=NONE})
 
