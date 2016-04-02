@@ -14,9 +14,10 @@ signature SEMANT = sig
     type venv
     type expty
 
-    val transProg : Absyn.exp -> expty
+    val transProg : Absyn.exp -> MipsFrame.frag list
     val transExp : tenv * venv * Absyn.exp * Translate.level * Temp.label option -> expty
-
+    val irGen : Absyn.exp -> Frame.frag list
+ 
     val createSymbols : Absyn.field list * tenv -> (Symbol.symbol * Types.ty) list
 end
 
@@ -81,6 +82,7 @@ fun unify(tenv, ty1, ty2, pos) =
     in
         unify_actual(tenv, ty1, ty2, pos)
     end
+
 
 fun transExp(tenv, venv, exp, level, join) =
   let fun
@@ -475,9 +477,13 @@ fun transExp(tenv, venv, exp, level, join) =
   end
 
 fun transProg ast =
-  let val newLevel = Translate.newLevel({parent=Translate.outermost, name=Temp.newlabel(), formals=[]})
+  let
+    val frame = MipsFrame.newFrame {formals=[], name=Temp.namedlabel "main"}
+    val newLevel = Translate.newLevel({parent=Translate.outermost, name=Temp.newlabel(), formals=[]})
+    val main =T.EXP(#exp(transExp(Env.base_tenv, Env.base_venv, ast, newLevel,
+    NONE)))
   in
-    transExp(Env.base_tenv, Env.base_venv, ast, newLevel, NONE)
+    MipsFrame.PROC{body=main, frame=frame} :: (Translate.getResult())
   end
 
 end
