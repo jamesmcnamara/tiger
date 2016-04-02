@@ -3,17 +3,17 @@ sig
   type label = Temp.label
   type size
 
-datatype stm = SEQ of stm * stm
-             | LABEL of label
+datatype stm = SEQ of stm * stm (* good *)
+             | LABEL of label (* good *)
              | JUMP of exp * label list
              | CJUMP of relop * exp * exp * label * label
-             | MOVE of exp * exp
-             | EXP of exp
+             | MOVE of exp * exp (* good *)
+             | EXP of exp(* good *)
 
-     and exp = BINOP of binop * exp * exp
-             | MEM of exp
-             | TEMP of Temp.temp
-             | ESEQ of stm * exp
+     and exp = BINOP of binop * exp * exp(* good *)
+             | MEM of exp(* good *)
+             | TEMP of Temp.temp(* good *)
+             | ESEQ of stm * exp(* na*)
              | NAME of label
              | CONST of int
              | CALL of exp * exp list
