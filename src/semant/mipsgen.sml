@@ -28,7 +28,7 @@ struct
          | T.XOR => "xor"
     fun suffix code = if immediate then code ^ "i" else code
   in 
-    code ^ suffix code
+    suffix code
   end 
 
   fun codegen frame tree = 
@@ -78,10 +78,13 @@ struct
                        dst=[], 
                        jump=SOME([lab])})
 
-    and munchExp(T.BINOP(T.PLUS, e, T.CONST(a))) =
-          munchExp(T.BINOP(T.PLUS, T.CONST(a), e))
+      | munchStm(T.EXP(e)) = 
+          emit(A.OPER {assem="li `d0, `s0\n",
+                       src=[munchExp e],
+                       dst=[Temp.newtemp()],
+                       jump=NONE})
 
-      | munchExp(T.BINOP(oper, e1, e2)) = 
+    and munchExp(T.BINOP(oper, e1, e2)) = 
           munchBinop(oper, e1, e2)
 
       | munchExp(T.MEM(e)) = 

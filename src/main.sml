@@ -1,8 +1,7 @@
 signature MAIN =
 sig
     (* TODO: Should we return a unit type for now? *)
-    (* val compile : string -> Assem.instr list list *)
-    val compile : string -> MipsFrame.frag list
+    val compile : string -> Assem.instr list list
 end
 
 structure Main : MAIN =
@@ -18,6 +17,6 @@ fun compile filename =
     val ir = Semant.transProg(exp)
     val asm = List.map toAsm ir
   in
-    ir
+    asm
   end
 end
