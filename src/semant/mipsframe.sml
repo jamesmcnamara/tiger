@@ -36,7 +36,8 @@ struct
 
 
   (* For testing *)
-  val registersAsTemps = []
+  (* TODO: This will need to be expanded for RA... *)
+  val registersAsTemps = [FP]
 end
 
 structure Frame : FRAME = MipsFrame
