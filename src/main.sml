@@ -17,6 +17,17 @@ fun compile filename =
     val asm = List.map toAsm ir
     val out = foldl (fn (a, s) => (foldl (fn (i, s) => Assem.format Temp.makestring i) s a)) "" asm
   in
+    (* Print the IR fragments. *)
+    (map (fn f =>
+      (case f of
+        MipsFrame.PROC {body, frame} =>
+          Printtree.printtree (TextIO.stdOut, body)
+      | MipsFrame.STRING (l, s) => print(s)))
+      ir);
+
+    print "\n";
+
+    (* Print the Assem. *)
     print out
   end
 end
