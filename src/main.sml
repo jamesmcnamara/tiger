@@ -1,7 +1,8 @@
 signature MAIN =
 sig
     (* TODO: Should we return a unit type for now? *)
-    val compile : string -> Assem.instr list list
+    (* val compile : string -> Assem.instr list list *)
+    val compile : string -> Assem.instr list list 
 end
 
 structure Main : MAIN =
