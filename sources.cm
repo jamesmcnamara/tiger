@@ -8,6 +8,8 @@ src/main.sml
 src/errormsg.sml
 src/test.sml
 
+src/assemstore.sml
+
 src/syntax/tiger.lex
 src/syntax/src_comment.sml
 src/syntax/src_string.sml

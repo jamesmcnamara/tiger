@@ -11,9 +11,13 @@ sig
   val externalCall: string * Tree.exp list -> Tree.exp
   val FP: Temp.temp
   val wordSize: int
-  (*val exp: access -> Tree.exp -> Tree.exp
-  *)
-  (* TODO: These are needed *)
+
+  (* For tests *)
+  val registersAsTemps: int list
+
+  (*val exp: access -> Tree.exp -> Tree.exp*)
+
   datatype frag = PROC of {body: Tree.stm, frame: frame}
                 | STRING of Temp.label * string
+
 end
