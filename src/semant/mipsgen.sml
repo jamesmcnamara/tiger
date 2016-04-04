@@ -12,7 +12,7 @@ struct
 
   (* TODO: this code assumes the MIPS instruction set from the MARS emulator.
   * The ISA for SPIM may or may not be a bit different. SPIM p. 14*)
-  fun opcode (oper: T.binop, immediate) = 
+  fun binopcode (oper: T.binop, immediate) = 
   let 
     val code = 
       case oper of 
@@ -26,10 +26,22 @@ struct
          | T.RSHIFT => "shr"
          | T.ARSHIFT => "shra"
          | T.XOR => "xor"
-    fun suffix code = if immediate then code ^ "i" else code
+    val suffix = if immediate then "i" else ""
   in 
-    suffix code
+    code ^ suffix
   end 
+
+  fun relopcode T.EQ = "beq"
+    | relopcode T.NE = "bne"
+    | relopcode T.LT = "blt"
+    | relopcode T.GT = "bgt"
+    | relopcode T.LE = "ble"
+    | relopcode T.GE = "bge"
+    | relopcode T.ULT = "bltu"
+    | relopcode T.ULE = "bleu"
+    | relopcode T.UGT = "bgtu"
+    | relopcode T.UGE = "bgeu"
+
 
   fun codegen frame tree = 
   let 
@@ -45,6 +57,7 @@ struct
       | munchStm(T.LABEL(lab)) = 
           emit(A.LABEL{assem=Symbol.name lab ^ ":\n", lab=lab})
 
+      (* Load instruction *)
       | munchStm(T.MOVE(T.TEMP(t1), T.MEM(T.BINOP(T.PLUS, T.CONST(offset), e)))) = 
           emit(A.OPER {assem="lw `d0, " ^ Int.toString offset ^ "(`s0`)\n",
                        dst=[t1], src=[munchExp e], jump=NONE})
@@ -64,8 +77,28 @@ struct
       | munchStm(T.MOVE(T.MEM(e), d as T.TEMP(_))) = 
           munchStm(T.MOVE(T.MEM(T.BINOP(T.PLUS, T.CONST(0), e)), d))
 
+      (* Register-register move *)
       | munchStm(T.MOVE(e1, e2)) = 
           emit(A.MOVE{assem="move `d0, `s0\n", dst=munchExp e1, src=munchExp e2})
+
+      (* Jumps *)
+      | munchStm(T.JUMP(T.NAME(l), labs)) = 
+          emit(A.OPER {assem="j `j0 \n", 
+                       dst=[], src=[],
+                       jump=SOME(l::labs)})
+
+      | munchStm(T.JUMP(e, labs)) = 
+          emit(A.OPER {assem="jr `s0 \n", 
+                       dst=[], src=[munchExp e],
+                       jump=SOME(labs)})
+
+      | munchStm(T.CJUMP(relop, a, b, t, f)) = 
+          (emit(A.OPER {assem=relopcode relop ^ "`s0, `s1, `j0\n",
+                        dst=[], src=[munchExp a, munchExp b],
+                        jump=SOME([t])});
+           emit(A.OPER {assem="j `j0\n",
+                        dst=[], src=[],
+                        jump=SOME([f])}))
 
       (* Not sure about matching the name in the pattern. In the book, they
       * store the result in a temp and load it out of that, but I'm not sure
@@ -93,6 +126,9 @@ struct
                     dst=[temp], src=[munchExp e],
                     jump=NONE})
 
+      | munchExp(T.ESEQ(stm, exp)) = 
+          (munchStm stm; munchExp exp)
+
       | munchExp(T.TEMP(t)) = t
 
       | munchExp(T.NAME(lab)) = 
@@ -108,13 +144,13 @@ struct
 
     and munchBinop(oper, e, T.CONST(c)) =
           result(fn temp => 
-            A.OPER {assem=opcode(oper, true) ^ " `d0, `s0, " ^ Int.toString c ^ "\n",
+            A.OPER {assem=binopcode(oper, true) ^ " `d0, `s0, " ^ Int.toString c ^ "\n",
                     dst=[temp], src=[munchExp e],
                     jump=NONE})
 
       | munchBinop(oper, e1, e2) =
           result(fn temp =>
-            A.OPER {assem=opcode(oper, false) ^ " `d0, `s0, `s1\n",
+            A.OPER {assem=binopcode(oper, false) ^ " `d0, `s0, `s1\n",
                     dst=[temp], src=[munchExp e1, munchExp e2],
                     jump=NONE})
 
