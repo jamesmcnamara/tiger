@@ -51,30 +51,33 @@ struct
         val useTable = Graph.Table.empty
         val isMoveTable = Graph.Table.empty
 
-        fun updateCFG(instr,node) =
+        fun updateCFG((instr,node),(def,use,isMove)) =
           case instr of
               A.LABEL{assem,lab} =>
-                (Graph.Table.enter(defTable,node,[]);
-                 Graph.Table.enter(useTable,node,[]);
-                 Graph.Table.enter(isMoveTable,node,false);
-                 ())
+                (Graph.Table.enter(def,node,[]),
+                 Graph.Table.enter(use,node,[]),
+                 Graph.Table.enter(isMove,node,false))
             | A.OPER{assem,dst,src,jump} =>
-              (Graph.Table.enter(defTable,node,dst);
-               Graph.Table.enter(useTable,node,src);
-               Graph.Table.enter(isMoveTable,node,false);
-               ())
+              (print(Int.toString(List.length(dst)) ^ "\n") ;
+              (Graph.Table.enter(def,node,dst),
+               Graph.Table.enter(use,node,src),
+               Graph.Table.enter(isMove,node,false)))
             | A.MOVE{assem,dst,src} =>
-              (Graph.Table.enter(defTable,node,[dst]);
-               Graph.Table.enter(useTable,node,[src]);
-               Graph.Table.enter(isMoveTable,node,true);
-               ())
+            (print(Int.toString(List.length([dst])) ^ "\n") ;
+              (Graph.Table.enter(def,node,[dst]),
+               Graph.Table.enter(use,node,[src]),
+               Graph.Table.enter(isMove,node,true)))
 
         val instrsNodes = ListPair.map (fn (instr,node) => (instr,node)) (instrs, nodes)
+        val (def,use,isMove) = (setEdges(instrs,nodes);
+                                foldl (fn pair => updateCFG pair) (defTable,useTable,isMoveTable) instrsNodes)
 
     in
-      (setEdges(instrs,nodes);
-       app (fn pair => updateCFG pair) instrsNodes;
-       (Flow.FGRAPH{control=graph,def=defTable,use=useTable,ismove=isMoveTable},nodes))
+
+       print "CFG!!!!\n";
+
+       print(Int.toString(List.length(instrsNodes)));
+       (Flow.FGRAPH{control=graph,def=def,use=use,ismove=isMove},nodes)
     end
 end
 
