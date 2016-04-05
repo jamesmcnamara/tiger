@@ -1,4 +1,4 @@
-signature TEMP = 
+signature TEMP =
 sig
   eqtype temp
   val newtemp : unit -> temp
@@ -7,5 +7,5 @@ sig
   type label = Symbol.symbol
   val newlabel : unit -> label
   val namedlabel : string -> label
+  val tempint : temp -> int
 end
-

@@ -36,6 +36,9 @@ struct
 
   fun externalCall(s,args) = Tree.CALL(Tree.NAME(Temp.namedlabel(s)), args)
 
+
+  (* For testing *)
+  val registersAsTemps = []
 end
 
 structure Frame : FRAME = MipsFrame
