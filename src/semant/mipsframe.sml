@@ -9,6 +9,8 @@ struct
 
   val wordSize = 4
   val FP = Temp.newtemp()
+  val RA = Temp.newtemp()
+  val RV = Temp.newtemp()
 
   fun getAccess(formal, (formals,offset)) =
     if formal then (InFrame(offset)::formals,offset-wordSize)

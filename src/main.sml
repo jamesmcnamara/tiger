@@ -14,8 +14,9 @@ fun compile filename =
     val exp = Parse.parse(filename)
     val _ =  FindEscape.findEscape(exp)
     val ir = Semant.transProg(exp)
+    (* TODO: Canon here? *)
     val asm = List.map toAsm ir
-    val out = foldl (fn (a, s) => (foldl (fn (i, s) => Assem.format Temp.makestring i) s a)) "" asm
+    val out = foldr (fn (a, s) => (foldr (fn (i, s) => Assem.format Temp.makestring i ^ s) s a)) "" asm
   in
     (* Print the IR fragments. *)
     (map (fn f =>

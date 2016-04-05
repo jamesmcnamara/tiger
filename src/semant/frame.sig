@@ -10,6 +10,8 @@ sig
 
   val externalCall: string * Tree.exp list -> Tree.exp
   val FP: Temp.temp
+  val RA: Temp.temp
+  val RV: Temp.temp
   val wordSize: int
   (*val exp: access -> Tree.exp -> Tree.exp
   *)
