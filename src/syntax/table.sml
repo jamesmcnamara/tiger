@@ -6,6 +6,7 @@ sig
     val enter : 'a table * key * 'a -> 'a table
     val look  : 'a table * key -> 'a option
     val size  : 'a table -> int
+    val entries : 'a table -> (IntBinaryMap.Key.ord_key * 'a) list
 end
 
 functor IntMapTable (type key
@@ -24,5 +25,8 @@ fun look(t,k) =
 
 fun size(t) =
   IntBinaryMap.numItems t
+
+fun entries(t) =
+  IntBinaryMap.listItemsi t
 
 end

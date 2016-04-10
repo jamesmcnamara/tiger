@@ -58,25 +58,19 @@ struct
                  Graph.Table.enter(use,node,[]),
                  Graph.Table.enter(isMove,node,false))
             | A.OPER{assem,dst,src,jump} =>
-              (print(Int.toString(List.length(dst)) ^ "\n") ;
               (Graph.Table.enter(def,node,dst),
                Graph.Table.enter(use,node,src),
-               Graph.Table.enter(isMove,node,false)))
+               Graph.Table.enter(isMove,node,false))
             | A.MOVE{assem,dst,src} =>
-            (print(Int.toString(List.length([dst])) ^ "\n") ;
               (Graph.Table.enter(def,node,[dst]),
                Graph.Table.enter(use,node,[src]),
-               Graph.Table.enter(isMove,node,true)))
+               Graph.Table.enter(isMove,node,true))
 
         val instrsNodes = ListPair.map (fn (instr,node) => (instr,node)) (instrs, nodes)
         val (def,use,isMove) = (setEdges(instrs,nodes);
                                 foldl (fn pair => updateCFG pair) (defTable,useTable,isMoveTable) instrsNodes)
 
     in
-
-       print "CFG!!!!\n";
-
-       print(Int.toString(List.length(instrsNodes)));
        (Flow.FGRAPH{control=graph,def=def,use=use,ismove=isMove},nodes)
     end
 end

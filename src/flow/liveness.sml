@@ -66,21 +66,34 @@ struct
              Flow.Graph.Table.enter(liveInMap,node,outSet))
           end
 
+        fun sameGraph(liveIn, liveOut) =
+          let val entriesIn = Flow.Graph.Table.entries(liveIn)
+              val entriesOut = Flow.Graph.Table.entries(liveOut)
+              fun comp([],[]) = true
+                | comp((inKey,inValue)::restIn,(outKey,outValue)::restOut) =
+                  (case Set.compare(inValue,outValue) of
+                      EQUAL => comp(restIn,restOut)
+                    | _ => false)
+                | comp _ = false
+          in
+            comp(entriesIn,entriesOut)
+          end
+
         fun computeLiveness(liveIn,liveOut) =
           let val (liveIn',liveOut') = foldl (fn (node,liveness) => setLiveness(node,liveness))
                                              (liveIn,liveOut)
                                              (Graph.nodes(control))
+               val (liveIn'',liveOut'') = foldl (fn (node,liveness) => setLiveness(node,liveness))
+                                                  (liveIn,liveOut)
+                                                  (Graph.nodes(control))
           in
-            (liveIn',liveOut')
-            (*if liveIn = liveIn' andalso liveOut = liveOut'
+            if sameGraph(liveIn, liveIn') andalso sameGraph(liveOut, liveOut')
             then (liveIn,liveOut)
-            else computeLiveness(liveIn',liveOut')*)
-            (* TODO: we need to check equality of the new liveIn/liveOut with the old ones *)
+            else computeLiveness(liveIn',liveOut')
           end
-
     in
 
-      (liveInMap,liveOutMap)
+      computeLiveness(liveInMap,liveOutMap)
     end
 
 end
