@@ -4,7 +4,7 @@ sig
     (* val compile : string -> Assem.instr list list *)
     val compile : string -> (Flow.flowgraph * Flow.Graph.node list) list
 
-    val generateCFG : (Symbol.symbol * int * Assem.instr list) list -> (Liveness.liveMap * Liveness.liveMap) list 
+    val generateCFG : (Symbol.symbol * int * Assem.instr list) list -> (Liveness.igraph * (Flow.Graph.node -> Temp.temp list)) list
 end
 
 structure Main : MAIN =
