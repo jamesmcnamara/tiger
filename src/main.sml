@@ -1,22 +1,32 @@
 signature MAIN =
 sig
     val compile : string -> unit
+
+    val generateCFG : (Symbol.symbol * int * Assem.instr list) list -> (Liveness.igraph * (Flow.Graph.node -> Temp.temp list)) list
 end
 
 structure Main : MAIN =
 struct
+exception NotImplemented
+
+
+fun generateCFG([]) = []
+  | generateCFG((s,i,a)::rest) = (Liveness.interferenceGraph(MakeGraph.instrs2graph(a)))::generateCFG(rest)
+
 fun compile filename =
   let
     fun toAsm(Frame.PROC {body, frame}) =
-        CodeGen.codegen frame body
-      | toAsm(Frame.STRING (_, _)) = []
+        let val assem = CodeGen.codegen frame body
+        in
+          Liveness.interferenceGraph(MakeGraph.instrs2graph(assem))
+        end
+      | toAsm(Frame.STRING (_, _)) = raise NotImplemented
 
     val exp = Parse.parse(filename)
     val _ =  FindEscape.findEscape(exp)
     val ir = Semant.transProg(exp)
-    (* TODO: Canon here? *)
-    val asm = List.map toAsm ir
-    val out = foldr (fn (a, s) => (foldr (fn (i, s) => Assem.format Temp.makestring i ^ s) s a)) "" asm
+    val asm = (List.map (#1 o toAsm) ir)
+    (*val out = foldr (fn (a, s) => (foldr (fn (i, s) => Assem.format Temp.makestring i ^ s) s a)) "" asm*)
   in
     (* Print the IR fragments. *)
     (map (fn f =>
@@ -29,6 +39,7 @@ fun compile filename =
     print "\n";
 
     (* Print the Assem. *)
-    print out
+    (*print out*)
+    ()
   end
 end

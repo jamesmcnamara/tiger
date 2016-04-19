@@ -1,6 +1,7 @@
 signature FRAME =
 sig
   type frame
+  type register 
   datatype access = InFrame of int | InReg of Temp.temp
   val newFrame: {name: Temp.label, formals: bool list} -> frame
   val formals: frame -> access list
@@ -22,4 +23,5 @@ sig
   datatype frag = PROC of {body: Tree.stm, frame: frame}
                 | STRING of Temp.label * string
 
+  val tempMap : register Temp.Table.table
 end

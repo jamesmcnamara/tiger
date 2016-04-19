@@ -37,3 +37,9 @@ src/semant/tree.sml
 src/semant/printtree.sml
 src/semant/assem.sml
 src/semant/mipsgen.sml
+
+src/flow/flowgraph.sml
+src/flow/graph.sig
+src/flow/graph.sml
+src/flow/makegraph.sml
+src/flow/liveness.sml
