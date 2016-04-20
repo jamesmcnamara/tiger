@@ -9,6 +9,7 @@ struct
                 | STRING of Temp.label * string
 
   val wordSize = 4
+  val sizeOfK = 10 (* THIS NEEDS TO BE UPDATED! Im not sure what the actual value is *)
   val FP = Temp.newtemp()
   val RV = Temp.newtemp()
   val RA = Temp.newtemp()
@@ -33,7 +34,7 @@ struct
       fold(Temp.Table.empty, specials, specialregs)
     end
 
-  val tempMap = precolor() 
+  val tempMap = precolor()
 
   fun getAccess(formal, (formals,offset)) =
     if formal then (InFrame(offset)::formals,offset-wordSize)

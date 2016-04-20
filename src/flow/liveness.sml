@@ -13,7 +13,7 @@ sig
 
   val interferenceGraph: Flow.flowgraph * Flow.Graph.node list -> igraph * (Flow.Graph.node -> Temp.temp list)
   exception NodeDoesNotExist
-  (*val show: TextIO.outstream * igraph -> unit*)
+  val show: igraph -> unit
 
 end
 
@@ -128,7 +128,7 @@ struct
           | addEdges(_,[]) = ()
 
         fun buildInterferenceGraph(liveIn,liveOut) =
-          let val defs = map (fn (node) => (node,(Graph.Table.look(def,node)))) (Graph.nodes(control))
+          let val defs = map (fn (node) => (node,(Graph.Table.look(def,node)))) (Graph.nodes(igraph))
           in
             app (fn (n,d) =>
                     (case d of
@@ -155,4 +155,16 @@ struct
                             efficient as it can be*)
     end
 
+  fun show(IGRAPH{graph=igraph,
+          tnode=tnode,
+          gtemp=gtemp,
+          moves=moves}) =
+    let val nodes = Graph.nodes(igraph)
+        fun printNodes [] = print "COMPLETED\n\n"
+          | printNodes(node::nodes) =
+            (print("-> " ^ Graph.nodename(node) ^ "=" ^ Int.toString(List.length(Graph.adj(node))) ^ "\n"); printNodes(nodes))
+    in
+      print "showing nodes\n\n";
+      printNodes nodes
+    end
 end

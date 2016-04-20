@@ -1,7 +1,7 @@
 signature FRAME =
 sig
   type frame
-  type register 
+  type register
   datatype access = InFrame of int | InReg of Temp.temp
   val newFrame: {name: Temp.label, formals: bool list} -> frame
   val formals: frame -> access list
@@ -14,6 +14,7 @@ sig
   val RA: Temp.temp
   val RV: Temp.temp
   val wordSize: int
+  val sizeOfK: int
 
   (* For tests *)
   val registersAsTemps: int list

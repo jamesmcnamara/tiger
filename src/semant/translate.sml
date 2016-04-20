@@ -6,7 +6,6 @@ sig
   datatype exp = Ex of Tree.exp
                | Nx of Tree.stm
                | Cx of Temp.label * Temp.label -> Tree.stm
-               | Dx
 
   exception TypeCheckFailed
   exception InvalidBreak
@@ -63,7 +62,6 @@ structure Translate : TRANSLATE = struct
   datatype exp = Ex of Tree.exp
                | Nx of Tree.stm
                | Cx of Temp.label * Temp.label -> Tree.stm
-               | Dx
 
   val frags = ref [] : Frame.frag list ref
 
