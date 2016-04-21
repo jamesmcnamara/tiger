@@ -19,20 +19,34 @@ fun generateCFG([]) = []
 
 fun compile filename =
   let
+    (* TODO: This function should just return a list of strings to print.
+     * Once we have an allocator that works we will format the registers
+     * with the allocation. *)
     fun toAsm(Frame.PROC {body, frame}) =
-        let val assem = CodeGen.codegen frame body
+        let
+          (* Canon *)
+          val stms = Canon.linearize body
+          val stms' = Canon.traceSchedule(Canon.basicBlocks stms)
+          val assem = List.concat(map (CodeGen.codegen frame) stms')
+
+          (* TODO: Use the `assem'` when we have `procEntryExit3` *)
+          (*val { prolog, epilog, body=assem'} = Frame.procEntryExit3(frame, assem)*)
+          (*val (assem'', alloc) = RegAlloc.alloc(assem', frame)*)
+          val (assem'', alloc) = RegAlloc.alloc(assem, frame)
         in
-          RegAlloc.alloc(assem,frame)
+          (assem'', alloc)
         end
-      | toAsm(Frame.STRING (label, value)) = ([], Temp.Table.empty) (* temporary hack *)
+      | toAsm(Frame.STRING (label, value)) =
+        (* TODO: temporary hack *)
+        ([], Temp.Table.empty)
 
     val exp = Parse.parse(filename)
     val _ =  FindEscape.findEscape(exp)
     val ir = Semant.transProg(exp)
     val asm = (List.map (#1 o toAsm) ir)
-    (*val out = foldr (fn (a, s) => (foldr (fn (i, s) => Assem.format Temp.makestring i ^ s) s a)) "" asm*)
   in
     (* Print the IR fragments. *)
+    print "\nIR\n-----\n";
     (map (fn f =>
       (case f of
         MipsFrame.PROC {body, frame} =>
@@ -40,10 +54,9 @@ fun compile filename =
       | MipsFrame.STRING (l, s) => print(s ^ "\n")))
       ir);
 
-    print "\n";
-
     (* Print the Assem. *)
-    (*print out*)
-    ()
+    print "\nASM\n-----\n";
+    print (foldr (fn (a, s) =>
+      (foldr (fn (i, s) => Assem.format Temp.makestring i ^ s) s a)) "" asm)
   end
 end
