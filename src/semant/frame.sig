@@ -15,6 +15,7 @@ sig
   val RV: Temp.temp
   val wordSize: int
   val sizeOfK: int
+  val registers: register list
 
   (* For tests *)
   val registersAsTemps: int list

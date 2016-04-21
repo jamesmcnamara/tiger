@@ -22,6 +22,8 @@ struct
   val callersaves = ["$t0", "$t1", "$t2", "$t3", "$t4", "$t5", "$t6", "$t7",
   "$t8", "$t9"]
 
+  val registers = specialregs @ argregs @ calleesaves @ callersaves
+
   fun precolor() : register Temp.Table.table  =
     let
       val specials = [RV, RA, SP, ZERO, FP]
