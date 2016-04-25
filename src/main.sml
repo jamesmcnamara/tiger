@@ -1,21 +1,11 @@
 signature MAIN =
 sig
     val compile : string -> unit
-
-    val generateCFG : (Symbol.symbol * int * Assem.instr list) list -> (Liveness.igraph * (Flow.Graph.node -> Temp.temp list)) list
-
-    val printI : (Liveness.igraph * (Flow.Graph.node -> Temp.temp list)) list -> unit
 end
 
 structure Main : MAIN =
 struct
 exception NotImplemented
-
-fun printI [] = ()
-  | printI((graph,_)::rest) = Liveness.show(graph)
-
-fun generateCFG([]) = []
-  | generateCFG((s,i,a)::rest) = (Liveness.interferenceGraph(MakeGraph.instrs2graph(a)))::generateCFG(rest)
 
 fun compile filename =
   let
@@ -48,6 +38,7 @@ fun compile filename =
     val ir = Semant.transProg(exp)
     val asm = (List.map (#3 o toAsm) ir)
   in
+    (*
     (* Print the IR fragments. *)
     print "\nIR\n-----\n";
     (map (fn f =>
@@ -56,13 +47,13 @@ fun compile filename =
           Printtree.printtree (TextIO.stdOut, body)
       | MipsFrame.STRING (l, s) => print(s ^ "\n")))
       ir);
-
+      *)
     (* Print the Assem. *)
     (*print "\nASM\n-----\n";
     print (foldr (fn (a, s) =>
       (foldr (fn (i, s) => Assem.format Temp.makestring i ^ s) s a)) "" asm);*)
 
-    print "\nFinal\n-----\n";
+    print "Final\n-----\n";
     print (foldr (fn(a,b) => a ^ b) "" asm)
   end
 end

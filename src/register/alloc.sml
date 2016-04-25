@@ -14,7 +14,7 @@ struct
   fun alloc (instrs, frame) =
     let val cfg = MakeGraph.instrs2graph(instrs)
         val (interference as Liveness.IGRAPH{graph=g, tnode=t, gtemp=gt, moves=ms}, liveOut) = Liveness.interferenceGraph(cfg)
-        val _ = Liveness.show(interference)
+        (*val _ = Liveness.show(interference)*)
         (* TODO: What to do with the spills? *)
         val (alloc', spills) =
           Color.color { interference = (Liveness.IGRAPH{graph=g, tnode=t, gtemp=gt, moves=ms}),

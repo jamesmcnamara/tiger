@@ -29,9 +29,8 @@ struct
           let fun findNodeToRemoveAcc([],empty) =
                   if empty then NONE else raise CannotAllocateError
                 | findNodeToRemoveAcc(n::rest,_) =
-                  (print(Int.toString(List.length(Graph.adj n)) ^ "\n\n");
                   (if List.length(Graph.adj n) < Frame.sizeOfK
-                  then SOME(n) else findNodeToRemoveAcc(rest,false)))
+                   then SOME(n) else findNodeToRemoveAcc(rest,false))
           in
             findNodeToRemoveAcc(nodes,true)
           end
