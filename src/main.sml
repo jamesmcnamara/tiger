@@ -33,17 +33,20 @@ fun compile filename =
           (*val { prolog, epilog, body=assem'} = Frame.procEntryExit3(frame, assem)*)
           (*val (assem'', alloc) = RegAlloc.alloc(assem', frame)*)
           val (assem'', alloc) = RegAlloc.alloc(assem, frame)
+          val replace = (fn(temp) => valOf(Temp.Table.look(alloc,temp)))
+          val replaceAll = map (fn(instr) => Assem.format replace instr) assem''
+          val replaced = foldr (fn(a,b) => a ^ b) "" replaceAll
         in
-          (assem'', alloc)
+          (assem'', alloc, replaced)
         end
       | toAsm(Frame.STRING (label, value)) =
         (* TODO: temporary hack *)
-        ([], Temp.Table.empty)
+        ([], Temp.Table.empty, "")
 
     val exp = Parse.parse(filename)
     val _ =  FindEscape.findEscape(exp)
     val ir = Semant.transProg(exp)
-    val asm = (List.map (#1 o toAsm) ir)
+    val asm = (List.map (#3 o toAsm) ir)
   in
     (* Print the IR fragments. *)
     print "\nIR\n-----\n";
@@ -55,8 +58,11 @@ fun compile filename =
       ir);
 
     (* Print the Assem. *)
-    print "\nASM\n-----\n";
+    (*print "\nASM\n-----\n";
     print (foldr (fn (a, s) =>
-      (foldr (fn (i, s) => Assem.format Temp.makestring i ^ s) s a)) "" asm)
+      (foldr (fn (i, s) => Assem.format Temp.makestring i ^ s) s a)) "" asm);*)
+
+    print "\nFinal\n-----\n";
+    print (foldr (fn(a,b) => a ^ b) "" asm)
   end
 end

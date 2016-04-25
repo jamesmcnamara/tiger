@@ -23,6 +23,7 @@ struct
   "$t8", "$t9"]
 
   val registers = specialregs @ argregs @ calleesaves @ callersaves
+  val availableRegisters = callersaves
 
   fun precolor() : register Temp.Table.table  =
     let

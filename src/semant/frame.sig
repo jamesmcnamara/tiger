@@ -16,6 +16,7 @@ sig
   val wordSize: int
   val sizeOfK: int
   val registers: register list
+  val availableRegisters: register list
 
   (* For tests *)
   val registersAsTemps: int list
