@@ -92,7 +92,7 @@ struct
                        jump=SOME(labs)})
 
       | munchStm(T.CJUMP(relop, a, b, t, f)) =
-          (emit(A.OPER {assem=relopcode relop ^ "`s0, `s1, `j0\n",
+          (emit(A.OPER {assem=relopcode relop ^ " `s0, `s1, `j0\n",
                         dst=[], src=[munchExp a, munchExp b],
                         jump=SOME([t])});
            emit(A.OPER {assem="j `j0\n",
