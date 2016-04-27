@@ -86,11 +86,15 @@ struct
           case Stack.pop(stack) of
               NONE => alloc
             | SOME(n) =>
-              let val register = lowestAvailableRegister(n,alloc,gt)
-                  val updatedAllocation = Temp.Table.enter(alloc,gt(n),register)
-              in
-                apply(stack,updatedAllocation,gt)
-              end
+              case Temp.Table.look(alloc,gt(n)) of
+                  SOME(_) => apply(stack,alloc,gt)
+                | NONE =>
+                  let val register = lowestAvailableRegister(n,alloc,gt)
+                      val updatedAllocation = Temp.Table.enter(alloc,gt(n),register)
+
+                  in
+                    apply(stack,updatedAllocation,gt)
+                  end
 
   in
     case interference of
