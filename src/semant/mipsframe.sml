@@ -112,6 +112,13 @@ struct
       seq([moveArgsStm, seq(savedRegsStm), body, seq(restoreRegsStm)])
     end
 
+  fun procEntryExit2(frame,body) =
+    body @
+    [Assem.OPER{assem="",
+            src=[ZERO,RA,SP]@calleesavestemps,
+            dst=[],
+            jump=SOME[]}]
+
   fun procEntryExit3(frame, instrs) =
     let val frameSize = offset(frame) - (5 * wordSize)
         val prolog = Symbol.name(name(frame)) ^ ":\n" ^

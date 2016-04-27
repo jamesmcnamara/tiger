@@ -15,10 +15,11 @@ fun compile filename =
           val stms = Canon.linearize body
           val stms' = Canon.traceSchedule(Canon.basicBlocks stms)
           val assem = List.concat(map (CodeGen.codegen frame) stms')
-          val { prolog, epilog, body=assem'} = Frame.procEntryExit3(frame, assem)
-          val (assem'', alloc) = RegAlloc.alloc(assem', frame)
+          val assem' = Frame.procEntryExit2(frame,assem)
+          val { prolog, epilog, body=assem''} = Frame.procEntryExit3(frame, assem')
+          val (assem''', alloc) = RegAlloc.alloc(assem'', frame)
           val replace = (fn(temp) => valOf(Temp.Table.look(alloc,temp)))
-          val replaceAll = map (fn(instr) => Assem.format replace instr) assem''
+          val replaceAll = map (fn(instr) => Assem.format replace instr) assem'''
           val replaced = foldr (fn(a,b) => a ^ b) "" replaceAll
         in
           ("", (prolog ^ replaced ^ epilog))
