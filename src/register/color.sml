@@ -99,8 +99,7 @@ struct
   in
     case interference of
       Liveness.IGRAPH{graph=g, tnode=t, gtemp=gt, moves=ms} =>
-      (print("SIZE:\t\n\n" ^ Int.toString(List.length(Temp.Table.entries(initial))));
-      (apply(nodeStack,initial,gt), []))
+      (apply(nodeStack,initial,gt), [])
   end
 
 end
