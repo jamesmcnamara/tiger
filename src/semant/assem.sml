@@ -23,8 +23,8 @@ structure Assem = struct
             (explode(saytemp(List.nth(dst,ord i - ord #"0"))) @ f rest)
           | f( #"`":: #"j":: i:: rest) =
             (explode(saylab(List.nth(jump,ord i - ord #"0"))) @ f rest)
-          | f(b as #"`":: #"`":: rest) = #"`" :: f rest
-          | f(b as (#"`":: _ :: rest)) = ErrorMsg.impossible "bad Assem format"
+          | f(#"`":: #"`":: rest) = #"`" :: f rest
+          | f(#"`":: _ :: rest) = ErrorMsg.impossible "bad Assem format"
           | f(c :: rest) = (c :: f rest)
           | f nil = nil
         in implode(f(explode assem))
