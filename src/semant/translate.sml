@@ -44,7 +44,8 @@ sig
   val subscriptVar: exp * exp -> exp
 
   val varInit: level * access * exp -> Tree.stm
-  val addFunc: Temp.label * bool list * exp -> unit
+  val addFunc: Temp.label * bool list * exp * level -> unit
+  val procEntryExit: level * exp -> unit
 end
 
 structure Translate : TRANSLATE = struct
@@ -263,17 +264,17 @@ structure Translate : TRANSLATE = struct
 
   fun varInit(l,a,e) = T.MOVE(unEx(simpleVar(l,a)), unEx(e))
 
-  (* TODO: Pass level, use that to make new level as parent, with
-   * new frame. *)
-  fun addFunc(name, formals, body) =
-    let
-      val frame = Frame.newFrame {name=name, formals=formals}
-      val accesses = (map (fn a => Frame.allocLocal frame a) formals)
-      (* TODO: Move body into RV temp. *)
-      val proc = { body=unNx(body), frame=frame }
-    in
-      frags := Frame.PROC(proc)::(!frags)
-    end
+  fun procEntryExit(level,body) =
+    case level of
+        outermost => raise OutermostError
+      | inner({parent,frame,id}) =>
+        let val proc = Frame.procEntryExit1(frame, T.MOVE(T.TEMP(Frame.RV),unEx(body)))
+        in
+          frags := Frame.PROC({body=proc,frame=frame})::(!frags)
+        end
+
+  fun addFunc(name, formals, body, level) =
+      procEntryExit(newLevel({parent=level, name=name, formals=formals}),body)
 
   fun record(fields) =
     let val size = T.TEMP(Temp.newtemp())

@@ -86,16 +86,21 @@ struct
           case Stack.pop(stack) of
               NONE => alloc
             | SOME(n) =>
-              let val register = lowestAvailableRegister(n,alloc,gt)
-                  val updatedAllocation = Temp.Table.enter(alloc,gt(n),register)
-              in
-                apply(stack,updatedAllocation,gt)
-              end
+              case Temp.Table.look(alloc,gt(n)) of
+                  SOME(_) => apply(stack,alloc,gt)
+                | NONE =>
+                  let val register = lowestAvailableRegister(n,alloc,gt)
+                      val updatedAllocation = Temp.Table.enter(alloc,gt(n),register)
+
+                  in
+                    apply(stack,updatedAllocation,gt)
+                  end
 
   in
     case interference of
       Liveness.IGRAPH{graph=g, tnode=t, gtemp=gt, moves=ms} =>
-      (apply(nodeStack,initial,gt), [])
+      (print("SIZE:\t\n\n" ^ Int.toString(List.length(Temp.Table.entries(initial))));
+      (apply(nodeStack,initial,gt), []))
   end
 
 end

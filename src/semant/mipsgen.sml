@@ -58,14 +58,14 @@ struct
 
       (* Load instruction *)
       | munchStm(T.MOVE(T.TEMP(t1), T.MEM(T.BINOP(T.PLUS, T.CONST(offset), e)))) =
-          emit(A.OPER {assem="lw `d0, " ^ Int.toString offset ^ "(`s0`)\n",
+          emit(A.OPER {assem="lw `d0, " ^ Int.toString offset ^ "(`s0)\n",
                        dst=[t1], src=[munchExp e], jump=NONE})
 
       | munchStm(T.MOVE(t as T.TEMP(_), T.MEM(T.BINOP(T.PLUS, e, offset as T.CONST(_))))) =
           munchStm(T.MOVE(t, T.MEM(T.BINOP(T.PLUS, offset, e))))
 
       | munchStm(T.MOVE(T.MEM(T.BINOP(T.PLUS, T.CONST(offset), e)), T.TEMP(t))) =
-          emit(A.OPER {assem="sw `s0, " ^ Int.toString offset ^ "(`d0`)\n",
+          emit(A.OPER {assem="sw `s0, " ^ Int.toString offset ^ "(`d0)\n",
                        dst=[munchExp e], src=[t],
                        jump=NONE})
 
