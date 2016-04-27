@@ -1,7 +1,7 @@
 signature FRAME =
 sig
   type frame
-  type register 
+  type register
   datatype access = InFrame of int | InReg of Temp.temp
   val newFrame: {name: Temp.label, formals: bool list} -> frame
   val formals: frame -> access list
@@ -14,6 +14,9 @@ sig
   val RA: Temp.temp
   val RV: Temp.temp
   val wordSize: int
+  val sizeOfK: int
+  val registers: register list
+  val availableRegisters: register list
 
   (* For tests *)
   val registersAsTemps: int list
@@ -24,4 +27,9 @@ sig
                 | STRING of Temp.label * string
 
   val tempMap : register Temp.Table.table
+
+  val procEntryExit1: frame * Tree.stm -> Tree.stm
+  val procEntryExit2: frame * Assem.instr list -> Assem.instr list
+  val procEntryExit3: frame * Assem.instr list -> {prolog: string, body: Assem.instr list, epilog: string}
+  val string: Tree.label * string -> string
 end

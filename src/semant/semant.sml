@@ -387,7 +387,7 @@ fun transExp(tenv, venv, exp, level, join) =
                 val trans_formals = (map (fn r => !(#escape r)) params)
                 val trans_body = trexp(body)
               in
-                Translate.addFunc(name, trans_formals, (#exp trans_body));
+                Translate.addFunc(name, trans_formals, (#exp trans_body), level);
                 Symbol.enter(venv', name, entry)
               end
             val venv' = (foldr insert venv l)
@@ -479,9 +479,10 @@ fun transProg ast =
     val frame = MipsFrame.newFrame {formals=[], name=Temp.namedlabel "main"}
     val newLevel = Translate.newLevel({parent=Translate.outermost, name=Temp.newlabel(), formals=[]})
     val expty = transExp(Env.base_tenv, Env.base_venv, ast, newLevel, NONE)
-    val main = Translate.unNx(#exp(expty))
+    val main = #exp(expty)
   in
-    MipsFrame.PROC{body=main, frame=frame} :: (Translate.getResult())
+    Translate.procEntryExit(newLevel,main);
+    Translate.getResult()
   end
 
 end

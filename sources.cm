@@ -4,6 +4,8 @@ $/basis.cm
 $/smlnj-lib.cm
 $/ml-yacc-lib.cm
 
+stack.sml
+
 src/main.sml
 src/errormsg.sml
 src/test.sml
@@ -43,3 +45,6 @@ src/flow/graph.sig
 src/flow/graph.sml
 src/flow/makegraph.sml
 src/flow/liveness.sml
+
+src/register/alloc.sml
+src/register/color.sml
